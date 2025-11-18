@@ -1,0 +1,22 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      }
+    },
+    {
+      "name": "windows-user-paths",
+      "displayName": "Windows (Set Library Paths)",
+      "description": "Edit the CMAKE_PREFIX_PATH below to point to your library folders",
+      "inherits": "windows-base",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "C:/path/to/glew;C:/path/to/glfw;C:/path/to/glm"
+      }
+    }
+  ]
+}
