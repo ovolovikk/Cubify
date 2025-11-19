@@ -62,7 +62,14 @@ else()
     endif()
 endif()
 
-add_executable(Cubify main.cpp)
+# Include directories
+include_directories(include)
+
+add_executable(Cubify 
+    main.cpp
+    src/Camera.cpp
+    src/Shader.cpp
+)
 
 # Link libraries
 target_link_libraries(Cubify
