@@ -67,7 +67,6 @@ include_directories(include)
 
 add_executable(Cubify 
     main.cpp
-    src/Camera.cpp
     src/Shader.cpp
 )
 
@@ -79,13 +78,20 @@ target_link_libraries(Cubify
     glm::glm
 )
 
-# Copy DLLs on Windows
+# Copy DLLs and Shaders on Windows
 if(WIN32)
     add_custom_command(TARGET Cubify POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
         $<TARGET_FILE_DIR:Cubify>
         COMMENT "Copying glew32.dll to output directory"
+    )
+    
+    add_custom_command(TARGET Cubify POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/shaders"
+        "$<TARGET_FILE_DIR:Cubify>/shaders"
+        COMMENT "Copying shaders to output directory"
     )
 endif()
 
