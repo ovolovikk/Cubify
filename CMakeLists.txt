@@ -68,6 +68,7 @@ include_directories(include)
 add_executable(Cubify 
     main.cpp
     src/Shader.cpp
+    src/Camera.cpp
 )
 
 # Link libraries
