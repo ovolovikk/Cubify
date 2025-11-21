@@ -32,8 +32,9 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
     {
         std::vector<char> vertex_shader_error_message(info_log_length + 1);
         glGetShaderInfoLog(vertex_shader_ID, info_log_length, NULL, &vertex_shader_error_message[0]);
-        printf("%s\n", vertex_shader_error_message);
+        printf("%s\n", &vertex_shader_error_message[0]);
     }
+    else printf("Vertex Shader Compiled Successfully\n");
 
     // fragment Shader
     string fragment_shader_code;
@@ -57,8 +58,9 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
     {
         std::vector<char> fragment_shader_error_message(info_log_length + 1);
         glGetShaderInfoLog(fragment_shader_ID, info_log_length, NULL, &fragment_shader_error_message[0]);
-        printf("%s\n", fragment_shader_error_message);
+        printf("%s\n", &fragment_shader_error_message[0]);
     }
+    else printf("Fragment Shader Compiled Successfully\n");
 
     // assigning shaders to program
     glAttachShader(program_ID, vertex_shader_ID);
@@ -83,6 +85,7 @@ Shader::~Shader()
 
     glDeleteShader(vertex_shader_ID);
     glDeleteShader(fragment_shader_ID);
+    glDeleteProgram(program_ID);
 }
 
 void Shader::use()
