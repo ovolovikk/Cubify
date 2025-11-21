@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 using glm::mat4;
@@ -25,6 +26,7 @@ public:
     void MoveUp();
     void MoveDown();
     
+    void ProcessWASDMovement(GLFWwindow* window);
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 
 private:

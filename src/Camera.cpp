@@ -61,6 +61,22 @@ void Camera::MoveDown()
     position -= up * MOVEMENT_SPEED;
 }
 
+void Camera::ProcessWASDMovement(GLFWwindow* window)
+{
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        MoveForward();
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        MoveLeft();
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        MoveBackward();
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        MoveRight();
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        MoveUp();
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        MoveDown();
+}
+
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
 

@@ -81,18 +81,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     do {
-        if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.MoveForward();
-        if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.MoveLeft();
-        if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.MoveBackward();
-        if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.MoveRight();
-        if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            camera.MoveUp();
-        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.MoveDown();
+        camera.ProcessWASDMovement(window);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
