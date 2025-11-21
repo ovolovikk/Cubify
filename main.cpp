@@ -38,7 +38,7 @@ int main()
     }
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     double lastX = 512.f, lastY = 384.f;
     bool firstMouse = true;
@@ -81,19 +81,18 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     do {
-        float cameraSpeed = 0.05f;
         if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            camera.MoveForward(cameraSpeed);
+            camera.MoveForward();
         if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            camera.MoveLeft(cameraSpeed);
+            camera.MoveLeft();
         if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            camera.MoveBackward(cameraSpeed);
+            camera.MoveBackward();
         if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            camera.MoveRight(cameraSpeed);
+            camera.MoveRight();
         if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            camera.MoveUp(cameraSpeed);
+            camera.MoveUp();
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            camera.MoveDown(cameraSpeed);
+            camera.MoveDown();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

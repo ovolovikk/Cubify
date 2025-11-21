@@ -6,6 +6,7 @@ Camera::Camera(vec3 _position, float _fov, float _aspect)
 {
     front = vec3(0.0f, 0.0f, -1.0f);
     up = vec3(0.0f, 1.0f, 0.0f);
+    updateCameraVectors();
 }
 
 mat4 Camera::GetProjectionMatrix() const
@@ -28,34 +29,44 @@ void Camera::LookAt(vec3 target)
     front = glm::normalize(target - position);
 }
 
-void Camera::MoveForward(float distance)
+void Camera::MoveForward()
 {
-    position += front * distance;
+    position += front * MOVEMENT_SPEED;
 }
 
-void Camera::MoveBackward(float distance)
+void Camera::MoveBackward()
 {
-    position -= front * distance;
+    position -= front * MOVEMENT_SPEED;
 }
 
-void Camera::MoveLeft(float distance)
+void Camera::MoveLeft()
 {
     vec3 right = glm::normalize(glm::cross(front, up));
-    position -= right * distance;
+    position -= right * MOVEMENT_SPEED;
 }
 
-void Camera::MoveRight(float distance)
+void Camera::MoveRight()
 {
     vec3 right = glm::normalize(glm::cross(front, up));
-    position += right * distance;
+    position += right * MOVEMENT_SPEED;
 }
 
-void Camera::MoveUp(float distance)
+void Camera::MoveUp()
 {
-    position += up * distance;
+    position += up * MOVEMENT_SPEED;
 }
 
-void Camera::MoveDown(float distance)
+void Camera::MoveDown()
 {
-    position -= up * distance;
+    position -= up * MOVEMENT_SPEED;
+}
+
+void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+{
+
+}
+
+void Camera::updateCameraVectors()
+{
+ 
 }

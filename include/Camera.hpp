@@ -18,12 +18,14 @@ public:
     void SetPosition(vec3 position);
     void LookAt(vec3 target);
     
-    void MoveForward(float distance);
-    void MoveBackward(float distance);
-    void MoveLeft(float distance);
-    void MoveRight(float distance);
-    void MoveUp(float distance);
-    void MoveDown(float distance);
+    void MoveForward();
+    void MoveBackward();
+    void MoveLeft();
+    void MoveRight();
+    void MoveUp();
+    void MoveDown();
+    
+    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
 
 private:
     vec3 position;
@@ -34,6 +36,14 @@ private:
     float aspect;
     float near_plane = 0.1f;
     float far_plane = 100.f;
+
+    float yaw = -90.0f; // vertical
+    float pitch = 0.0f; // horizontal
+    
+    const float MOVEMENT_SPEED = 0.05f;
+    const float MOUSE_SENSITIVITY = 0.1f;
+    
+    void updateCameraVectors();
 };
 
 #endif // CAMERA_H
