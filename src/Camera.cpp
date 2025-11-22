@@ -77,12 +77,38 @@ void Camera::ProcessWASDMovement(GLFWwindow* window)
         MoveDown();
 }
 
-void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+void Camera::ProcessMouseMovement(GLFWwindow* window, float deltaTime)
 {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
 
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    
+    glfwSetCursorPos(window, width / 2.0, height / 2.0);
+
+    float xoffset = float(xpos - (width / 2.0));
+    float yoffset = float((height / 2.0) - ypos);
+
+    xoffset *= MOUSE_SENSITIVITY;
+    yoffset *= MOUSE_SENSITIVITY;
+
+    yaw   += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    updateCameraVectors();
 }
 
 void Camera::updateCameraVectors()
 {
- 
+    glm::vec3 newFront;
+    newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    newFront.y = sin(glm::radians(pitch));
+    newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front = glm::normalize(newFront);
 }

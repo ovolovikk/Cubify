@@ -39,9 +39,6 @@ int main()
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    double lastX = 512.f, lastY = 384.f;
-    bool firstMouse = true;
     
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
@@ -80,8 +77,22 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    double lastFrame = 0.0f;
+    bool first_mouse = true;
     do {
+        double currentFrame = glfwGetTime();
+        float deltaTime = float(currentFrame - lastFrame);
+        lastFrame = currentFrame;
+
         camera.ProcessWASDMovement(window);
+        if(first_mouse)
+        {
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+            glfwSetCursorPos(window, width / 2.0, height / 2.0);
+            first_mouse = false;
+        }
+        camera.ProcessMouseMovement(window, deltaTime);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

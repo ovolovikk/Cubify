@@ -27,7 +27,7 @@ public:
     void MoveDown();
     
     void ProcessWASDMovement(GLFWwindow* window);
-    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+    void ProcessMouseMovement(GLFWwindow* window, float deltaTime);
 
 private:
     vec3 position;
