@@ -5,8 +5,16 @@
 #include <iostream>
 #include <vector>
 
-Shader::Shader(string vertex_shader_path, string fragment_shader_path)
+Shader::Shader()
 {
+}
+
+bool Shader::load(string vertex_shader_path, string fragment_shader_path)
+{
+    vertex_shader_ID = glCreateShader(GL_VERTEX_SHADER);
+    fragment_shader_ID = glCreateShader(GL_FRAGMENT_SHADER);
+    program_ID = glCreateProgram();
+
     // vertex shader
     string vertex_shader_code;
     std::ifstream vertex_shader_stream(vertex_shader_path, std::ios::in);
@@ -17,7 +25,11 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
         vertex_shader_code = sstr.str();
         vertex_shader_stream.close();
     }
-    else throw std::runtime_error("vertex shader couldn't be opened");
+    else 
+    {
+        std::cerr << "ERROR: Vertex shader couldn't be opened: " << vertex_shader_path << std::endl;
+        return false;
+    }
     
     GLint result = GL_FALSE;
     int info_log_length;
@@ -34,8 +46,7 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
         glGetShaderInfoLog(vertex_shader_ID, info_log_length, NULL, &vertex_shader_error_message[0]);
         printf("%s\n", &vertex_shader_error_message[0]);
     }
-    else printf("Vertex Shader Compiled Successfully\n");
-
+    
     // fragment Shader
     string fragment_shader_code;
     std::ifstream fragment_shader_stream(fragment_shader_path, std::ios::in);
@@ -46,7 +57,11 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
         fragment_shader_code = sstr.str();
         fragment_shader_stream.close();
     }
-    else throw std::runtime_error("fragment shader couldn't be opened");
+    else 
+    {
+        std::cerr << "ERROR: Fragment shader couldn't be opened: " << fragment_shader_path << std::endl;
+        return false;
+    }
 
     char const * fragment_shader_pointer = fragment_shader_code.c_str();
     glShaderSource(fragment_shader_ID, 1, &fragment_shader_pointer, NULL);
@@ -60,7 +75,6 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
         glGetShaderInfoLog(fragment_shader_ID, info_log_length, NULL, &fragment_shader_error_message[0]);
         printf("%s\n", &fragment_shader_error_message[0]);
     }
-    else printf("Fragment Shader Compiled Successfully\n");
 
     // assigning shaders to program
     glAttachShader(program_ID, vertex_shader_ID);
@@ -71,11 +85,12 @@ Shader::Shader(string vertex_shader_path, string fragment_shader_path)
     glGetProgramiv(program_ID, GL_INFO_LOG_LENGTH, &info_log_length);
     if (info_log_length > 0)
     {
-	std::vector<char> program_error_message(info_log_length + 1);
-	glGetProgramInfoLog(program_ID, info_log_length, NULL, &program_error_message[0]);
-	printf("%s\n", &program_error_message[0]);
+        std::vector<char> program_error_message(info_log_length + 1);
+        glGetProgramInfoLog(program_ID, info_log_length, NULL, &program_error_message[0]);
+        printf("%s\n", &program_error_message[0]);
     }
 
+    return true;
 }
 
 Shader::~Shader()

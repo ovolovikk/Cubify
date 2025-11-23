@@ -66,9 +66,10 @@ endif()
 include_directories(include)
 
 add_executable(Cubify 
-    main.cpp
+    src/main.cpp
     src/Shader.cpp
     src/Camera.cpp
+    src/Game.cpp
 )
 
 # Link libraries
