@@ -70,6 +70,8 @@ bool Chunk::isBlockAir(int x, int y, int z)
     return blocks[x][y][z] == BlockType::AIR;
 }
 
+
+// (0;0;0) is bottom back left corner
 void Chunk::addFaceFront(int x, int y, int z)
 {
     // first triangle
@@ -111,15 +113,39 @@ void Chunk::addFaceLeft(int x, int y, int z)
 
 void Chunk::addFaceRight(int x, int y, int z)
 {
+    // first triangle
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // bottom right
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
 
+    // second triangle
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // top left
 }
 
 void Chunk::addFaceTop(int x, int y, int z)
 {
+    // first triangle
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom right
+    vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
 
+    // second triangle
+    vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom right
+    vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
+    vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom left
 }
 
 void Chunk::addFaceBottom(int x, int y, int z)
 {
+    // first triangle
+    vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom right
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // top right
 
+    // second triangle
+    vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z); // top left
+    vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
+    vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // top right
 }
