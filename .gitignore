@@ -2,6 +2,7 @@ build/
 out/
 bin/
 .vscode/
+.vs/
 .DS_Store
 *.exe
 *.o

@@ -17,7 +17,8 @@ Game::~Game()
 }
 
 void Game::init(const std::string& title)
-{
+{   
+    // main initialization
     glewExperimental = true;
     if(!glfwInit())
     {
@@ -55,7 +56,7 @@ void Game::init(const std::string& title)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    // Initialize subsystems
+    // subsystem initialization
     shader = std::make_unique<Shader>();
     if (!shader->load("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl")) {
         std::cerr << "Failed to load shaders" << std::endl;

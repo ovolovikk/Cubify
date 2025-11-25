@@ -70,6 +70,7 @@ add_executable(Cubify
     src/Shader.cpp
     src/Camera.cpp
     src/Game.cpp
+    src/Chunk.cpp
 )
 
 # Link libraries
