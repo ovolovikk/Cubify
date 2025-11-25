@@ -11,8 +11,6 @@ Game::Game(int _width, int _height, const std::string& _title)
 
 Game::~Game()
 {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
     glfwTerminate();
 }
 
@@ -64,20 +62,12 @@ void Game::init(const std::string& title)
     }
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    // Initialize chunk
+    chunk = std::make_unique<Chunk>();
+    chunk->constructMesh();
+
     glm::mat4 model = glm::mat4(1.f);
-
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
-    }; 
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 }
 
 void Game::render()
@@ -93,11 +83,10 @@ void Game::render()
         shader->setMat4("MVP", MVP);
     }
     
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(0);
+    // Render chunk
+    if (chunk) {
+        chunk->render();
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();

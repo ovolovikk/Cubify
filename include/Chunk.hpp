@@ -7,7 +7,7 @@
 #include <vector>
 
 constexpr int CHUNK_SIZE = 16;
-constexpr int CHUNK_HEIGHT = 16;
+constexpr int CHUNK_HEIGHT = 2;
 
 class Chunk
 {
