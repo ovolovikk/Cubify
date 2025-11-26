@@ -63,11 +63,14 @@ void Game::init(const std::string& title)
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
 
-    // Initialize chunk
-    chunk = std::make_unique<Chunk>();
-    chunk->constructMesh();
-
-    glm::mat4 model = glm::mat4(1.f);
+    world = std::make_unique<World>();
+    for(int x = 0; x < 5;++x)
+    {
+        for(int y = 0; y < 5;++y)
+        {
+            world->addChunk(x, y);
+        }
+    }
 }
 
 void Game::render()
@@ -76,16 +79,15 @@ void Game::render()
 
     glm::mat4 projection = camera->GetProjectionMatrix();
     glm::mat4 view = camera->GetViewMatrix();
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 MVP = projection * view * model;
+    
     if (shader) {
         shader->use();
-        shader->setMat4("MVP", MVP);
+        shader->setMat4("projection", projection);
+        shader->setMat4("view", view);
     }
     
-    // Render chunk
-    if (chunk) {
-        chunk->render();
+    if (world) {
+        world->render(*shader);
     }
 
     glfwSwapBuffers(window);

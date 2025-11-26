@@ -1,4 +1,4 @@
-#ifndef  CHUNK_HPP
+#ifndef CHUNK_HPP
 #define CHUNK_HPP
 
 #include "BlockType.hpp"
@@ -26,7 +26,9 @@ private:
     GLuint VAO, VBO;
     size_t vertex_count;
 
-    bool isBlockAir(int x, int y, int z);
+    int chunkX, chunkZ;
+
+    bool isBlockAir(int x, int y, int z) const;
 
     // helpers to add specific faces
     void addFaceFront(int x, int y, int z);

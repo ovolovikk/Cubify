@@ -8,7 +8,7 @@
 
 #include "Shader.hpp"
 #include "Camera.hpp"
-#include "Chunk.hpp"
+#include "World.hpp"
 
 class Game
 {
@@ -29,7 +29,7 @@ private:
 
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Camera> camera;
-    std::unique_ptr<Chunk> chunk;
+    std::unique_ptr<World> world;
 
 };
 

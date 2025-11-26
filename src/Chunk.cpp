@@ -58,7 +58,7 @@ void Chunk::render()
     glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 }
 
-bool Chunk::isBlockAir(int x, int y, int z)
+bool Chunk::isBlockAir(int x, int y, int z) const
 {
     if(x < 0 || x >= CHUNK_SIZE ||
        y < 0 || y >= CHUNK_HEIGHT ||
