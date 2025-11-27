@@ -42,35 +42,38 @@ void Chunk::constructMesh()
                 float u = 0.0f, v = 0.0f;
 
                 // check all 6 sides if neighbor is air => draw the face pointing to it
+                // Atlas layout (2x2):
+                // Column 0: top = side grass (u=0.0,v=0.5), bottom = dirt (u=0.0,v=0.0)
+                // Column 1: top = grass top (u=0.5,v=0.5)
                 if(isBlockAir(x, y, z + 1)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.0f; } // Side
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceFront(x, y, z, u, v);
+                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
+                    else { u = 0.0f; v = 0.0f; } // Dirt
+                    addFaceFront(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
                 if(isBlockAir(x, y, z - 1)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.0f; } // Side
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceBack(x, y, z, u, v);
+                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
+                    else { u = 0.0f; v = 0.0f; } // Dirt
+                    addFaceBack(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
                 if(isBlockAir(x - 1, y, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.0f; } // Side
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceLeft(x, y, z, u, v);
+                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
+                    else { u = 0.0f; v = 0.0f; } // Dirt
+                    addFaceLeft(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
                 if(isBlockAir(x + 1, y, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.0f; } // Side
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceRight(x, y, z, u, v);
+                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
+                    else { u = 0.0f; v = 0.0f; } // Dirt
+                    addFaceRight(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
                 if(isBlockAir(x, y + 1, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.5f; v = 0.5f; } // Top
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceTop(x, y, z, u, v);
+                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.5f; v = 0.5f; } // Grass top (right column, top row)
+                    else { u = 0.0f; v = 0.0f; } // Dirt for non-grass blocks
+                    addFaceTop(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
                 if(isBlockAir(x, y - 1, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; } // Bottom is Dirt
-                    else { u = 0.0f; v = 0.5f; } // Dirt
-                    addFaceBottom(x, y, z, u, v);
+                    // Bottom is dirt for both
+                    u = 0.0f; v = 0.0f;
+                    addFaceBottom(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
                 }
             }
     
@@ -113,11 +116,8 @@ bool Chunk::isBlockAir(int x, int y, int z) const
 
 
 // (0;0;0) is bottom back left corner
-void Chunk::addFaceFront(int x, int y, int z, float u, float v)
+void Chunk::addFaceFront(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;  // Small inset to prevent atlas bleeding
-    const float tileSize = 0.5f; // Each tile is 0.5×0.5 in the 2×2 atlas
-    
     float u0 = u + inset;
     float v0 = v + inset;
     float u1 = u + tileSize - inset;
@@ -144,10 +144,8 @@ void Chunk::addFaceFront(int x, int y, int z, float u, float v)
     texCoords.push_back(u0);    texCoords.push_back(v0);
 }
 
-void Chunk::addFaceBack(int x, int y, int z, float u, float v)
+void Chunk::addFaceBack(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;
-    const float tileSize = 0.5f;
     
     float u0 = u + inset;
     float v0 = v + inset;
@@ -175,10 +173,8 @@ void Chunk::addFaceBack(int x, int y, int z, float u, float v)
     texCoords.push_back(u0);    texCoords.push_back(v1);
 }
 
-void Chunk::addFaceLeft(int x, int y, int z, float u, float v)
+void Chunk::addFaceLeft(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;
-    const float tileSize = 0.5f;
     
     float u0 = u + inset;
     float v0 = v + inset;
@@ -206,11 +202,9 @@ void Chunk::addFaceLeft(int x, int y, int z, float u, float v)
     texCoords.push_back(u1);    texCoords.push_back(v1);
 }
 
-void Chunk::addFaceRight(int x, int y, int z, float u, float v)
+void Chunk::addFaceRight(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;
-    const float tileSize = 0.5f;
-    
+
     float u0 = u + inset;
     float v0 = v + inset;
     float u1 = u + tileSize - inset;
@@ -237,11 +231,9 @@ void Chunk::addFaceRight(int x, int y, int z, float u, float v)
     texCoords.push_back(u0);    texCoords.push_back(v1);
 }
 
-void Chunk::addFaceTop(int x, int y, int z, float u, float v)
+void Chunk::addFaceTop(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;
-    const float tileSize = 0.5f;
-    
+
     float u0 = u + inset;
     float v0 = v + inset;
     float u1 = u + tileSize - inset;
@@ -268,10 +260,8 @@ void Chunk::addFaceTop(int x, int y, int z, float u, float v)
     texCoords.push_back(u0);    texCoords.push_back(v1);
 }
 
-void Chunk::addFaceBottom(int x, int y, int z, float u, float v)
+void Chunk::addFaceBottom(float x, float y, float z, float u, float v)
 {
-    const float inset = 0.005f;
-    const float tileSize = 0.5f;
     
     float u0 = u + inset;
     float v0 = v + inset;

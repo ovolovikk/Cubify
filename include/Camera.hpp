@@ -42,7 +42,7 @@ private:
     float yaw = -90.0f; // vertical
     float pitch = 0.0f; // horizontal
     
-    const float MOVEMENT_SPEED = 0.05f;
+    const float MOVEMENT_SPEED = 0.25f;
     const float MOUSE_SENSITIVITY = 0.1f;
     
     void updateCameraVectors();

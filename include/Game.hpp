@@ -25,8 +25,8 @@ private:
     void processInput(float deltaTime);
 
     GLFWwindow* window;
-    int width = 1024;
-    int height = 768;
+    int width = 1920;
+    int height = 1080;
 
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Camera> camera;

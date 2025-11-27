@@ -27,11 +27,11 @@ Texture::Texture(const std::string& texture_path)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_x, p_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
 
 
-    // Use nearest filtering with mipmaps to reduce angle-dependent artifacts
+    // reduce angle-dependening artifactrs
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-        // Clamp to edge to avoid sampling outside atlas tiles
+    // avoiding sampling atlas parts
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glGenerateMipmap(GL_TEXTURE_2D);

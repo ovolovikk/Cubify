@@ -30,7 +30,7 @@ void Game::init(const std::string& title)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for MacOS
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(1024, 768, "Cubify", NULL, NULL);
+    window = glfwCreateWindow(width, height, "Cubify", NULL, NULL);
     if(window == nullptr)
     {
         std::cout << "window init error.\n";
@@ -53,6 +53,7 @@ void Game::init(const std::string& title)
     
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glEnable(GL_MULTISAMPLE); // MSAA if avaivable
 
     // subsystem initialization
     shader = std::make_unique<Shader>();
@@ -63,13 +64,27 @@ void Game::init(const std::string& title)
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
 
-    // Load texture atlas
     texture = std::make_unique<Texture>("textures/grass_atlas.png");
 
+    GLuint sampler;
+    glGenSamplers(1, &sampler);
+    glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
+        GLfloat maxAniso = 0.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+        GLfloat targetAniso = (maxAniso >= 4.0f) ? 4.0f : maxAniso;
+        glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, targetAniso);
+    }
+    glBindSampler(0, sampler);
+
     world = std::make_unique<World>();
-    for(int x = 0; x < 5;++x)
+    for(int x = 0; x < 3;++x)
     {
-        for(int y = 0; y < 5;++y)
+        for(int y = 0; y < 3;++y)
         {
             world->addChunk(x, y);
         }
@@ -79,7 +94,6 @@ void Game::init(const std::string& title)
 void Game::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     glm::mat4 projection = camera->GetProjectionMatrix();
     glm::mat4 view = camera->GetViewMatrix();
     
@@ -87,11 +101,11 @@ void Game::render()
         shader->use();
         shader->setMat4("projection", projection);
         shader->setMat4("view", view);
-        shader->setInt("u_Atlas", 0); // Tell shader to use texture unit 0
+        shader->setInt("u_Atlas", 0);
     }
     
     if (texture) {
-        texture->bind(0); // Bind texture to unit 0
+        texture->bind(0);
     }
 
     if (world) {
