@@ -22,8 +22,9 @@ private:
 
     // the mesh stored there
     std::vector<float> vertices;
+    std::vector<float> texCoords;
 
-    GLuint VAO, VBO;
+    GLuint VAO, VBO, uvVBO;
     size_t vertex_count;
 
     int chunkX, chunkZ;
@@ -31,12 +32,12 @@ private:
     bool isBlockAir(int x, int y, int z) const;
 
     // helpers to add specific faces
-    void addFaceFront(int x, int y, int z);
-    void addFaceBack(int x, int y, int z);
-    void addFaceLeft(int x, int y, int z);
-    void addFaceRight(int x, int y, int z);
-    void addFaceTop(int x, int y, int z);
-    void addFaceBottom(int x, int y, int z);
+    void addFaceFront(int x, int y, int z, float u, float v);
+    void addFaceBack(int x, int y, int z, float u, float v);
+    void addFaceLeft(int x, int y, int z, float u, float v);
+    void addFaceRight(int x, int y, int z, float u, float v);
+    void addFaceTop(int x, int y, int z, float u, float v);
+    void addFaceBottom(int x, int y, int z, float u, float v);
 };
 
 #endif // CHUNK_HPP

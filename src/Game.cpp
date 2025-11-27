@@ -63,6 +63,9 @@ void Game::init(const std::string& title)
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
 
+    // Load texture atlas
+    texture = std::make_unique<Texture>("textures/grass_atlas.png");
+
     world = std::make_unique<World>();
     for(int x = 0; x < 5;++x)
     {
@@ -84,8 +87,13 @@ void Game::render()
         shader->use();
         shader->setMat4("projection", projection);
         shader->setMat4("view", view);
+        shader->setInt("u_Atlas", 0); // Tell shader to use texture unit 0
     }
     
+    if (texture) {
+        texture->bind(0); // Bind texture to unit 0
+    }
+
     if (world) {
         world->render(*shader);
     }

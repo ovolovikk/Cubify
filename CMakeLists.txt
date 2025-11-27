@@ -98,6 +98,14 @@ if(WIN32)
         "$<TARGET_FILE_DIR:Cubify>/shaders"
         COMMENT "Copying shaders to output directory"
     )
+
+    # Copy textures directory alongside the executable
+    add_custom_command(TARGET Cubify POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/textures"
+        "$<TARGET_FILE_DIR:Cubify>/textures"
+        COMMENT "Copying textures to output directory"
+    )
 endif()
 
 # For macOS specifically, we often need to link the OpenGL framework

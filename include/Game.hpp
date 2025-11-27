@@ -9,6 +9,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "World.hpp"
+#include "Texture.hpp"
 
 class Game
 {
@@ -30,6 +31,7 @@ private:
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
+    std::unique_ptr<Texture> texture;
 
 };
 

@@ -37,7 +37,7 @@ private:
     float fov;
     float aspect;
     float near_plane = 0.1f;
-    float far_plane = 100.f;
+    float far_plane = 1000.f;
 
     float yaw = -90.0f; // vertical
     float pitch = 0.0f; // horizontal
