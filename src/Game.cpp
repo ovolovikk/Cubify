@@ -1,5 +1,8 @@
 #include "Game.hpp"
+
 #include <iostream>
+#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 
 Game::Game(int _width, int _height, const std::string& _title)
     : width(_width), height(_height)
@@ -31,14 +34,13 @@ void Game::init(const std::string& title)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window = glfwCreateWindow(width, height, "Cubify", NULL, NULL);
-    if(window == nullptr)
-    {
+    if(window == nullptr) {
         std::cout << "window init error.\n";
         return;
     }
     glfwMakeContextCurrent(window);
 
-    if (glewInit() != GLEW_OK) {
+    if (glewInit() != GLEW_OK) { 
         std::cout << "glew init error\n";
         return;
     }
@@ -46,40 +48,10 @@ void Game::init(const std::string& title)
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-    
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_MULTISAMPLE); // MSAA if avaivable
-
-    // subsystem initialization
-    shader = std::make_unique<Shader>();
-    if (!shader->load("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl")) {
-        std::cerr << "Failed to load shaders" << std::endl;
-        return;
-    }
+    renderer = std::make_unique<Renderer>();
+    renderer->init(width, height);
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
-    texture_atlas = std::make_unique<Texture>("textures/grass_atlas.png");
-
-    GLuint sampler;
-    glGenSamplers(1, &sampler);
-    glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    if (glewIsSupported("GL_EXT_texture_filter_anisotropic")) {
-        GLfloat maxAniso = 0.0f;
-        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-        GLfloat targetAniso = (maxAniso >= 4.0f) ? 4.0f : maxAniso;
-        glSamplerParameterf(sampler, GL_TEXTURE_MAX_ANISOTROPY_EXT, targetAniso);
-    }
-    glBindSampler(0, sampler);
-
     world = std::make_unique<World>();
     for(int x = 0; x < 3;++x)
     {
@@ -88,31 +60,9 @@ void Game::init(const std::string& title)
             world->addChunk(x, y);
         }
     }
-}
 
-void Game::render()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glm::mat4 projection = camera->GetProjectionMatrix();
-    glm::mat4 view = camera->GetViewMatrix();
-    
-    if (shader) {
-        shader->use();
-        shader->setMat4("projection", projection);
-        shader->setMat4("view", view);
-        shader->setInt("u_Atlas", 0);
-    }
-    
-    if (texture_atlas) {
-        texture_atlas->bind(0);
-    }
-
-    if (world) {
-        world->render(*shader);
-    }
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    glfwGetFramebufferSize(window, &width, &height);
+    renderer->init(width, height);
 }
 
 void Game::update()
@@ -124,6 +74,9 @@ void Game::update()
         float deltaTime = float(currentFrame - lastFrame);
         lastFrame = currentFrame;
 
+        glm::mat4 view = camera->GetViewMatrix();
+        glm::mat4 projection = camera->GetProjectionMatrix();
+
         camera->ProcessWASDMovement(window);
         if(first_mouse)
         {
@@ -133,8 +86,14 @@ void Game::update()
             first_mouse = false;
         }
         camera->ProcessMouseMovement(window, deltaTime);
-        
-        render();
+
+        renderer->beginFrame();
+        renderer->setViewProjection(view, projection);
+        renderer->drawWorld(*world);
+        renderer->endFrame();
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 
     } while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
             && glfwWindowShouldClose(window) == 0);

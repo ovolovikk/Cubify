@@ -2,10 +2,6 @@
 
 Chunk::Chunk()
 {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &uvVBO);
-
     for(int x = 0;x < CHUNK_SIZE;++x)
     {
         for(int y = 0;y < CHUNK_HEIGHT;++y)
@@ -19,13 +15,6 @@ Chunk::Chunk()
             }
         }
     }
-}
-
-Chunk::~Chunk()
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &uvVBO);
 }
 
 void Chunk::constructMesh()
@@ -78,28 +67,6 @@ void Chunk::constructMesh()
             }
     
     vertex_count = vertices.size() / 3;
-
-    glBindVertexArray(VAO);
-
-    // position VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    
-    // uvVBO
-    glBindBuffer(GL_ARRAY_BUFFER, uvVBO);
-    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), texCoords.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-
-    glBindVertexArray(0);
-}
-
-void Chunk::render()
-{
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 }
 
 bool Chunk::isBlockAir(int x, int y, int z) const

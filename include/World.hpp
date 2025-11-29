@@ -16,8 +16,8 @@ public:
 
     void addChunk(int x, int z);
     Chunk* getChunk(int x, int z);
-
-    void render(Shader& shader);
+    
+    const std::unordered_map<long long, std::unique_ptr<Chunk>>& getChunks() const { return chunks; }
 
 private:
     std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;

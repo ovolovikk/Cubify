@@ -73,6 +73,7 @@ add_executable(Cubify
     src/Chunk.cpp
     src/World.cpp
     src/Texture.cpp
+    src/Renderer.cpp
 )
 
 # Link libraries

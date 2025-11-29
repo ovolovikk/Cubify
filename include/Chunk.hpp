@@ -2,8 +2,6 @@
 #define CHUNK_HPP
 
 #include "BlockType.hpp"
-
-#include <GL/glew.h>
 #include <vector>
 
 constexpr int CHUNK_SIZE = 16;
@@ -13,18 +11,19 @@ class Chunk
 {
 public:
     Chunk();
-    ~Chunk();
 
     void constructMesh();
-    void render();
+    
+    const std::vector<float>& getVertices() const { return vertices; }
+    const std::vector<float>& getTexCoords() const { return texCoords; }
+    size_t getVertexCount() const { return vertex_count; }
+    
 private:
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
 
     // the mesh stored there
     std::vector<float> vertices;
     std::vector<float> texCoords;
-
-    GLuint VAO, VBO, uvVBO;
     size_t vertex_count;
 
     int chunkX, chunkZ;

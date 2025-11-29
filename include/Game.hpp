@@ -1,15 +1,14 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <string>
 #include <memory>
 
-#include "Shader.hpp"
+#include "Renderer.hpp"
 #include "Camera.hpp"
 #include "World.hpp"
-#include "Texture.hpp"
+
+struct GLFWwindow;
 
 class Game
 {
@@ -18,20 +17,16 @@ public:
     ~Game();
 
     void init(const std::string& title);
-
-    void update();
+    void update(); // main loop
 private:
-    void render();
     void processInput(float deltaTime);
 
     GLFWwindow* window;
-    int width;
-    int height;
+    int width, height;
 
-    std::unique_ptr<Shader> shader;
+    std::unique_ptr<Renderer> renderer;
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
-    std::unique_ptr<Texture> texture_atlas;
 
 };
 
