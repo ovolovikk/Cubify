@@ -25,13 +25,13 @@ private:
     void processInput(float deltaTime);
 
     GLFWwindow* window;
-    int width = 1920;
-    int height = 1080;
+    int width;
+    int height;
 
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
-    std::unique_ptr<Texture> texture;
+    std::unique_ptr<Texture> texture_atlas;
 
 };
 

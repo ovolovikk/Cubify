@@ -63,8 +63,7 @@ void Game::init(const std::string& title)
     }
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
-
-    texture = std::make_unique<Texture>("textures/grass_atlas.png");
+    texture_atlas = std::make_unique<Texture>("textures/grass_atlas.png");
 
     GLuint sampler;
     glGenSamplers(1, &sampler);
@@ -104,8 +103,8 @@ void Game::render()
         shader->setInt("u_Atlas", 0);
     }
     
-    if (texture) {
-        texture->bind(0);
+    if (texture_atlas) {
+        texture_atlas->bind(0);
     }
 
     if (world) {
@@ -137,5 +136,6 @@ void Game::update()
         
         render();
 
-    } while(glfwWindowShouldClose(window) == 0);
+    } while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
+            && glfwWindowShouldClose(window) == 0);
 }
