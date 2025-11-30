@@ -30,16 +30,15 @@ private:
 
     bool isBlockAir(int x, int y, int z) const;
 
-    const float inset = 0.005f; // prevent atlas bleeding
-    const float tileSize = 0.5f; // each tile is 0.5x0.5 for 2x2 atlas
+    float u0 = 0.f, v0 = 0.f, u1 = 1.f, v1 = 1.f; 
 
     // helpers to add specific faces
-    void addFaceFront(float x, float y, float z, float u, float v);
-    void addFaceBack(float x, float y, float z, float u, float v);
-    void addFaceLeft(float x, float y, float z, float u, float v);
-    void addFaceRight(float x, float y, float z, float u, float v);
-    void addFaceTop(float x, float y, float z, float u, float v);
-    void addFaceBottom(float x, float y, float z, float u, float v);
+    void addFaceFront(float x, float y, float z, float layer);
+    void addFaceBack(float x, float y, float z, float layer);
+    void addFaceLeft(float x, float y, float z, float layer);
+    void addFaceRight(float x, float y, float z, float layer);
+    void addFaceTop(float x, float y, float z, float layer);
+    void addFaceBottom(float x, float y, float z, float layer);
 };
 
 #endif // CHUNK_HPP

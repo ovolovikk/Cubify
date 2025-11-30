@@ -28,41 +28,38 @@ void Chunk::constructMesh()
             {
                 if(blocks[x][y][z] == BlockType::AIR) continue;
 
-                float u = 0.0f, v = 0.0f;
+                float layer = 0.0f;
 
-                // check all 6 sides if neighbor is air => draw the face pointing to it
-                // Atlas layout (2x2):
-                // Column 0: top = side grass (u=0.0,v=0.5), bottom = dirt (u=0.0,v=0.0)
-                // Column 1: top = grass top (u=0.5,v=0.5)
-                if(isBlockAir(x, y, z + 1)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
-                    else { u = 0.0f; v = 0.0f; } // Dirt
-                    addFaceFront(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                // Grass Top: 0, Grass Side: 1, Dirt: 2
+                
+                if(isBlockAir(x, y, z + 1)) { // Front
+                    if (blocks[x][y][z] == BlockType::GRASS) layer = 1.0f; // Side
+                    else layer = 2.0f; // Dirt
+                    addFaceFront(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
-                if(isBlockAir(x, y, z - 1)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
-                    else { u = 0.0f; v = 0.0f; } // Dirt
-                    addFaceBack(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                if(isBlockAir(x, y, z - 1)) { // Back
+                    if (blocks[x][y][z] == BlockType::GRASS) layer = 1.0f; // Side
+                    else layer = 2.0f; // Dirt
+                    addFaceBack(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
-                if(isBlockAir(x - 1, y, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
-                    else { u = 0.0f; v = 0.0f; } // Dirt
-                    addFaceLeft(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                if(isBlockAir(x - 1, y, z)) { // Left
+                    if (blocks[x][y][z] == BlockType::GRASS) layer = 1.0f; // Side
+                    else layer = 2.0f; // Dirt
+                    addFaceLeft(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
-                if(isBlockAir(x + 1, y, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.0f; v = 0.5f; }
-                    else { u = 0.0f; v = 0.0f; } // Dirt
-                    addFaceRight(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                if(isBlockAir(x + 1, y, z)) { // Right
+                    if (blocks[x][y][z] == BlockType::GRASS) layer = 1.0f; // Side
+                    else layer = 2.0f; // Dirt
+                    addFaceRight(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
-                if(isBlockAir(x, y + 1, z)) { 
-                    if (blocks[x][y][z] == BlockType::GRASS) { u = 0.5f; v = 0.5f; } // Grass top (right column, top row)
-                    else { u = 0.0f; v = 0.0f; } // Dirt for non-grass blocks
-                    addFaceTop(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                if(isBlockAir(x, y + 1, z)) { // Top
+                    if (blocks[x][y][z] == BlockType::GRASS) layer = 0.0f; // Top
+                    else layer = 2.0f; // Dirt
+                    addFaceTop(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
-                if(isBlockAir(x, y - 1, z)) { 
-                    // Bottom is dirt for both
-                    u = 0.0f; v = 0.0f;
-                    addFaceBottom(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), u, v);
+                if(isBlockAir(x, y - 1, z)) { // Bottom
+                    layer = 2.0f; // Dirt for both
+                    addFaceBottom(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), layer);
                 }
             }
     
@@ -83,176 +80,141 @@ bool Chunk::isBlockAir(int x, int y, int z) const
 
 
 // (0;0;0) is bottom back left corner
-void Chunk::addFaceFront(float x, float y, float z, float u, float v)
+void Chunk::addFaceFront(float x, float y, float z, float layer)
 {
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // top right 
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 
     // second triangle
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z + 1); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
 }
 
-void Chunk::addFaceBack(float x, float y, float z, float u, float v)
+void Chunk::addFaceBack(float x, float y, float z, float layer)
 {
-    
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z); // bottom left
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // bottom right
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 
     // second triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z); // bottom left
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 }
 
-void Chunk::addFaceLeft(float x, float y, float z, float u, float v)
+void Chunk::addFaceLeft(float x, float y, float z, float layer)
 {
-    
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     // second triangle
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z + 1); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 }
 
-void Chunk::addFaceRight(float x, float y, float z, float u, float v)
+void Chunk::addFaceRight(float x, float y, float z, float layer)
 {
-
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
 
     // second triangle
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 }
 
-void Chunk::addFaceTop(float x, float y, float z, float u, float v)
+void Chunk::addFaceTop(float x, float y, float z, float layer)
 {
-
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
 
     // second triangle
     vertices.push_back(x + 1);  vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y + 1);  vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
 }
 
-void Chunk::addFaceBottom(float x, float y, float z, float u, float v)
+void Chunk::addFaceBottom(float x, float y, float z, float layer)
 {
-    
-    float u0 = u + inset;
-    float v0 = v + inset;
-    float u1 = u + tileSize - inset;
-    float v1 = v + tileSize - inset;
-    
     // first triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z + 1); // bottom right
-    texCoords.push_back(u1);    texCoords.push_back(v1);
+    texCoords.push_back(1.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
 
     // second triangle
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z); // top left
-    texCoords.push_back(u0);    texCoords.push_back(v0);
+    texCoords.push_back(0.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x);      vertices.push_back(y);      vertices.push_back(z + 1); // bottom left
-    texCoords.push_back(u0);    texCoords.push_back(v1);
+    texCoords.push_back(0.0f);  texCoords.push_back(1.0f);  texCoords.push_back(layer);
     
     vertices.push_back(x + 1);  vertices.push_back(y);      vertices.push_back(z); // top right
-    texCoords.push_back(u1);    texCoords.push_back(v0);
+    texCoords.push_back(1.0f);  texCoords.push_back(0.0f);  texCoords.push_back(layer);
 }
 

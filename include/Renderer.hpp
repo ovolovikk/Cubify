@@ -10,7 +10,7 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Shader.hpp"
-#include "Texture.hpp"
+#include "TextureArray.hpp"
 
 class Renderer
 {
@@ -38,7 +38,7 @@ private:
     };
     
     std::unique_ptr<Shader> shader;
-    std::unique_ptr<Texture> texture_atlas;
+    std::unique_ptr<TextureArray> texture_array;
     GLuint sampler;
     
     std::unordered_map<const Chunk*, ChunkMeshData> chunkMeshes;

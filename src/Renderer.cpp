@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Shader.hpp"
-#include "Texture.hpp"
+#include "TextureArray.hpp"
 #include "World.hpp"
 #include "Chunk.hpp"
 
@@ -40,7 +40,12 @@ void Renderer::init(int width, int height)
         return;
     }
 
-    texture_atlas = std::make_unique<Texture>("textures/grass_atlas.png");
+    std::vector<string> layers = {
+        "textures/grass_top.png",
+        "textures/grass_side.png",
+        "textures/dirt.png"
+    };
+    texture_array = std::make_unique<TextureArray>(layers);
 }
 
 void Renderer::shutdown()
@@ -56,11 +61,11 @@ void Renderer::beginFrame()
         shader->use();
         shader->setMat4("projection", projection_matrix);
         shader->setMat4("view", view_matrix);
-        shader->setInt("u_Atlas", 0);
+        shader->setInt("u_Textures", 0);
     }
     
-    if (texture_atlas) {
-        texture_atlas->bind(0);
+    if(texture_array) {
+        texture_array->bind(0);
     }
 }
 
@@ -101,7 +106,7 @@ void Renderer::uploadChunkMesh(const Chunk* chunk)
     glBindBuffer(GL_ARRAY_BUFFER, meshData.uvVBO);
     glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), texCoords.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     
     glBindVertexArray(0);
     

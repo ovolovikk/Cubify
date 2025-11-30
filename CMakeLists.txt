@@ -72,7 +72,6 @@ add_executable(Cubify
     src/Game.cpp
     src/Chunk.cpp
     src/World.cpp
-    src/Texture.cpp
     src/Renderer.cpp
     src/TextureArray.cpp
 )

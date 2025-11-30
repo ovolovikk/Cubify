@@ -1,12 +1,12 @@
 #version 330 core
 
-in vec2 TexCoord;
+in vec3 TexCoord;
 
 out vec4 FragColor;
 
-uniform sampler2D u_Atlas;
+uniform sampler2DArray u_Textures;
 
 void main()
 {
-    FragColor = texture(u_Atlas, TexCoord);
+    FragColor = texture(u_Textures, TexCoord);
 }
