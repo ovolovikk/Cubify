@@ -5,12 +5,12 @@
 #include <vector>
 
 constexpr int CHUNK_SIZE = 16;
-constexpr int CHUNK_HEIGHT = 2;
+constexpr int CHUNK_HEIGHT = 64;
 
 class Chunk
 {
 public:
-    Chunk();
+    Chunk(int x, int z);
 
     void constructMesh();
     

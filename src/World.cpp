@@ -19,7 +19,7 @@ void World::addChunk(int x, int z)
     long long id = getChunkId(x, z);
     if (chunks.find(id) == chunks.end())
     {
-        chunks[id] = std::make_unique<Chunk>();
+        chunks[id] = std::make_unique<Chunk>(x, z);
         chunks[id]->constructMesh();
     }
 }

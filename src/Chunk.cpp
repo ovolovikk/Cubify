@@ -1,17 +1,43 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk()
+#define FNL_IMPL
+#include "FastNoiseLite.h"
+
+Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z)
 {
-    for(int x = 0;x < CHUNK_SIZE;++x)
+    fnl_state noise = fnlCreateState();
+    noise.noise_type = FNL_NOISE_PERLIN;
+    noise.seed = 12345678;
+    noise.frequency = 0.02f;
+
+    for(int lx = 0; lx < CHUNK_SIZE; ++lx)
     {
-        for(int y = 0;y < CHUNK_HEIGHT;++y)
+        for(int lz = 0; lz < CHUNK_SIZE; ++lz)
         {
-            for(int z = 0;z < CHUNK_SIZE;++z)
+            float globalX = static_cast<float>(chunkX * CHUNK_SIZE + lx);
+            float globalZ = static_cast<float>(chunkZ * CHUNK_SIZE + lz);
+            
+            // get normalized noise value
+            float noiseValue = fnlGetNoise2D(&noise, globalX, globalZ);
+            int height = 32 + static_cast<int>(noiseValue * 16.0f);
+            
+            if (height < 0) height = 0;
+            if (height >= CHUNK_HEIGHT) height = CHUNK_HEIGHT - 1;
+
+            for(int ly = 0; ly < CHUNK_HEIGHT; ++ly)
             {
-                if (y == CHUNK_HEIGHT - 1)
-                    blocks[x][y][z] = BlockType::GRASS;
+                if (ly > height)
+                {
+                    blocks[lx][ly][lz] = BlockType::AIR;
+                }
+                else if (ly == height)
+                {
+                    blocks[lx][ly][lz] = BlockType::GRASS;
+                }
                 else
-                    blocks[x][y][z] = BlockType::DIRT;
+                {
+                    blocks[lx][ly][lz] = BlockType::DIRT;
+                }
             }
         }
     }

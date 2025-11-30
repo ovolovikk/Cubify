@@ -53,14 +53,14 @@ void Game::init(const std::string& title)
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
     world = std::make_unique<World>();
-    for(int x = 0; x < 3;++x)
+    for(int x = 0; x < 25;++x)
     {
-        for(int y = 0; y < 3;++y)
+        for(int y = 0; y < 25;++y)
         {
             world->addChunk(x, y);
         }
     }
-
+    
     glfwGetFramebufferSize(window, &width, &height);
     renderer->init(width, height);
 }
