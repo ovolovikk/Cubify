@@ -10,9 +10,9 @@ Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z)
     noise.seed = 12345678;
     noise.frequency = 0.02f;
 
-    for(var lx = 0; lx < CHUNK_SIZE; ++lx)
+    for(int lx = 0; lx < CHUNK_SIZE; ++lx)
     {
-        for(var lz = 0; lz < CHUNK_SIZE; ++lz)
+        for(int lz = 0; lz < CHUNK_SIZE; ++lz)
         {
             float globalX = static_cast<float>(chunkX * CHUNK_SIZE + lx);
             float globalZ = static_cast<float>(chunkZ * CHUNK_SIZE + lz);
