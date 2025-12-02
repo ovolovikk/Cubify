@@ -15,7 +15,8 @@ public:
 
     mat4 GetProjectionMatrix() const;
     mat4 GetViewMatrix() const;
-
+    vec3 GetPosition() const { return position; }
+    
     void SetPosition(vec3 position);
     void LookAt(vec3 target);
     

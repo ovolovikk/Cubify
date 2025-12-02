@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <unordered_set>
+
 #include "Shader.hpp"
 #include "TextureArray.hpp"
 #include "World.hpp"
@@ -132,8 +134,12 @@ void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
 
 void Renderer::drawWorld(const World& world)
 {
+    std::unordered_set<const Chunk*> activeChunks;
+
     for (auto& [id, chunk] : world.getChunks())
     {
+        activeChunks.insert(chunk.get());
+
         // Upload mesh if not already cached
         uploadChunkMesh(chunk.get());
         
@@ -142,5 +148,16 @@ void Renderer::drawWorld(const World& world)
 
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE));
         drawChunk(*chunk, model);
+    }
+
+    // clean meshes
+    for (auto it = chunkMeshes.begin(); it != chunkMeshes.end();)
+    {
+        if(activeChunks.find(it->first) == activeChunks.end()) {
+            glDeleteVertexArrays(1, &it->second.VAO);
+            glDeleteBuffers(1, &it->second.VBO);
+            glDeleteBuffers(1, &it->second.uvVBO);
+            it = chunkMeshes.erase(it);
+        } else ++it;
     }
 }

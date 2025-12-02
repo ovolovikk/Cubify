@@ -8,7 +8,7 @@ Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z)
     fnl_state noise = fnlCreateState();
     noise.noise_type = FNL_NOISE_PERLIN;
     noise.seed = 12345678;
-    noise.frequency = 0.02f;
+    noise.frequency = 0.03f;
 
     for(int lx = 0; lx < CHUNK_SIZE; ++lx)
     {
