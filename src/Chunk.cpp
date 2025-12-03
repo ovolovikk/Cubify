@@ -113,29 +113,29 @@ void Chunk::constructMesh(const ChunkNeighbors& neighbors)
 
                 // left
                 if (getBlockAt(x - 1, y, z) == BlockType::AIR) {
-                    addQuad((float)x, (float)y, (float)z, 1.0f, 1.0f, layerSide, 0, false);
+                    addQuad((float)x, (float)y, (float)z, layerSide, 0, false);
                 }
                 // right
                 if (getBlockAt(x + 1, y, z) == BlockType::AIR) {
-                    addQuad((float)(x + 1), (float)y, (float)z, 1.0f, 1.0f, layerSide, 0, true);
+                    addQuad((float)(x + 1), (float)y, (float)z, layerSide, 0, true);
                 }
 
                 // bottom
                 if (getBlockAt(x, y - 1, z) == BlockType::AIR) {
-                    addQuad((float)x, (float)y, (float)z, 1.0f, 1.0f, layerBottom, 1, false);
+                    addQuad((float)x, (float)y, (float)z, layerBottom, 1, false);
                 }
                 // top
                 if (getBlockAt(x, y + 1, z) == BlockType::AIR) {
-                    addQuad((float)x, (float)(y + 1), (float)z, 1.0f, 1.0f, layerTop, 1, true);
+                    addQuad((float)x, (float)(y + 1), (float)z, layerTop, 1, true);
                 }
 
                 // back
                 if (getBlockAt(x, y, z - 1) == BlockType::AIR) {
-                    addQuad((float)x, (float)y, (float)z, 1.0f, 1.0f, layerSide, 2, false);
+                    addQuad((float)x, (float)y, (float)z, layerSide, 2, false);
                 }
                 // front
                 if (getBlockAt(x, y, z + 1) == BlockType::AIR) {
-                    addQuad((float)x, (float)y, (float)(z + 1), 1.0f, 1.0f, layerSide, 2, true);
+                    addQuad((float)x, (float)y, (float)(z + 1), layerSide, 2, true);
                 }
             }
         }
@@ -145,10 +145,20 @@ void Chunk::constructMesh(const ChunkNeighbors& neighbors)
 }
 
 void Chunk::addQuad(float x, float y, float z,
-                    float w, float h,
                     float layer,
                     int perpendicular_axis,
                     bool back_face)
 { 
-    quads.push_back({x, y, z, w, h, layer, perpendicular_axis, back_face ? 1 : 0});
+    uint32_t ux = static_cast<uint32_t>(x);
+    uint32_t uy = static_cast<uint32_t>(y);
+    uint32_t uz = static_cast<uint32_t>(z);
+
+    uint32_t packed_pos = (ux & 0x3FF) | ((uy & 0x3FF) << 10) | ((uz & 0x3FF) << 20);
+
+    uint32_t normal_index = perpendicular_axis * 2 + (back_face ? 0 : 1);
+    
+    uint32_t ulayer = static_cast<uint32_t>(layer);
+    uint32_t packed_data = (ulayer & 0x3FF) | ((normal_index & 0x7) << 10);
+
+    quads.push_back({packed_pos, packed_data});
 }

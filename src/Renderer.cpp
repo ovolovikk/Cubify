@@ -6,11 +6,6 @@
 
 #include <unordered_set>
 
-#include "Shader.hpp"
-#include "TextureArray.hpp"
-#include "World.hpp"
-#include "Chunk.hpp"
-
 Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
 {
 }
@@ -117,7 +112,7 @@ void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
     
     const ChunkMeshData& meshData = it->second;
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, meshData.SSBO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, meshData.quadCount);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(meshData.quadCount));
 }
 
 void Renderer::drawWorld(const World& world)

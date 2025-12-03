@@ -3,11 +3,12 @@
 
 #include "BlockType.hpp"
 #include <vector>
+#include <cstdint>
 
 constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 64;
 
-class Chunk; // Forward declaration
+class Chunk;
 
 struct ChunkNeighbors {
     const Chunk* left = nullptr;
@@ -18,11 +19,8 @@ struct ChunkNeighbors {
 
 struct Quad 
 {
-    float x, y, z;
-    float w, h;
-    float layer;
-    int perpendicular_axis; // 0-x, 1-y, 2-z
-    int back_face;
+    uint32_t packed_position; // x(10) | y(10) | z(10)
+    uint32_t packed_data;     // layer(10) | normal_index(3)
 };
 
 class Chunk
@@ -54,7 +52,6 @@ private:
 
     // helpers to add specific faces
     void addQuad(float x, float y, float z,
-                 float w, float h,
                  float layer,
                  int perpendicular_axis,
                  bool back_face);

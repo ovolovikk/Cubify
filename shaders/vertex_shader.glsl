@@ -2,11 +2,8 @@
 
 struct Quad
 {
-    float x, y, z; // bottom left vertex
-    float w, h;
-    float layer;
-    int perpendicular_axis; // 0-x, 1-y, 2-z
-    int back_face;
+    uint packed_position;
+    uint packed_data;
 };
 
 layout (std430, binding = 0) buffer QuadBuffer
@@ -23,6 +20,16 @@ out vec3 TexCoord;
 void main()
 {
     Quad q = quads[gl_InstanceID];
+    
+    // unpack data
+    float x = float(q.packed_position & 1023u);
+    float y = float((q.packed_position >> 10) & 1023u);
+    float z = float((q.packed_position >> 20) & 1023u);
+    float layer = float(q.packed_data & 1023u);
+    uint normal_index = (q.packed_data >> 10) & 7u;
+
+    int perpendicular_axis = int(normal_index) / 2;
+    
     int index = gl_VertexID % 6;
     float u_local = 0.0;
     float v_local = 0.0;
@@ -35,15 +42,16 @@ void main()
     else if (index == 5) { u_local = 0.0; v_local = 0.0; } // bottom left(2)
 
     // calc position
-    vec3 pos = vec3(q.x, q.y, q.z);
-    int u_axis = (q.perpendicular_axis + 1) % 3;
-    int v_axis = (q.perpendicular_axis + 2) % 3;
+    vec3 pos = vec3(x, y, z);
+    int u_axis = (perpendicular_axis + 1) % 3;
+    int v_axis = (perpendicular_axis + 2) % 3;
 
-    pos[u_axis] += u_local * q.w;
-    pos[v_axis] += v_local * q.h;
+    pos[u_axis] += u_local; 
+    pos[v_axis] += v_local; 
 
     gl_Position = projection * view * model * vec4(pos, 1.0);
-    bool swapUV = (q.perpendicular_axis == 0 || q.perpendicular_axis == 1);
-    if (swapUV) TexCoord = vec3(v_local * q.h, u_local * q.w, q.layer);
-        else TexCoord = vec3(u_local * q.w, v_local * q.h, q.layer);
+    
+    bool swapUV = (perpendicular_axis == 0 || perpendicular_axis == 1);
+    if (swapUV) TexCoord = vec3(v_local, u_local, layer);
+        else TexCoord = vec3(u_local, v_local, layer);
 }
