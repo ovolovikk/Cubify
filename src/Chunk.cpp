@@ -64,7 +64,7 @@ void Chunk::constructMesh(const ChunkNeighbors& neighbors)
 {
     quads.clear();
 
-    // Helper to check neighbors (same as before)
+    // Helper to check neighbors
     auto getBlockAt = [&](int x, int y, int z) -> BlockType
     {
         if (y < 0 || y >= CHUNK_HEIGHT) return BlockType::AIR;
