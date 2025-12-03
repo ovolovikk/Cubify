@@ -24,7 +24,14 @@ void World::addChunk(int x, int z)
     if (chunks.find(id) == chunks.end())
     {
         chunks[id] = std::make_unique<Chunk>(x, z);
-        chunks[id]->constructMesh();
+        
+        ChunkNeighbors neighbors;
+        neighbors.left = getChunk(x - 1, z);
+        neighbors.right = getChunk(x + 1, z);
+        neighbors.back = getChunk(x, z - 1);
+        neighbors.front = getChunk(x, z + 1);
+
+        chunks[id]->constructMesh(neighbors);
     }
 }
 

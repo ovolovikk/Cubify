@@ -18,9 +18,7 @@ Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
 Renderer::~Renderer()
 {
     for (auto& [chunk, meshData] : chunkMeshes) {
-        glDeleteVertexArrays(1, &meshData.VAO);
-        glDeleteBuffers(1, &meshData.VBO);
-        glDeleteBuffers(1, &meshData.uvVBO);
+        glDeleteBuffers(1, &meshData.SSBO);
     }
     chunkMeshes.clear();
 }
@@ -50,11 +48,6 @@ void Renderer::init(int width, int height)
     texture_array = std::make_unique<TextureArray>(layers);
 }
 
-void Renderer::shutdown()
-{
-    glfwTerminate();
-}
-
 void Renderer::beginFrame()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -69,6 +62,16 @@ void Renderer::beginFrame()
     if(texture_array) {
         texture_array->bind(0);
     }
+    
+    // required dummy vao
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+}
+
+void Renderer::shutdown()
+{
+    glDeleteVertexArrays(1, &vao);
+    glfwTerminate();
 }
 
 void Renderer::endFrame()
@@ -90,29 +93,14 @@ void Renderer::uploadChunkMesh(const Chunk* chunk)
     
     ChunkMeshData meshData;
     
-    glGenVertexArrays(1, &meshData.VAO);
-    glGenBuffers(1, &meshData.VBO);
-    glGenBuffers(1, &meshData.uvVBO);
+    glGenBuffers(1, &meshData.SSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshData.SSBO);
     
-    glBindVertexArray(meshData.VAO);
+    const auto& quads = chunk->getQuads();
+    glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     
-    // upload position data
-    const auto& vertices = chunk->getVertices();
-    glBindBuffer(GL_ARRAY_BUFFER, meshData.VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    
-    // upload UV data
-    const auto& texCoords = chunk->getTexCoords();
-    glBindBuffer(GL_ARRAY_BUFFER, meshData.uvVBO);
-    glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(float), texCoords.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    
-    glBindVertexArray(0);
-    
-    meshData.vertexCount = chunk->getVertexCount();
+    meshData.quadCount = chunk->getQuadCount();
     chunkMeshes[chunk] = meshData;
 }
 
@@ -128,8 +116,8 @@ void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
     }
     
     const ChunkMeshData& meshData = it->second;
-    glBindVertexArray(meshData.VAO);
-    glDrawArrays(GL_TRIANGLES, 0, meshData.vertexCount);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, meshData.SSBO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, meshData.quadCount);
 }
 
 void Renderer::drawWorld(const World& world)
@@ -154,9 +142,7 @@ void Renderer::drawWorld(const World& world)
     for (auto it = chunkMeshes.begin(); it != chunkMeshes.end();)
     {
         if(activeChunks.find(it->first) == activeChunks.end()) {
-            glDeleteVertexArrays(1, &it->second.VAO);
-            glDeleteBuffers(1, &it->second.VBO);
-            glDeleteBuffers(1, &it->second.uvVBO);
+            glDeleteBuffers(1, &it->second.SSBO);
             it = chunkMeshes.erase(it);
         } else ++it;
     }

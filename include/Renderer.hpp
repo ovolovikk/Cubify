@@ -31,15 +31,14 @@ public:
 
 private:
     struct ChunkMeshData {
-        GLuint VAO;
-        GLuint VBO;
-        GLuint uvVBO;
-        size_t vertexCount;
+        GLuint SSBO;
+        size_t quadCount;
     };
     
     std::unique_ptr<Shader> shader;
     std::unique_ptr<TextureArray> texture_array;
     GLuint sampler;
+    GLuint vao;
     
     std::unordered_map<const Chunk*, ChunkMeshData> chunkMeshes;
 
