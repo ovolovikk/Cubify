@@ -39,6 +39,7 @@ void Game::init(const std::string& title)
         return;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
 
     if (glewInit() != GLEW_OK) { 
         std::cout << "glew init error\n";
@@ -61,16 +62,27 @@ void Game::init(const std::string& title)
 void Game::update()
 {
     double lastFrame = 0.0f;
+    double lastTime = 0.0f;
+    int nbFrames = 0;
     bool first_mouse = true;
     do {
         double currentFrame = glfwGetTime();
         float deltaTime = float(currentFrame - lastFrame);
         lastFrame = currentFrame;
 
+        // fps
+        nbFrames++;
+        if (currentFrame - lastTime >= 1.0) {
+            std::string title = "Cubify - FPS: " + std::to_string(nbFrames) + " (" + std::to_string(1000.0 / double(nbFrames)) + " ms)";
+            glfwSetWindowTitle(window, title.c_str());
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 
-        camera->ProcessWASDMovement(window);
+        camera->ProcessWASDMovement(window, deltaTime);
         if(first_mouse)
         {
             int width, height;

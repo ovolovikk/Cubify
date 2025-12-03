@@ -29,52 +29,52 @@ void Camera::LookAt(vec3 target)
     front = glm::normalize(target - position);
 }
 
-void Camera::MoveForward()
+void Camera::MoveForward(float deltaTime)
 {
-    position += front * MOVEMENT_SPEED;
+    position += front * MOVEMENT_SPEED * deltaTime;
 }
 
-void Camera::MoveBackward()
+void Camera::MoveBackward(float deltaTime)
 {
-    position -= front * MOVEMENT_SPEED;
+    position -= front * MOVEMENT_SPEED * deltaTime;
 }
 
-void Camera::MoveLeft()
-{
-    vec3 right = glm::normalize(glm::cross(front, up));
-    position -= right * MOVEMENT_SPEED;
-}
-
-void Camera::MoveRight()
+void Camera::MoveLeft(float deltaTime)
 {
     vec3 right = glm::normalize(glm::cross(front, up));
-    position += right * MOVEMENT_SPEED;
+    position -= right * MOVEMENT_SPEED * deltaTime;
 }
 
-void Camera::MoveUp()
+void Camera::MoveRight(float deltaTime)
 {
-    position += up * MOVEMENT_SPEED;
+    vec3 right = glm::normalize(glm::cross(front, up));
+    position += right * MOVEMENT_SPEED * deltaTime;
 }
 
-void Camera::MoveDown()
+void Camera::MoveUp(float deltaTime)
 {
-    position -= up * MOVEMENT_SPEED;
+    position += up * MOVEMENT_SPEED * deltaTime;
 }
 
-void Camera::ProcessWASDMovement(GLFWwindow* window)
+void Camera::MoveDown(float deltaTime)
+{
+    position -= up * MOVEMENT_SPEED * deltaTime;
+}
+
+void Camera::ProcessWASDMovement(GLFWwindow* window, float deltaTime)
 {
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        MoveForward();
+        MoveForward(deltaTime);
     if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        MoveLeft();
+        MoveLeft(deltaTime);
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        MoveBackward();
+        MoveBackward(deltaTime);
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        MoveRight();
+        MoveRight(deltaTime);
     if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        MoveUp();
+        MoveUp(deltaTime);
     if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        MoveDown();
+        MoveDown(deltaTime);
 }
 
 void Camera::ProcessMouseMovement(GLFWwindow* window, float deltaTime)

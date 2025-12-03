@@ -20,14 +20,14 @@ public:
     void SetPosition(vec3 position);
     void LookAt(vec3 target);
     
-    void MoveForward();
-    void MoveBackward();
-    void MoveLeft();
-    void MoveRight();
-    void MoveUp();
-    void MoveDown();
+    void MoveForward(float deltaTime);
+    void MoveBackward(float deltaTime);
+    void MoveLeft(float deltaTime);
+    void MoveRight(float deltaTime);
+    void MoveUp(float deltaTime);
+    void MoveDown(float deltaTime);
     
-    void ProcessWASDMovement(GLFWwindow* window);
+    void ProcessWASDMovement(GLFWwindow* window, float deltaTime);
     void ProcessMouseMovement(GLFWwindow* window, float deltaTime);
 
 private:
@@ -43,7 +43,7 @@ private:
     float yaw = -90.0f; // vertical
     float pitch = 0.0f; // horizontal
     
-    const float MOVEMENT_SPEED = 0.25f;
+    const float MOVEMENT_SPEED = 15.0f;
     const float MOUSE_SENSITIVITY = 0.1f;
     
     void updateCameraVectors();
