@@ -24,6 +24,11 @@ void Camera::SetPosition(vec3 new_position)
     position = new_position;
 }
 
+void Camera::SetAspect(float aspect_)
+{
+    aspect = aspect_;
+}
+
 void Camera::LookAt(vec3 target)
 {
     front = glm::normalize(target - position);

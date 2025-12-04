@@ -49,6 +49,9 @@ void Game::init(const std::string& title)
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    glfwSetWindowUserPointer(window, this);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
     renderer = std::make_unique<Renderer>();
     renderer->init(width, height);
 
@@ -104,4 +107,18 @@ void Game::update()
 
     } while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
             && glfwWindowShouldClose(window) == 0);
+}
+
+void Game::onResize(int width_, int height_)
+{
+    width = width_;
+    height = height_;
+    if (renderer) renderer->resize(width, height);
+    if (camera && height > 0) camera->SetAspect((float)width / (float)height);
+}
+
+void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+    if (game) game->onResize(width, height);
 }

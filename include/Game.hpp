@@ -18,6 +18,9 @@ public:
 
     void init(const std::string& title);
     void update(); // main loop
+
+    void onResize(int width, int height);
+    static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 private:
     void processInput(float deltaTime);
 

@@ -19,6 +19,7 @@ public:
     ~Renderer();
     
     void init(int width, int height);
+    void resize(int width, int height);
     void shutdown();
 
     void beginFrame();

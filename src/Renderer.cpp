@@ -43,6 +43,11 @@ void Renderer::init(int width, int height)
     texture_array = std::make_unique<TextureArray>(layers);
 }
 
+void Renderer::resize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
 void Renderer::beginFrame()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

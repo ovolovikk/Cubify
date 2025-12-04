@@ -18,6 +18,7 @@ public:
     vec3 GetPosition() const { return position; }
     
     void SetPosition(vec3 position);
+    void SetAspect(float aspect);
     void LookAt(vec3 target);
     
     void MoveForward(float deltaTime);
