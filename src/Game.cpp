@@ -1,56 +1,32 @@
 #include "Game.hpp"
 
 #include <iostream>
-#include <GLFW/glfw3.h>
-#include <GL/glew.h>
 
-Game::Game(int _width, int _height, const std::string& _title)
-    : width(_width), height(_height)
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "Window.hpp"
+
+Game::Game(int width_, int height_, const std::string& title_)
+    : width(width_), height(height_)
 {
-    init(_title);
-    if (window)
+    window = std::make_unique<Window>(title_, width, height);
+
+    init();
+    if (window->isOpen())
         update();
 }
 
 Game::~Game()
 {
-    glfwTerminate();
 }
 
-void Game::init(const std::string& title)
+void Game::init()
 {   
-    // main initialization
-    glewExperimental = true;
-    if(!glfwInit())
-    {
-        std::cout << "glfw init error.\n";
-        return;
-    }
+    GLFWwindow* nativeWindow = window->getGLFWWindow(); 
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for MacOS
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    window = glfwCreateWindow(width, height, "Cubify", NULL, NULL);
-    if(window == nullptr) {
-        std::cout << "window init error.\n";
-        return;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(0);
-
-    if (glewInit() != GLEW_OK) { 
-        std::cout << "glew init error\n";
-        return;
-    }
-
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    glfwSetWindowUserPointer(window, this);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetWindowUserPointer(nativeWindow, this);
+    glfwSetFramebufferSizeCallback(nativeWindow, framebuffer_size_callback);
 
     renderer = std::make_unique<Renderer>();
     renderer->init(width, height);
@@ -58,7 +34,6 @@ void Game::init(const std::string& title)
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
     world = std::make_unique<World>();
     
-    glfwGetFramebufferSize(window, &width, &height);
     renderer->init(width, height);
 }
 
@@ -68,16 +43,23 @@ void Game::update()
     double lastTime = 0.0f;
     int nbFrames = 0;
     bool first_mouse = true;
-    do {
+
+    GLFWwindow* nativeWindow = window->getGLFWWindow();
+
+    while(window->isOpen()) {
+        if(glfwGetKey(nativeWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(nativeWindow, true);
+        }
+
         double currentFrame = glfwGetTime();
         float deltaTime = float(currentFrame - lastFrame);
         lastFrame = currentFrame;
 
-        // fps
+        // FPS counter
         nbFrames++;
         if (currentFrame - lastTime >= 1.0) {
             std::string title = "Cubify - FPS: " + std::to_string(nbFrames) + " (" + std::to_string(1000.0 / double(nbFrames)) + " ms)";
-            glfwSetWindowTitle(window, title.c_str());
+            glfwSetWindowTitle(nativeWindow, title.c_str());
             nbFrames = 0;
             lastTime += 1.0;
         }
@@ -85,15 +67,16 @@ void Game::update()
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 
-        camera->ProcessWASDMovement(window, deltaTime);
+        camera->ProcessWASDMovement(nativeWindow, deltaTime);
+
         if(first_mouse)
         {
-            int width, height;
-            glfwGetWindowSize(window, &width, &height);
-            glfwSetCursorPos(window, width / 2.0, height / 2.0);
+            int w, h;
+            glfwGetWindowSize(nativeWindow, &w, &h);
+            glfwSetCursorPos(nativeWindow, w / 2.0, h / 2.0);
             first_mouse = false;
         }
-        camera->ProcessMouseMovement(window, deltaTime);
+        camera->ProcessMouseMovement(nativeWindow, deltaTime);
 
         world->update(camera->GetPosition());
 
@@ -102,11 +85,9 @@ void Game::update()
         renderer->drawWorld(*world);
         renderer->endFrame();
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-
-    } while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS
-            && glfwWindowShouldClose(window) == 0);
+        window->swapBuffers();
+        window->pollEvents();
+    }
 }
 
 void Game::onResize(int width_, int height_)

@@ -5,7 +5,7 @@
 
 TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
 {
-    layers_count = layer_paths.size();
+    layers_count = static_cast<int>(layer_paths.size());
     if (layers_count == 0) return;
 
     int components_count = 0;

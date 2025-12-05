@@ -74,6 +74,7 @@ add_executable(Cubify
     src/World.cpp
     src/Renderer.cpp
     src/TextureArray.cpp
+    src/Window.cpp
 )
 
 # Link libraries
