@@ -10,6 +10,7 @@
 #include "Window.hpp"
 
 struct GLFWwindow;
+class IInputController;
 
 class Game
 {
@@ -29,6 +30,7 @@ private:
     void processInput(float deltaTime);
 
     std::unique_ptr<Window> window;
+    std::unique_ptr<IInputController> inputController;
 
     std::unique_ptr<Renderer> renderer;
     std::unique_ptr<Camera> camera;

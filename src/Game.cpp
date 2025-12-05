@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Window.hpp"
+#include "GLFWInputController.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
     : width(width_), height(height_)
@@ -28,6 +29,8 @@ void Game::init()
     glfwSetWindowUserPointer(nativeWindow, this);
     glfwSetFramebufferSizeCallback(nativeWindow, framebuffer_size_callback);
 
+    inputController = std::make_unique<GLFWInputController>(nativeWindow);
+
     renderer = std::make_unique<Renderer>();
     renderer->init(width, height);
 
@@ -42,12 +45,13 @@ void Game::update()
     double lastFrame = 0.0f;
     double lastTime = 0.0f;
     int nbFrames = 0;
-    bool first_mouse = true;
 
     GLFWwindow* nativeWindow = window->getGLFWWindow();
 
     while(window->isOpen()) {
-        if(glfwGetKey(nativeWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        inputController->update();
+
+        if(inputController->isKeyPressed(GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(nativeWindow, true);
         }
 
@@ -67,16 +71,7 @@ void Game::update()
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 
-        camera->ProcessWASDMovement(nativeWindow, deltaTime);
-
-        if(first_mouse)
-        {
-            int w, h;
-            glfwGetWindowSize(nativeWindow, &w, &h);
-            glfwSetCursorPos(nativeWindow, w / 2.0, h / 2.0);
-            first_mouse = false;
-        }
-        camera->ProcessMouseMovement(nativeWindow, deltaTime);
+        camera->processInput(*inputController, deltaTime);
 
         world->update(camera->GetPosition());
 

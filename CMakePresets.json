@@ -4,18 +4,27 @@
     {
       "name": "windows-base",
       "hidden": true,
-      "binaryDir": "${sourceDir}/build",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe"
       }
     },
     {
-      "name": "windows-user-paths",
-      "displayName": "Windows (Set Library Paths)",
-      "description": "Edit the CMAKE_PREFIX_PATH below to point to your library folders",
+      "name": "windows-default",
+      "displayName": "Windows Config",
+      "description": "Local Libs",
       "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "C:/path/to/glew;C:/path/to/glfw;C:/path/to/glm"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GLEW_ROOT": "C:/Users/shona/Documents/libs/glew-2.1.0",
+        "GLFW_ROOT": "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64",
+        "GLM_ROOT": "C:/Users/shona/Documents/libs/glm-1.0.2",
+        "CMAKE_PREFIX_PATH": "C:/Users/shona/Documents/libs/glew-2.1.0;C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64;C:/Users/shona/Documents/libs/glm-1.0.2;C:/Users/shona/Documents/libs/glm-1.0.2/cmake/glm"
       }
     }
   ]

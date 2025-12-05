@@ -1,9 +1,9 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+
+class IInputController;
 
 using glm::mat4;
 using glm::vec3;
@@ -15,34 +15,28 @@ public:
 
     mat4 GetProjectionMatrix() const;
     mat4 GetViewMatrix() const;
+
+
     vec3 GetPosition() const { return position; }
-    
     void SetPosition(vec3 position);
     void SetAspect(float aspect);
-    void LookAt(vec3 target);
     
-    void MoveForward(float deltaTime);
-    void MoveBackward(float deltaTime);
-    void MoveLeft(float deltaTime);
-    void MoveRight(float deltaTime);
-    void MoveUp(float deltaTime);
-    void MoveDown(float deltaTime);
-    
-    void ProcessWASDMovement(GLFWwindow* window, float deltaTime);
-    void ProcessMouseMovement(GLFWwindow* window, float deltaTime);
+    void processInput(const IInputController& input, float DeltaTime);
 
 private:
     vec3 position;
     vec3 front;
     vec3 up;
+    vec3 right;
+    vec3 worldUp;
 
     float fov;
     float aspect;
     float near_plane = 0.1f;
     float far_plane = 1000.f;
 
-    float yaw = -90.0f; // vertical
-    float pitch = 0.0f; // horizontal
+    float yaw; // vertical
+    float pitch; // horizontal
     
     const float MOVEMENT_SPEED = 60.0f;
     const float MOUSE_SENSITIVITY = 0.1f;

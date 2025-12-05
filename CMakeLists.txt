@@ -1,27 +1,27 @@
 cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0074 NEW) # Fixes GLEW warning
-cmake_policy(SET CMP0144 NEW) # Fixes GLM warning
+cmake_policy(SET CMP0074 NEW) 
+cmake_policy(SET CMP0144 NEW) 
+
 project(Cubify)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# -----------------------------------------------------------------------------
-# WINDOWS CONFIGURATION
-# -----------------------------------------------------------------------------
 if(WIN32)
-     set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0") 
-     set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64")
-     set(GLM_ROOT  "C:/Users/shona/Documents/libs/glm-1.0.2")
+    if(NOT DEFINED GLEW_ROOT)
+       set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0") 
+    endif()
+    if(NOT DEFINED GLFW_ROOT)
+       set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64")
+    endif()
+    if(NOT DEFINED GLM_ROOT)
+       set(GLM_ROOT "C:/Users/shona/Documents/libs/glm-1.0.2")
+    endif()
 
-    if(DEFINED GLEW_ROOT)
-        list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}")
-    endif()
-    if(DEFINED GLM_ROOT)
-        list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}")
-        # GLM often has the config file in a subdirectory like cmake/glm
-        list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}/cmake/glm")
-    endif()
+    list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}")
+    list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}")
+    list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}/cmake/glm")
+    list(APPEND CMAKE_PREFIX_PATH "${GLFW_ROOT}")
 endif()
 
 # Find packages
@@ -75,6 +75,7 @@ add_executable(Cubify
     src/Renderer.cpp
     src/TextureArray.cpp
     src/Window.cpp
+    src/GLFWInputController.cpp
 )
 
 # Link libraries
