@@ -23,9 +23,10 @@ void World::addChunk(int x, int z)
     long long id = getChunkId(x, z);
     if (chunks.find(id) == chunks.end())
     {
-        chunks[id] = std::make_unique<Chunk>(x, z);
+        auto chunk = std::make_unique<Chunk>(x, z);
+        terrain_generator
         
-        ChunkNeighbors neighbors;
+        
         neighbors.left = getChunk(x - 1, z);
         neighbors.right = getChunk(x + 1, z);
         neighbors.back = getChunk(x, z - 1);

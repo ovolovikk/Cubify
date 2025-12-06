@@ -4,10 +4,12 @@
 #include <string>
 #include <memory>
 
+#include "Window.hpp"
+#include "IInputController.hpp"
 #include "Renderer.hpp"
 #include "Camera.hpp"
 #include "World.hpp"
-#include "Window.hpp"
+#include "TerrainGenerator.hpp"
 
 struct GLFWwindow;
 class IInputController;
@@ -30,11 +32,11 @@ private:
     void processInput(float deltaTime);
 
     std::unique_ptr<Window> window;
-    std::unique_ptr<IInputController> inputController;
-
+    std::unique_ptr<IInputController> input_controller;
     std::unique_ptr<Renderer> renderer;
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
+    std::unique_ptr<TerrainGenerator> terrain_generator;
 
     int width;
     int height;

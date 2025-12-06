@@ -5,56 +5,36 @@
 #include <vector>
 #include <cstdint>
 
+struct Quad;
+
 constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 64;
-
-class Chunk;
-
-struct ChunkNeighbors {
-    const Chunk* left = nullptr;
-    const Chunk* right = nullptr;
-    const Chunk* back = nullptr;
-    const Chunk* front = nullptr;
-};
-
-struct Quad 
-{
-    uint32_t packed_position; // x(10) | y(10) | z(10)
-    uint32_t packed_data;     // layer(10) | normal_index(3)
-};
 
 class Chunk
 {
 public:
-    Chunk(int x, int z);
+    Chunk(int x, int z);   
 
-    void constructMesh(const ChunkNeighbors& neighbors);
-    
+    void setBlock(int x, int y, int z, BlockType type);
+    BlockType getBlock(int x, int y, int z) const;
+    bool isBlockAir(int x, int y, int z) const;
+
+    const std::vector<Quad>& getQuads() const { return quads; }
+    void addQuad(const Quad& quad);
+    void clearQuads();
+
     bool isDirty() const { return dirty; }
     void setDirty(bool d) { dirty = d; }
-    
-    const std::vector<Quad>& getQuads() const { return quads; }
-    size_t getQuadCount() const { return quads.size(); }
-    
+    int getChunkX() const { return chunkX; }
+    int getChunkZ() const { return chunkZ; }
+    bool isValidCoordinates(int x, int y, int z) const;
+
 private:
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
-
-    // the mesh stored there
     std::vector<Quad> quads;
+
     bool dirty = false;
-
     int chunkX, chunkZ;
-
-    bool isBlockAir(int x, int y, int z) const;
-    BlockType getBlock(int x, int y, int z) const;
-
-    float u0 = 0.f, v0 = 0.f, u1 = 1.f, v1 = 1.f; 
-
-    // helpers to add specific faces
-    void addQuad(float x, float y, float z,
-                 float layer,
-                 int perpendicular_axis,
-                 bool back_face);
 };
 
 #endif // CHUNK_HPP

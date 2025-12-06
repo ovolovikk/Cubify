@@ -76,7 +76,8 @@ add_executable(Cubify
     src/TextureArray.cpp
     src/Window.cpp
     src/GLFWInputController.cpp
-)
+    src/TerrainGenerator.cpp
+    src/ChunkMesher.cpp)
 
 # Link libraries
 target_link_libraries(Cubify

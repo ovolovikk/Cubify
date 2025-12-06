@@ -29,7 +29,7 @@ void Game::init()
     glfwSetWindowUserPointer(nativeWindow, this);
     glfwSetFramebufferSizeCallback(nativeWindow, framebuffer_size_callback);
 
-    inputController = std::make_unique<GLFWInputController>(nativeWindow);
+    input_controller = std::make_unique<GLFWInputController>(nativeWindow);
 
     renderer = std::make_unique<Renderer>();
     renderer->init(width, height);
@@ -38,6 +38,8 @@ void Game::init()
     world = std::make_unique<World>();
     
     renderer->init(width, height);
+
+    terrain_generator = std::make_unique<TerrainGenerator>();
 }
 
 void Game::update()
@@ -49,9 +51,9 @@ void Game::update()
     GLFWwindow* nativeWindow = window->getGLFWWindow();
 
     while(window->isOpen()) {
-        inputController->update();
+        input_controller->update();
 
-        if(inputController->isKeyPressed(GLFW_KEY_ESCAPE)) {
+        if(input_controller->isKeyPressed(GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(nativeWindow, true);
         }
 
@@ -71,7 +73,7 @@ void Game::update()
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 
-        camera->processInput(*inputController, deltaTime);
+        camera->processInput(*input_controller, deltaTime);
 
         world->update(camera->GetPosition());
 
