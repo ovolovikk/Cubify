@@ -1,7 +1,7 @@
 #ifndef GLFW_INPUT_CONTROLLER_HPP
 #define GLFW_INPUT_CONTROLLER_HPP
 
-#include "IInputController.hpp"
+#include "Core/Input/IInputController.hpp"
 
 struct GLFWwindow;
 

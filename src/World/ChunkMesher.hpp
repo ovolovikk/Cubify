@@ -1,7 +1,7 @@
 #ifndef CHUNK_MESHER_HPP
 #define CHUNK_MESHER_HPP
 
-#include "Chunk.hpp"
+#include "World/Chunk.hpp"
 
 struct ChunkNeighbors {
     Chunk* left = nullptr;

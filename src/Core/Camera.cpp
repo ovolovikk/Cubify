@@ -1,6 +1,6 @@
-#include "Camera.hpp"
+#include "Core/Camera.hpp"
 
-#include "IInputController.hpp"
+#include "Core/Input/IInputController.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 

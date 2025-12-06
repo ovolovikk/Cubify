@@ -62,22 +62,28 @@ else()
     endif()
 endif()
 
-# Include directories
-include_directories(include)
-
-add_executable(Cubify 
+set(SOURCES
     src/main.cpp
-    src/Shader.cpp
-    src/Camera.cpp
-    src/Game.cpp
-    src/Chunk.cpp
-    src/World.cpp
-    src/Renderer.cpp
-    src/TextureArray.cpp
-    src/Window.cpp
-    src/GLFWInputController.cpp
-    src/TerrainGenerator.cpp
-    src/ChunkMesher.cpp)
+    src/Core/Game.cpp
+    src/Core/Window.cpp
+    src/Core/Camera.cpp
+    src/Core/Input/GLFWInputController.cpp
+    src/Graphics/Renderer.cpp
+    src/Graphics/Shader.cpp
+    src/Graphics/TextureArray.cpp
+    src/World/World.cpp
+    src/World/Chunk.cpp
+    src/World/ChunkMesher.cpp
+    src/World/TerrainGenerator.cpp
+)
+
+add_executable(Cubify ${SOURCES})
+
+# Include directories
+target_include_directories(Cubify PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${GLEW_ROOT}/include
+)
 
 # Link libraries
 target_link_libraries(Cubify

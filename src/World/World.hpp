@@ -5,9 +5,9 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "Chunk.hpp"
-#include "Shader.hpp"
-#include "TerrainGenerator.hpp"
+#include "World/Chunk.hpp"
+#include "Graphics/Shader.hpp"
+#include "World/TerrainGenerator.hpp"
 
 class World
 {

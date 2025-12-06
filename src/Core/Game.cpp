@@ -5,8 +5,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Window.hpp"
-#include "GLFWInputController.hpp"
+#include "Core/Window.hpp"
+#include "Core/Input/GLFWInputController.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
     : width(width_), height(height_)

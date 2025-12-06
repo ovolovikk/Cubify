@@ -1,4 +1,4 @@
-#include "World.hpp"
+#include "World/World.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
@@ -6,7 +6,7 @@
 #include <cmath>
 #include <random>
 
-#include "ChunkMesher.hpp"
+#include "World/ChunkMesher.hpp"
 
 World::World() : terrain_generator(std::random_device{}())
 {

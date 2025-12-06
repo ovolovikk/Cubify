@@ -4,8 +4,8 @@
 #include <vector>
 #include <cstdint>
 
-#include "BlockType.hpp"
-#include "Quad.hpp"
+#include "World/BlockType.hpp"
+#include "Graphics/Quad.hpp"
 
 constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 64;

@@ -1,4 +1,4 @@
-#include "Renderer.hpp"
+#include "Graphics/Renderer.hpp"
 
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
@@ -6,7 +6,7 @@
 
 #include <unordered_set>
 
-#include "Quad.hpp"
+#include "Graphics/Quad.hpp"
 
 Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
 {

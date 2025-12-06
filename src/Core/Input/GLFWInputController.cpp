@@ -1,4 +1,4 @@
-#include "GLFWInputController.hpp"
+#include "Core/Input/GLFWInputController.hpp"
 
 #include <GLFW/glfw3.h>
 

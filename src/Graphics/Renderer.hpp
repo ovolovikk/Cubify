@@ -7,10 +7,10 @@
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
 
-#include "Chunk.hpp"
-#include "World.hpp"
-#include "Shader.hpp"
-#include "TextureArray.hpp"
+#include "World/Chunk.hpp"
+#include "World/World.hpp"
+#include "Graphics/Shader.hpp"
+#include "Graphics/TextureArray.hpp"
 
 class Renderer
 {

@@ -1,4 +1,4 @@
-#include "Window.hpp"
+#include "Core/Window.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

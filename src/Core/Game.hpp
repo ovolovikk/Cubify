@@ -4,12 +4,12 @@
 #include <string>
 #include <memory>
 
-#include "Window.hpp"
-#include "IInputController.hpp"
-#include "Renderer.hpp"
-#include "Camera.hpp"
-#include "World.hpp"
-#include "TerrainGenerator.hpp"
+#include "Core/Window.hpp"
+#include "Core/Input/IInputController.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Core/Camera.hpp"
+#include "World/World.hpp"
+#include "World/TerrainGenerator.hpp"
 
 struct GLFWwindow;
 class IInputController;
