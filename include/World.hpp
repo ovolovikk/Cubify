@@ -7,6 +7,7 @@
 
 #include "Chunk.hpp"
 #include "Shader.hpp"
+#include "TerrainGenerator.hpp"
 
 class World
 {
@@ -25,6 +26,7 @@ public:
 private:
     std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;
 
+    TerrainGenerator terrain_generator;
     uint8_t render_distance = 16;
 
     long long getChunkId(int x, int z) const;

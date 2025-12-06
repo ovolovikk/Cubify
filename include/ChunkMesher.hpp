@@ -4,10 +4,10 @@
 #include "Chunk.hpp"
 
 struct ChunkNeighbors {
-    const Chunk* left = nullptr;
-    const Chunk* right = nullptr;
-    const Chunk* back = nullptr;
-    const Chunk* front = nullptr;
+    Chunk* left = nullptr;
+    Chunk* right = nullptr;
+    Chunk* back = nullptr;
+    Chunk* front = nullptr;
 };
 
 class ChunkMesher

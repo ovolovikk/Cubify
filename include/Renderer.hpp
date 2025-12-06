@@ -26,7 +26,7 @@ public:
     void endFrame();
 
     void setViewProjection(const glm::mat4& view, const glm::mat4& projection);
-    void uploadChunkMesh(const Chunk* chunk);
+    void uploadChunkMesh(Chunk* chunk);
     void drawChunk(const Chunk& chunk, const glm::mat4& model);
     void drawWorld(const World& world);
 

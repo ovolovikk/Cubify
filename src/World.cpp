@@ -4,8 +4,11 @@
 #include <glm/vec3.hpp>
 
 #include <cmath>
+#include <random>
 
-World::World()
+#include "ChunkMesher.hpp"
+
+World::World() : terrain_generator(std::random_device{}())
 {
 }
 
@@ -24,15 +27,18 @@ void World::addChunk(int x, int z)
     if (chunks.find(id) == chunks.end())
     {
         auto chunk = std::make_unique<Chunk>(x, z);
-        terrain_generator
+        Chunk* chunkPtr = chunk.get();
+        terrain_generator.generateChunkTerrain(chunkPtr);
         
-        
+        chunks[id] = std::move(chunk);
+
+        ChunkNeighbors neighbors;
         neighbors.left = getChunk(x - 1, z);
         neighbors.right = getChunk(x + 1, z);
         neighbors.back = getChunk(x, z - 1);
         neighbors.front = getChunk(x, z + 1);
 
-        chunks[id]->constructMesh(neighbors);
+        ChunkMesher::generateMesh(*chunkPtr, neighbors);
     }
 }
 

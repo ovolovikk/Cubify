@@ -30,9 +30,9 @@ bool Chunk::isBlockAir(int x, int y, int z) const
 
 bool Chunk::isValidCoordinates(int x, int y, int z) const
 {
-    return (x < 0 || x >= CHUNK_SIZE ||
-        y < 0 || y >= CHUNK_HEIGHT ||
-        z < 0 || z >= CHUNK_SIZE);
+    return (x >= 0 && x < CHUNK_SIZE &&
+        y >= 0 && y < CHUNK_HEIGHT &&
+        z >= 0 && z < CHUNK_SIZE);
 }
 
 void Chunk::addQuad(const Quad& quad)

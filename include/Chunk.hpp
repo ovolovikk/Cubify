@@ -1,11 +1,11 @@
 #ifndef CHUNK_HPP
 #define CHUNK_HPP
 
-#include "BlockType.hpp"
 #include <vector>
 #include <cstdint>
 
-struct Quad;
+#include "BlockType.hpp"
+#include "Quad.hpp"
 
 constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 64;

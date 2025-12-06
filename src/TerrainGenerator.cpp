@@ -22,7 +22,7 @@ void TerrainGenerator::generateChunkTerrain(Chunk* chunk)
         for (int lz = 0; lz < CHUNK_SIZE; ++lz)
         {
             float globalX = static_cast<float>(chunk->getChunkX() * CHUNK_SIZE + lx);
-            float globalZ = static_cast<float>(chunk->getChunkX() * CHUNK_SIZE + lz);
+            float globalZ = static_cast<float>(chunk->getChunkZ() * CHUNK_SIZE + lz);
 
             // get normalized noise value
             float noiseValue = fnlGetNoise2D(&noise, globalX, globalZ);
@@ -43,7 +43,7 @@ void TerrainGenerator::generateChunkTerrain(Chunk* chunk)
                 }
                 else
                 {
-                    chunk->setBlock(lx, ly, lz, BlockType::GRASS);
+                    chunk->setBlock(lx, ly, lz, BlockType::DIRT);
                 }
             }
         }

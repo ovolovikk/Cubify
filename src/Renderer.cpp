@@ -6,6 +6,8 @@
 
 #include <unordered_set>
 
+#include "Quad.hpp"
+
 Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
 {
 }
@@ -85,23 +87,35 @@ void Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& project
     projection_matrix = projection;
 }
 
-void Renderer::uploadChunkMesh(const Chunk* chunk)
+void Renderer::uploadChunkMesh(Chunk* chunk)
 {
-    if (!chunk || chunkMeshes.find(chunk) != chunkMeshes.end()) {
+    if (!chunk) {
         return;
     }
-    
-    ChunkMeshData meshData;
-    
-    glGenBuffers(1, &meshData.SSBO);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshData.SSBO);
-    
-    const auto& quads = chunk->getQuads();
-    glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    
-    meshData.quadCount = chunk->getQuadCount();
-    chunkMeshes[chunk] = meshData;
+
+    if (chunk->isDirty() || chunkMeshes.find(chunk) == chunkMeshes.end())
+    {
+        auto it = chunkMeshes.find(chunk);
+        if (it != chunkMeshes.end()) {
+            glDeleteBuffers(1, &it->second.SSBO);
+            chunkMeshes.erase(it);
+        }
+
+        const auto& quads = chunk->getQuads();
+        if (quads.empty()) {
+            return;
+        }
+
+        ChunkMeshData meshData;
+        meshData.quadCount = quads.size();
+
+        glGenBuffers(1, &meshData.SSBO);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshData.SSBO);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
+
+        chunkMeshes[chunk] = meshData;
+        chunk->setDirty(false);
+    }
 }
 
 void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
