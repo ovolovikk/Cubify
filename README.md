@@ -1,40 +1,37 @@
 # Cubify
 
-This is a low-level high-optimized C++ application for deeping into Voxel Engine's. It provides **Minecraft** like view with self-painted textures.
+A high-performance voxel engine written in C++17 and Modern OpenGL (4.3+).
 
-## **Key Features**
-*   **High-Performance Core**: Built from scratch using C++17 and Modern OpenGL (4.3+).
-*   **Procedural Terrain**: Infinite world generation powered by **FastNoiseLite**.
-*   **Free-Roaming Camera**: Smooth 6-DOF movement with adjustable FOV, speed, and sensitivity.
+## **Technical Highlights**
 
-## **Advanced Optimizations**
-*   **Vertex Pulling Architecture**
-    *   Replaced traditional VBOs with **Programmable Vertex Pulling** using **SSBOs** (Shader Storage Buffer Objects).
-    *   Allows the GPU to fetch vertex data directly, bypassing fixed-function overhead.
-*   **Aggressive Data Packing**
-    *   Implemented bit-level compression for mesh data.
-    *   Position (X, Y, Z), Texture Layer, and Normal Index are packed into just **8 bytes per face** (down from 24 bytes).
-    *   Achieves a **3x reduction in memory bandwidth**, significantly boosting performance on memory-constrained GPUs.
-*   **Smart Face Culling**
-    *   **Inter-Chunk Culling**: Intelligently hides faces between adjacent chunks to ensure zero overdraw for internal geometry.
-    *   **Back-Face Culling**: Discards faces pointing away from the camera.
-*   **Instanced Rendering**
-    *   Utilizes `glDrawArraysInstanced` to render entire chunks in a single draw call, drastically reducing CPU-GPU communication overhead.
-*   **Texture Arrays**
-    *   Utilizes `GL_TEXTURE_2D_ARRAY` to eliminate texture bleeding artifacts common in texture atlases and simplify shader logic.
-*   **Dynamic Chunk Management**
-    *   Efficiently loads and unloads chunks based on player position to manage memory usage.
+### **Rendering Pipeline**
+*   **Programmable Vertex Pulling**: Uses **SSBOs** (Shader Storage Buffer Objects) to fetch vertex data directly on the GPU, bypassing traditional VBO overhead.
+*   **Aggressive Data Packing**: Geometry is bit-packed into just **8 bytes per quad** (Position + Normal + Texture Layer), reducing memory bandwidth by 3x.
+*   **Instanced Rendering**: Renders entire chunks in single draw calls using `glDrawArraysInstanced`.
+*   **Texture Arrays**: Utilizes `GL_TEXTURE_2D_ARRAY` for efficient texture management without atlas bleeding artifacts.
+
+### **Engine Architecture**
+*   **Decoupled Design**: The Renderer is completely agnostic of game logic, following **SOLID** principles.
+*   **Modular Structure**: Clean separation between `Core` (Window/Input), `Graphics` (OpenGL abstraction), and `World` (Voxel logic).
+
+### **World Generation**
+*   **Infinite Terrain**: Procedural generation powered by **FastNoiseLite**.
+*   **Dynamic Streaming**: Efficient chunk loading and unloading based on player position.
+*   **Greedy Meshing (Lite)**: Face culling eliminates hidden geometry between blocks and chunks.
+
+## **Controls**
+*   `W, A, S, D`: Move Camera
+*   `LCTRL`: Sprint
+*   `Mouse`: Look around
+*   `ESC`: Exit
 
 ## **Dependencies**
 *   **OpenGL 4.3+** (Core Profile)
 *   **GLFW 3** (Windowing and Input)
 *   **GLEW** (OpenGL Extension Wrangler)
 *   **GLM** (OpenGL Mathematics)
-*   **FastNoiseLite** (Noise generation for terrain)
+*   **FastNoiseLite** (Noise generation)
 *   **stb_image** (Image loading)
-
-## **Building**
-The project uses **CMake** for building.
 
 ### **Prerequisites**
 *   C++17 compatible compiler (MSVC, GCC, Clang)
@@ -51,28 +48,8 @@ The project uses **CMake** for building.
     mkdir build
     cd build
     ```
-3.  Configure the project:
-    *   **Note:** You may need to adjust the library paths in `CMakeLists.txt` if your libraries are not in standard locations or the hardcoded paths.
+3.  Configure and build:
     ```bash
     cmake ..
-    ```
-4.  Build:
-    ```bash
     cmake --build .
     ```
-5.  Run the executable:
-    ```bash
-    ./Cubify
-    ```
-
-## **Controls**
-| Key | Action |
-| :--- | :--- |
-| **W, A, S, D** | Move Camera |
-| **Space** | Fly Up |
-| **Shift** | Fly Down |
-| **Mouse** | Look around |
-| **ESC** | Close application |
-
-## **License**
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
