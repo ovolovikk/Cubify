@@ -59,6 +59,23 @@ Chunk* World::getChunk(int x, int z)
     return nullptr;
 }
 
+void World::draw(Renderer& renderer)
+{
+    for(auto& [id, chunk]: chunks)
+    {
+        if (chunk->isDirty()) {
+            renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
+            chunk->setDirty(false);
+        }
+        
+        int x = static_cast<int>(id >> 32);
+        int z = static_cast<int>(id & 0xFFFFFFFF);
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE));
+        renderer.draw(chunk->getMesh(), model);
+    }
+}
+
 void World::update(glm::vec3 player_pos)
 {
     int playerChunkX = static_cast<int>(floor(player_pos.x / CHUNK_SIZE));

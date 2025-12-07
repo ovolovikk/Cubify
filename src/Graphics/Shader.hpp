@@ -1,10 +1,10 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
-#include <string>
-
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+
+#include <string>
 
 using std::string;
 

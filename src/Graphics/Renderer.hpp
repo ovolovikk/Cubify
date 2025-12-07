@@ -1,14 +1,15 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include <string>
-#include <memory>
-#include <unordered_map>
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
 
-#include "World/Chunk.hpp"
-#include "World/World.hpp"
+#include <string>
+#include <memory>
+#include <unordered_map>
+
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Quad.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
 
@@ -26,22 +27,16 @@ public:
     void endFrame();
 
     void setViewProjection(const glm::mat4& view, const glm::mat4& projection);
-    void uploadChunkMesh(Chunk* chunk);
-    void drawChunk(const Chunk& chunk, const glm::mat4& model);
-    void drawWorld(const World& world);
+
+    void uploadMesh(Mesh& mesh, const std::vector<Quad>& quads);
+    void draw(const Mesh& mesh, const glm::mat4& model);
 
 private:
-    struct ChunkMeshData {
-        GLuint SSBO;
-        size_t quadCount;
-    };
-    
     std::unique_ptr<Shader> shader;
     std::unique_ptr<TextureArray> texture_array;
     GLuint sampler;
     GLuint vao;
     
-    std::unordered_map<const Chunk*, ChunkMeshData> chunkMeshes;
 
     glm::mat4 view_matrix;
     glm::mat4 projection_matrix;

@@ -1,8 +1,8 @@
 #include "Core/Camera.hpp"
 
-#include "Core/Input/IInputController.hpp"
-
 #include "glm/gtc/matrix_transform.hpp"
+
+#include "Core/Input/IInputController.hpp"
 
 Camera::Camera(vec3 _position, float _fov, float _aspect)
     : position(_position), fov(_fov), aspect(_aspect), 

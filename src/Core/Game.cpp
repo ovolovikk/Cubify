@@ -79,7 +79,7 @@ void Game::update()
 
         renderer->beginFrame();
         renderer->setViewProjection(view, projection);
-        renderer->drawWorld(*world);
+        world->draw(*renderer);
         renderer->endFrame();
 
         window->swapBuffers();

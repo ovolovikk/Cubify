@@ -84,7 +84,7 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
         }
     }
 
-    chunk.setDirty(false);
+    chunk.setDirty(true);
 }
 
 void ChunkMesher::addQuad(Chunk& chunk, float x, float y, float z,

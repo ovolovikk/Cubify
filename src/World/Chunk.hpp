@@ -7,13 +7,16 @@
 #include "World/BlockType.hpp"
 #include "Graphics/Quad.hpp"
 
+#include "Graphics/Mesh.hpp"
+
 constexpr int CHUNK_SIZE = 16;
 constexpr int CHUNK_HEIGHT = 64;
 
 class Chunk
 {
 public:
-    Chunk(int x, int z);   
+    Chunk(int x, int z);
+    ~Chunk();   
 
     void setBlock(int x, int y, int z, BlockType type);
     BlockType getBlock(int x, int y, int z) const;
@@ -29,7 +32,10 @@ public:
     int getChunkZ() const { return chunkZ; }
     bool isValidCoordinates(int x, int y, int z) const;
 
+    Mesh& getMesh() { return mesh; }
+    
 private:
+    Mesh mesh;
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     std::vector<Quad> quads;
 

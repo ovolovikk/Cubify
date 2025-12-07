@@ -8,6 +8,7 @@
 #include "World/Chunk.hpp"
 #include "Graphics/Shader.hpp"
 #include "World/TerrainGenerator.hpp"
+#include "Graphics/Renderer.hpp"
 
 class World
 {
@@ -20,6 +21,7 @@ public:
     Chunk* getChunk(int x, int z);
     
     void update(glm::vec3 player_pos);
+    void draw(Renderer& renderer);
 
     const std::unordered_map<long long, std::unique_ptr<Chunk>>& getChunks() const { return chunks; }
 
@@ -27,7 +29,7 @@ private:
     std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;
 
     TerrainGenerator terrain_generator;
-    uint8_t render_distance = 16;
+    uint8_t render_distance = 8;
 
     long long getChunkId(int x, int z) const;
 };

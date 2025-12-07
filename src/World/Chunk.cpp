@@ -4,7 +4,17 @@
 
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {
-    std::fill(&blocks[0][0][0], &blocks[0][0][0] + sizeof(blocks), BlockType::AIR);
+    for (int i = 0; i < CHUNK_SIZE; ++i)
+        for (int j = 0; j < CHUNK_HEIGHT; ++j)
+            for (int k = 0; k < CHUNK_SIZE; ++k) 
+                blocks[i][j][k] = BlockType::AIR;
+}
+
+Chunk::~Chunk()
+{
+    if(mesh.SSBO != 0) {
+        glDeleteBuffers(1, &mesh.SSBO);
+    }
 }
 
 void Chunk::setBlock(int x, int y, int z, BlockType type)
@@ -38,9 +48,11 @@ bool Chunk::isValidCoordinates(int x, int y, int z) const
 void Chunk::addQuad(const Quad& quad)
 {
     quads.push_back(quad);
+    dirty = true;
 }
 
 void Chunk::clearQuads()
 {
     quads.clear();
+    dirty = true;
 }

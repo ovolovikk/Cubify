@@ -6,18 +6,12 @@
 
 #include <unordered_set>
 
-#include "Graphics/Quad.hpp"
-
 Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
 {
 }
 
 Renderer::~Renderer()
 {
-    for (auto& [chunk, meshData] : chunkMeshes) {
-        glDeleteBuffers(1, &meshData.SSBO);
-    }
-    chunkMeshes.clear();
 }
 
 void Renderer::init(int width, int height)
@@ -43,6 +37,9 @@ void Renderer::init(int width, int height)
         "textures/dirt.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
+
+    // required dummy vao for core profile
+    glGenVertexArrays(1, &vao);
 }
 
 void Renderer::resize(int width, int height)
@@ -65,15 +62,12 @@ void Renderer::beginFrame()
         texture_array->bind(0);
     }
     
-    // required dummy vao
-    glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 }
 
 void Renderer::shutdown()
 {
     glDeleteVertexArrays(1, &vao);
-    glfwTerminate();
 }
 
 void Renderer::endFrame()
@@ -87,41 +81,26 @@ void Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& project
     projection_matrix = projection;
 }
 
-void Renderer::uploadChunkMesh(Chunk* chunk)
+void Renderer::uploadMesh(Mesh& mesh, const std::vector<Quad>& quads)
 {
-    if (!chunk) {
+    if (quads.empty()) {
+        mesh.quadCount = 0;
         return;
     }
 
-    if (chunk->isDirty() || chunkMeshes.find(chunk) == chunkMeshes.end())
-    {
-        auto it = chunkMeshes.find(chunk);
-        if (it != chunkMeshes.end()) {
-            glDeleteBuffers(1, &it->second.SSBO);
-            chunkMeshes.erase(it);
-        }
-
-        const auto& quads = chunk->getQuads();
-        if (quads.empty()) {
-            return;
-        }
-
-        ChunkMeshData meshData;
-        meshData.quadCount = quads.size();
-
-        glGenBuffers(1, &meshData.SSBO);
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshData.SSBO);
-        glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
-
-        chunkMeshes[chunk] = meshData;
-        chunk->setDirty(false);
+    if (mesh.SSBO == 0) {
+        glGenBuffers(1, &mesh.SSBO);
     }
+
+    mesh.quadCount = quads.size();
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh.SSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
 }
 
-void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
+void Renderer::draw(const Mesh& mesh, const glm::mat4& model)
 {
-    auto it = chunkMeshes.find(&chunk);
-    if (it == chunkMeshes.end()) {
+    if (mesh.quadCount == 0 || mesh.SSBO == 0) {
         return;
     }
     
@@ -129,35 +108,7 @@ void Renderer::drawChunk(const Chunk& chunk, const glm::mat4& model)
         shader->setMat4("model", model);
     }
     
-    const ChunkMeshData& meshData = it->second;
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, meshData.SSBO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(meshData.quadCount));
-}
-
-void Renderer::drawWorld(const World& world)
-{
-    std::unordered_set<const Chunk*> activeChunks;
-
-    for (auto& [id, chunk] : world.getChunks())
-    {
-        activeChunks.insert(chunk.get());
-
-        // Upload mesh if not already cached
-        uploadChunkMesh(chunk.get());
-        
-        int x = static_cast<int>(id >> 32);
-        int z = static_cast<int>(id & 0xFFFFFFFF);
-
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE));
-        drawChunk(*chunk, model);
-    }
-
-    // clean meshes
-    for (auto it = chunkMeshes.begin(); it != chunkMeshes.end();)
-    {
-        if(activeChunks.find(it->first) == activeChunks.end()) {
-            glDeleteBuffers(1, &it->second.SSBO);
-            it = chunkMeshes.erase(it);
-        } else ++it;
-    }
+    glBindVertexArray(vao);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mesh.SSBO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(mesh.quadCount));
 }

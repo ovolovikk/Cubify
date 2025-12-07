@@ -1,9 +1,10 @@
 #ifndef TEXTURE_ARRAY_HPP
 #define TEXTURE_ARRAY_HPP
 
+#include <GL/glew.h>
+
 #include <string>
 #include <vector>
-#include <GL/glew.h>
 
 class TextureArray
 {
