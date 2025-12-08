@@ -29,17 +29,29 @@ void main()
     uint normal_index = (q.packed_data >> 10) & 7u;
 
     int perpendicular_axis = int(normal_index) / 2;
+    bool is_positive_face = (normal_index % 2) == 0;
     
     int index = gl_VertexID % 6;
     float u_local = 0.0;
     float v_local = 0.0;
-
+    if(is_positive_face)
+    {
     /* */if (index == 0) { u_local = 0.0; v_local = 0.0; } // bottom left(1)
     else if (index == 1) { u_local = 1.0; v_local = 0.0; } // bottom right(1)
     else if (index == 2) { u_local = 1.0; v_local = 1.0; } // top right(1)
     else if (index == 3) { u_local = 1.0; v_local = 1.0; } // top right(2)
     else if (index == 4) { u_local = 0.0; v_local = 1.0; } // top left(2)
     else if (index == 5) { u_local = 0.0; v_local = 0.0; } // bottom left(2)
+    } else
+        {
+            /* */if (index == 0) { u_local = 0.0; v_local = 0.0; }
+            else if (index == 1) { u_local = 1.0; v_local = 1.0; } // swap )
+            else if (index == 2) { u_local = 1.0; v_local = 0.0; } // swap )
+            else if (index == 3) { u_local = 1.0; v_local = 1.0; }
+            else if (index == 4) { u_local = 0.0; v_local = 0.0; } // swap )
+            else if (index == 5) { u_local = 0.0; v_local = 1.0; } // swap )
+        }
+
 
     // calc position
     vec3 pos = vec3(x, y, z);

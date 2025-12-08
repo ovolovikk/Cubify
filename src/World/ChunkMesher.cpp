@@ -53,7 +53,7 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
                     layerSide = 1.0f;     // grass side
                     layerBottom = 2.0f;   // dirt
                 }
-
+                
                 // left
                 if (getBlockAt(x - 1, y, z) == BlockType::AIR) {
                     addQuad(chunk, (float)x, (float)y, (float)z, layerSide, 0, false);

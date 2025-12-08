@@ -23,6 +23,8 @@ void Renderer::init(int width, int height)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE); // MSAA if avaivable
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     // subsystem initialization
     shader = std::make_unique<Shader>();
