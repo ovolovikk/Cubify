@@ -1,7 +1,7 @@
 #include "World/ChunkMesher.hpp"
 
 #include "World/Chunk.hpp"
-#include "Graphics/Quad.hpp"
+#include "Helpers/Quad.hpp"
 
 void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
 {

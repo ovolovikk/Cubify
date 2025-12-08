@@ -7,6 +7,7 @@
 #include <random>
 
 #include "World/ChunkMesher.hpp"
+#include "Helpers/Frustum.hpp"
 
 World::World() : terrain_generator(std::random_device{}())
 {
@@ -59,17 +60,23 @@ Chunk* World::getChunk(int x, int z)
     return nullptr;
 }
 
-void World::draw(Renderer& renderer)
+void World::draw(Renderer& renderer, const Frustum& frustum)
 {
     for(auto& [id, chunk]: chunks)
     {
+        int x = static_cast<int>(id >> 32);
+        int z = static_cast<int>(id & 0xFFFFFFFF);
+
+        vec3 min(x * CHUNK_SIZE, 0, z * CHUNK_SIZE);
+        vec3 max((x + 1) * CHUNK_SIZE, CHUNK_HEIGHT, (z + 1) * CHUNK_SIZE);
+
+        // radar frustum approach
+        if(!frustum.isBoxVisible(min, max)) continue;
+
         if (chunk->isDirty()) {
             renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
             chunk->setDirty(false);
         }
-        
-        int x = static_cast<int>(id >> 32);
-        int z = static_cast<int>(id & 0xFFFFFFFF);
 
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE));
         renderer.draw(chunk->getMesh(), model);

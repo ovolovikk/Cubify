@@ -3,7 +3,7 @@
 #include "Chunk.hpp"
 
 #define FNL_IMPL
-#include "FastNoiseLite.h"
+#include "Helpers/FastNoiseLite.h"
 
 TerrainGenerator::TerrainGenerator(int seed_)
     : seed(seed_)

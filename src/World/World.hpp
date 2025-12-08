@@ -10,6 +10,8 @@
 #include "World/TerrainGenerator.hpp"
 #include "Graphics/Renderer.hpp"
 
+struct Frustum;
+
 class World
 {
 public:
@@ -21,7 +23,9 @@ public:
     Chunk* getChunk(int x, int z);
     
     void update(glm::vec3 player_pos);
-    void draw(Renderer& renderer);
+    void draw(Renderer& renderer, const Frustum& frustum);
+
+    int getRenderDistance() const { return render_distance; }
 
     const std::unordered_map<long long, std::unique_ptr<Chunk>>& getChunks() const { return chunks; }
 

@@ -1,6 +1,6 @@
 #include "World/Chunk.hpp"
 
-#include "Graphics/Quad.hpp"
+#include "Helpers/Quad.hpp"
 
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {

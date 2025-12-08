@@ -1,6 +1,6 @@
 # Cubify
 
-A high-performance voxel engine written in C++17 and Modern OpenGL (4.3+).
+A high-performance voxel engine written in C++17 and Modern OpenGL (4.3+) maintaining **1500+ FPS**
 
 ## **Technical Highlights**
 

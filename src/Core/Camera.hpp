@@ -8,6 +8,11 @@ class IInputController;
 using glm::mat4;
 using glm::vec3;
 
+struct AABB
+{
+    vec3 min, max;
+};
+
 class Camera
 {
 public:
@@ -16,8 +21,11 @@ public:
     mat4 GetProjectionMatrix() const;
     mat4 GetViewMatrix() const;
 
+    bool frustumInterstectsAABB(const AABB& box) const;
 
     vec3 GetPosition() const { return position; }
+    vec3 GetFront() const { return front; }
+    float GetFOV() const { return fov; }
     void SetPosition(vec3 position);
     void SetAspect(float aspect);
     

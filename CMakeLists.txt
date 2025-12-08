@@ -82,7 +82,10 @@ add_executable(Cubify ${SOURCES})
 # Include directories
 target_include_directories(Cubify PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Helpers
     ${GLEW_ROOT}/include
+    ${GLFW_ROOT}/include
+    ${GLM_ROOT}
 )
 
 # Link libraries

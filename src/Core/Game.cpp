@@ -7,6 +7,7 @@
 
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
+#include "Helpers/Frustum.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
     : width(width_), height(height_)
@@ -34,7 +35,7 @@ void Game::init()
     renderer = std::make_unique<Renderer>();
     renderer->init(width, height);
 
-    camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
+    camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f));
     world = std::make_unique<World>();
     
     renderer->init(width, height);
@@ -64,7 +65,9 @@ void Game::update()
         // FPS counter
         nbFrames++;
         if (currentFrame - lastTime >= 1.0) {
-            std::string title = "Cubify - FPS: " + std::to_string(nbFrames) + " (" + std::to_string(1000.0 / double(nbFrames)) + " ms)";
+            std::string title = "Cubify - FPS: " + std::to_string(nbFrames) +
+             " (" + std::to_string(1000.0 / double(nbFrames)) + " ms)";
+            
             glfwSetWindowTitle(nativeWindow, title.c_str());
             nbFrames = 0;
             lastTime += 1.0;
@@ -77,9 +80,14 @@ void Game::update()
 
         world->update(camera->GetPosition());
 
+        // Calculate max visible distance based on render distance
+        float maxDistance = (float)(world->getRenderDistance() * CHUNK_SIZE);
+
+        Frustum frustum;
+        frustum.update(camera->GetPosition(), camera->GetFront(), camera->GetFOV(), maxDistance);
         renderer->beginFrame();
         renderer->setViewProjection(view, projection);
-        world->draw(*renderer);
+        world->draw(*renderer, frustum);
         renderer->endFrame();
 
         window->swapBuffers();

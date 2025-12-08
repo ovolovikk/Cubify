@@ -8,8 +8,8 @@
 #include <memory>
 #include <unordered_map>
 
-#include "Graphics/Mesh.hpp"
-#include "Graphics/Quad.hpp"
+#include "Helpers/Mesh.hpp"
+#include "Helpers/Quad.hpp"
 #include "Graphics/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
 

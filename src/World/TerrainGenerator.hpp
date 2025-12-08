@@ -1,7 +1,7 @@
 #ifndef TERRAIN_GENERATOR_HPP
 #define TERRAIN_GENERATOR_HPP
 
-#include "FastNoiseLite.h"
+#include "Helpers/FastNoiseLite.h"
 
 class Chunk;
 

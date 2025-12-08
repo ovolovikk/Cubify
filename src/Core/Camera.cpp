@@ -63,7 +63,7 @@ void Camera::processInput(const IInputController& input, float deltaTime)
 void Camera::updateCameraVectors()
 {
     glm::vec3 newFront;
-    newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch)); 
     newFront.y = sin(glm::radians(pitch));
     newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(newFront);
