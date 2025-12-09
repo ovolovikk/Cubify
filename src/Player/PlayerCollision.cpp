@@ -63,20 +63,17 @@ vec3 PlayerCollision::resolve(const vec3& pos, const vec3& vel, const AABB& box)
             grounded = true;
             current_pos.y = std::floor(current_pos.y + box.min.y) + 1.f - box.min.y;
         }
+        else if (vel.y > 0)
+        {
+            // jumping (hit ceiling)
+            current_pos.y = std::floor(current_pos.y + box.max.y) - box.max.y - 0.001f; 
+        }
 
         if (checkCollision(box, current_pos))
         {
             current_pos.y = pos.y;
         }
-    } else
-        // jumping
-        {
-            current_pos.y = std::floor(current_pos.y + box.max.y) - box.max.y - 0.001f; 
-            if (checkCollision(box, current_pos))
-            {
-                current_pos.y = pos.y;
-            }
-        }
+    }
     
     // X axis
     current_pos.x += vel.x;

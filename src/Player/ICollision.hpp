@@ -2,10 +2,9 @@
 #define I_COLLISION_HPP
 
 #include <glm/vec3.hpp>
+#include "Helpers/AABB.hpp"
 
 using glm::vec3;
-
-struct AABB { vec3 min; vec3 max; };
 
 class ICollision
 {

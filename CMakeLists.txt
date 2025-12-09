@@ -77,6 +77,7 @@ set(SOURCES
     src/World/TerrainGenerator.cpp
     src/Player/Player.cpp
     src/Player/PlayerCollision.cpp
+    src/Player/PlayerPhysics.cpp
 )
 
 add_executable(Cubify ${SOURCES})

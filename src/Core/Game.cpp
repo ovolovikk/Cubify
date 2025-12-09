@@ -38,7 +38,7 @@ void Game::init()
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f));
     world = std::make_unique<World>();
     
-    renderer->init(width, height);
+    player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
 
     terrain_generator = std::make_unique<TerrainGenerator>();
 }
@@ -56,6 +56,16 @@ void Game::update()
 
         if(input_controller->isKeyPressed(GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(nativeWindow, true);
+        }
+
+        // free cam
+        if (input_controller->isKeyPressed(GLFW_KEY_F1)) {
+            if (!f1_pressed) {
+                free_cam_mode = !free_cam_mode;
+                f1_pressed = true;
+            }
+        } else {
+            f1_pressed = false;
         }
 
         double currentFrame = glfwGetTime();
@@ -76,11 +86,15 @@ void Game::update()
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 
-        camera->processInput(*input_controller, deltaTime);
+        if (free_cam_mode) {
+            camera->processInput(*input_controller, deltaTime);
+        } else {
+            player->update(deltaTime);
+        }
 
         world->update(camera->GetPosition());
 
-        // Calculate max visible distance based on render distance
+        //max visible distance based on render distance
         float maxDistance = (float)(world->getRenderDistance() * CHUNK_SIZE);
 
         Frustum frustum;

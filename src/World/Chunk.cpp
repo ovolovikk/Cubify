@@ -56,3 +56,11 @@ void Chunk::clearQuads()
     quads.clear();
     dirty = true;
 }
+
+int Chunk::getSpawnY() const
+{
+    for(int y = 0;y < CHUNK_HEIGHT;++y)
+        if(blocks[0][y][0] == BlockType::GRASS)
+            return y;
+    return 0;
+}

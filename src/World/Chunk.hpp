@@ -29,6 +29,8 @@ public:
     void setDirty(bool d) { dirty = d; }
     int getChunkX() const { return chunkX; }
     int getChunkZ() const { return chunkZ; }
+    
+    int getSpawnY() const;
     bool isValidCoordinates(int x, int y, int z) const;
 
     Mesh& getMesh() { return mesh; }

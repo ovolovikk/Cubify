@@ -25,6 +25,8 @@ public:
     void update(glm::vec3 player_pos);
     void draw(Renderer& renderer, const Frustum& frustum);
 
+    glm::vec3 getSpawnPoint();
+
     int getRenderDistance() const { return render_distance; }
 
     const std::unordered_map<long long, std::unique_ptr<Chunk>>& getChunks() const { return chunks; }

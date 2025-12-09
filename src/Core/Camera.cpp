@@ -40,22 +40,30 @@ void Camera::processInput(const IInputController& input, float deltaTime)
 
     if (input.isMovingForward())  position += front * velocity;
     if (input.isMovingBackward()) position -= front * velocity;
-    if (input.isMovingLeft())     position -= glm::normalize(glm::cross(front, up)) * velocity;
-    if (input.isMovingRight())    position += glm::normalize(glm::cross(front, up)) * velocity;
+    if (input.isMovingLeft())     position -= right * velocity;
+    if (input.isMovingRight())    position += right * velocity;
     if (input.isMovingUp())       position += up * velocity;
     if (input.isMovingDown())     position -= up * velocity;
 
     glm::vec2 mouseDelta = input.getMouseDelta();
-    float xoffset = mouseDelta.x * MOUSE_SENSITIVITY;
-    float yoffset = mouseDelta.y * MOUSE_SENSITIVITY;
+    processMouseMovement(mouseDelta.x, mouseDelta.y);
+}
+
+void Camera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+{
+    xoffset *= MOUSE_SENSITIVITY;
+    yoffset *= MOUSE_SENSITIVITY;
 
     yaw   += xoffset;
     pitch += yoffset;
 
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
+    if (constrainPitch)
+    {
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+    }
 
     updateCameraVectors();
 }
@@ -67,4 +75,7 @@ void Camera::updateCameraVectors()
     newFront.y = sin(glm::radians(pitch));
     newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     front = glm::normalize(newFront);
+
+    right = glm::normalize(glm::cross(front, worldUp));
+    up    = glm::normalize(glm::cross(right, front));
 }

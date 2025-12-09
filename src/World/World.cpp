@@ -60,6 +60,33 @@ Chunk* World::getChunk(int x, int z)
     return nullptr;
 }
 
+glm::vec3 World::getSpawnPoint()
+{
+    int targetX = 8;
+    int targetZ = 8;
+
+    int chunkX = targetX / CHUNK_SIZE;
+    int chunkZ = targetZ / CHUNK_SIZE;
+    addChunk(chunkX, chunkZ);
+    
+    Chunk* chunk = getChunk(chunkX, chunkZ);
+    float spawnY = 80.0f;
+
+    if (chunk) {
+        int localX = targetX % CHUNK_SIZE;
+        int localZ = targetZ % CHUNK_SIZE;
+        
+        for (int y = CHUNK_HEIGHT - 1; y >= 0; --y) {
+            if (chunk->getBlock(localX, y, localZ) != BlockType::AIR) {
+                spawnY = (float)y + 2.0f;
+                break;
+            }
+        }
+    }
+    
+    return glm::vec3((float)targetX, spawnY, (float)targetZ);
+}
+
 void World::draw(Renderer& renderer, const Frustum& frustum)
 {
     for(auto& [id, chunk]: chunks)
