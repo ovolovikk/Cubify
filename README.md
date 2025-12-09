@@ -1,55 +1,33 @@
 # Cubify
 
-A high-performance voxel engine written in C++17 and Modern OpenGL (4.3+) maintaining **1500+ FPS**
+A high-performance voxel engine written in C++17 and Modern OpenGL.
 
-## **Technical Highlights**
+## Features
 
-### **Rendering Pipeline**
-*   **Programmable Vertex Pulling**: Uses **SSBOs** (Shader Storage Buffer Objects) to fetch vertex data directly on the GPU, bypassing traditional VBO overhead.
-*   **Aggressive Data Packing**: Geometry is bit-packed into just **8 bytes per quad** (Position + Normal + Texture Layer), reducing memory bandwidth by 3x.
-*   **Instanced Rendering**: Renders entire chunks in single draw calls using `glDrawArraysInstanced`.
-*   **Texture Arrays**: Utilizes `GL_TEXTURE_2D_ARRAY` for efficient texture management without atlas bleeding artifacts.
+*   **High Performance**: 1500+ FPS using modern rendering techniques (SSBOs, Face Culling).
+*   **Infinite World**: Procedurally generated terrain using FastNoiseLite.
+*   **Player Physics**: Custom physics engine with AABB collision detection, gravity, and momentum.
+*   **Movement**: Smooth WASD movement, sprinting, jumping, and air control.
+*   **Debug Tools**: Toggleable Free-Cam mode for inspecting the world.
 
-### **Engine Architecture**
-*   **Decoupled Design**: The Renderer is completely agnostic of game logic, following **SOLID** principles.
-*   **Modular Structure**: Clean separation between `Core` (Window/Input), `Graphics` (OpenGL abstraction), and `World` (Voxel logic).
+## Controls
 
-### **World Generation**
-*   **Infinite Terrain**: Procedural generation powered by **FastNoiseLite**.
-*   **Dynamic Streaming**: Efficient chunk loading and unloading based on player position.
-*   **Greedy Meshing (Lite)**: Face culling eliminates hidden geometry between blocks and chunks.
-
-## **Controls**
-*   `W, A, S, D`: Move Camera
-*   `LCTRL`: Sprint
-*   `Mouse`: Look around
+*   `W, A, S, D`: Move
+*   `Space`: Jump
+*   `Left Alt`: Sprint
+*   `Mouse`: Look
+*   `F1`: Toggle Free-Cam / Player Mode
 *   `ESC`: Exit
 
-## **Dependencies**
-*   **OpenGL 4.3+** (Core Profile)
-*   **GLFW 3** (Windowing and Input)
-*   **GLEW** (OpenGL Extension Wrangler)
-*   **GLM** (OpenGL Mathematics)
-*   **FastNoiseLite** (Noise generation)
-*   **stb_image** (Image loading)
+## Dependencies
 
-### **Prerequisites**
-*   C++17 compatible compiler (MSVC, GCC, Clang)
-*   CMake 3.10+
+*   OpenGL 4.3+, GLFW, GLEW, GLM
+*   FastNoiseLite, stb_image
 
-### **Instructions**
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/ovolovikk/Cubify.git
-    cd Cubify
-    ```
-2.  Create a build directory:
-    ```bash
-    mkdir build
-    cd build
-    ```
-3.  Configure and build:
-    ```bash
-    cmake ..
-    cmake --build .
-    ```
+## Build
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
