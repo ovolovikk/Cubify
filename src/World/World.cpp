@@ -13,9 +13,7 @@ World::World() : terrain_generator(std::random_device{}())
 {
 }
 
-World::~World()
-{
-}
+World::~World() = default;
 
 long long World::getChunkId(int x, int z) const
 {

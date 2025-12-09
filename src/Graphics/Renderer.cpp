@@ -6,12 +6,11 @@
 
 #include <unordered_set>
 
-Renderer::Renderer(): sampler(0), view_matrix(1.0f), projection_matrix(1.0f)
-{
-}
+Renderer::Renderer() = default;
 
 Renderer::~Renderer()
 {
+    shutdown();
 }
 
 void Renderer::init(int width, int height)

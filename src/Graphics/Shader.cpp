@@ -5,8 +5,16 @@
 #include <iostream>
 #include <vector>
 
-Shader::Shader()
+Shader::Shader() = default;
+
+Shader::~Shader()
 {
+    glDetachShader(program_ID, vertex_shader_ID);
+    glDetachShader(program_ID, fragment_shader_ID);
+
+    glDeleteShader(vertex_shader_ID);
+    glDeleteShader(fragment_shader_ID);
+    glDeleteProgram(program_ID);
 }
 
 bool Shader::load(string vertex_shader_path, string fragment_shader_path)
@@ -91,16 +99,6 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     }
 
     return true;
-}
-
-Shader::~Shader()
-{
-    glDetachShader(program_ID, vertex_shader_ID);
-    glDetachShader(program_ID, fragment_shader_ID);
-
-    glDeleteShader(vertex_shader_ID);
-    glDeleteShader(fragment_shader_ID);
-    glDeleteProgram(program_ID);
 }
 
 void Shader::use()

@@ -15,7 +15,10 @@ class Chunk
 {
 public:
     Chunk(int x, int z);
-    ~Chunk();   
+    ~Chunk();
+
+    Chunk(const Chunk&) = delete;
+    Chunk& operator=(const Chunk&) = delete;
 
     void setBlock(int x, int y, int z, BlockType type);
     BlockType getBlock(int x, int y, int z) const;

@@ -3,6 +3,8 @@
 
 #include <unordered_map>
 #include <memory>
+#include <random>
+
 #include <glm/glm.hpp>
 
 #include "World/Chunk.hpp"
@@ -17,6 +19,9 @@ class World
 public:
     World();
     ~World();
+
+    World(const World&) = delete;
+    World& operator=(const World&) = delete;
 
     void addChunk(int x, int z);
     void removeChunk(int x, int z);

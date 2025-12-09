@@ -19,9 +19,7 @@ Game::Game(int width_, int height_, const std::string& title_)
         update();
 }
 
-Game::~Game()
-{
-}
+Game::~Game() = default;
 
 void Game::init()
 {   

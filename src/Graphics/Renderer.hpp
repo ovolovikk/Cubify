@@ -19,6 +19,9 @@ public:
     Renderer();
     ~Renderer();
     
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+
     void init(int width, int height);
     void resize(int width, int height);
     void shutdown();
@@ -34,12 +37,12 @@ public:
 private:
     std::unique_ptr<Shader> shader;
     std::unique_ptr<TextureArray> texture_array;
-    GLuint sampler;
-    GLuint vao;
+    GLuint sampler = 0;
+    GLuint vao = 0;
     
 
-    glm::mat4 view_matrix;
-    glm::mat4 projection_matrix;
+    glm::mat4 view_matrix = 1.f;
+    glm::mat4 projection_matrix = 1.f;
 };
 
 #endif // RENDERER_HPP

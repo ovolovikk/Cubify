@@ -12,6 +12,9 @@ public:
     TextureArray(const std::vector<std::string>& layer_paths);
     ~TextureArray();
 
+    TextureArray(const TextureArray&) = delete;
+    TextureArray& operator=(const TextureArray&) = delete;
+
     void bind(unsigned int slot = 0) const;
     void unbind() const;
 

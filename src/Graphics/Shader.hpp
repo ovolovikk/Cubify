@@ -14,6 +14,9 @@ public:
     Shader();
     ~Shader();
 
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
+
     bool load(string vertex_shader_path, string fragment_shader_path);
 
     void use();

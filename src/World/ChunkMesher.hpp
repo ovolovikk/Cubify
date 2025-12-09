@@ -13,6 +13,10 @@ struct ChunkNeighbors {
 class ChunkMesher
 {
 public:
+    ChunkMesher() = delete;
+    ChunkMesher(const ChunkMesher&) = delete;
+    ChunkMesher& operator=(const ChunkMesher&) = delete;
+
     static void generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors);
 
 private:
