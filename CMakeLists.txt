@@ -75,6 +75,8 @@ set(SOURCES
     src/World/Chunk.cpp
     src/World/ChunkMesher.cpp
     src/World/TerrainGenerator.cpp
+    src/Player/Player.cpp
+    src/Player/PlayerCollision.cpp
 )
 
 add_executable(Cubify ${SOURCES})
