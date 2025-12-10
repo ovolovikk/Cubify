@@ -46,7 +46,7 @@ void Player::update(float dt)
         
         float current_speed = MOVE_SPEED;
         if (input.isSprinting()) {
-            current_speed *= 2.13f;
+            current_speed *= 2.07f;
         }
 
         if (!physics.isGrounded()) {

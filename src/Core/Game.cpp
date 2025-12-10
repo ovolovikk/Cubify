@@ -23,7 +23,7 @@ Game::~Game() = default;
 
 void Game::init()
 {   
-    GLFWwindow* nativeWindow = window->getGLFWWindow(); 
+    GLFWwindow* nativeWindow = window->GetGLFWWindow(); 
 
     glfwSetWindowUserPointer(nativeWindow, this);
     glfwSetFramebufferSizeCallback(nativeWindow, framebuffer_size_callback);
@@ -47,7 +47,7 @@ void Game::update()
     double lastTime = 0.0f;
     int nbFrames = 0;
 
-    GLFWwindow* nativeWindow = window->getGLFWWindow();
+    GLFWwindow* nativeWindow = window->GetGLFWWindow();
 
     while(window->isOpen()) {
         input_controller->update();
@@ -93,10 +93,11 @@ void Game::update()
         world->update(camera->GetPosition());
 
         //max visible distance based on render distance
-        float maxDistance = (float)(world->getRenderDistance() * CHUNK_SIZE);
+        float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
 
         Frustum frustum;
         frustum.update(camera->GetPosition(), camera->GetFront(), camera->GetFOV(), maxDistance);
+        
         renderer->beginFrame();
         renderer->setViewProjection(view, projection);
         world->draw(*renderer, frustum);

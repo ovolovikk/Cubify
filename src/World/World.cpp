@@ -9,7 +9,7 @@
 #include "World/ChunkMesher.hpp"
 #include "Helpers/Frustum.hpp"
 
-World::World() : terrain_generator(std::random_device{}())
+World::World()
 {
 }
 
@@ -27,7 +27,7 @@ void World::addChunk(int x, int z)
     {
         auto chunk = std::make_unique<Chunk>(x, z);
         Chunk* chunkPtr = chunk.get();
-        terrain_generator.generateChunkTerrain(chunkPtr);
+        terrain_generator.GenerateChunkTerrain(chunkPtr);
         
         chunks[id] = std::move(chunk);
 

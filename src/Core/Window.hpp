@@ -18,7 +18,7 @@ public:
     void swapBuffers();
     void pollEvents();
 
-    GLFWwindow* getGLFWWindow() const { return window; }
+    GLFWwindow* GetGLFWWindow() const { return window; }
     int getWidth() const{ return width; }
     int getHeight() const { return height; } 
 

@@ -8,12 +8,16 @@ class Chunk;
 class TerrainGenerator
 {
 public:
-	TerrainGenerator(int seed_ = 12345678);
+	TerrainGenerator() = default;
 	
-	void generateChunkTerrain(Chunk* chunk);
+	TerrainGenerator(const TerrainGenerator&) = delete;
+	TerrainGenerator& operator=(const TerrainGenerator&) = delete;
+
+	void GenerateChunkTerrain(Chunk* chunk);
+
 private:
-	int seed;
 	fnl_state noise;
+
 };
 
 #endif // TERRAIN_GENERATOR_HPP

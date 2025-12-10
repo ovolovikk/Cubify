@@ -12,7 +12,7 @@ using glm::vec3;
 class Camera
 {
 public:
-    Camera(vec3 _position, float _fov = 45.f, float _aspect = 4.f/3.f);
+    Camera(vec3 _position, float _fov = 60.f, float _aspect = 16.f/9.f);
 
     mat4 GetProjectionMatrix() const;
     mat4 GetViewMatrix() const;

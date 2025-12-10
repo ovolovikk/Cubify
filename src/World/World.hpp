@@ -32,7 +32,7 @@ public:
 
     glm::vec3 getSpawnPoint();
 
-    int getRenderDistance() const { return render_distance; }
+    int GetRenderDistance() const { return render_distance; }
 
     const std::unordered_map<long long, std::unique_ptr<Chunk>>& getChunks() const { return chunks; }
 
