@@ -27,6 +27,9 @@ public:
     void removeChunk(int x, int z);
     Chunk* getChunk(int x, int z);
     
+    void setBlock(int x, int y, int z, BlockType type);
+    void rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance);
+
     void update(glm::vec3 player_pos);
     void draw(Renderer& renderer, const Frustum& frustum);
 

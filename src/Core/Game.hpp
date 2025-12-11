@@ -45,6 +45,7 @@ private:
     
     bool free_cam_mode = false;
     bool f1_pressed = false;
+    bool left_mouse_pressed = false;
 };
 
 #endif // GAME_HPP

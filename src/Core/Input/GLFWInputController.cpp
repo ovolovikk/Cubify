@@ -38,6 +38,11 @@ glm::vec2 GLFWInputController::getMouseDelta() const {
     return glm::vec2((float)delta_x, (float)delta_y);
 }
 
+bool GLFWInputController::isMouseButtonPressed(int button) const
+{
+    return glfwGetMouseButton(window, button) == GLFW_PRESS;
+}
+
 bool GLFWInputController::isMovingForward() const {
     return glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
 }

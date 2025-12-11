@@ -66,6 +66,16 @@ void Game::update()
             f1_pressed = false;
         }
 
+        // mouse detection
+        if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            if (!left_mouse_pressed)
+            {
+                world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
+                left_mouse_pressed = true;
+            }
+        } else left_mouse_pressed = false;
+
         double currentFrame = glfwGetTime();
         float deltaTime = float(currentFrame - lastFrame);
         lastFrame = currentFrame;

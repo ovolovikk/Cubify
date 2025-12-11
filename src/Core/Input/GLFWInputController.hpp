@@ -19,6 +19,7 @@ public:
     bool isSprinting() const override;
 
     glm::vec2 getMouseDelta() const override;
+    bool isMouseButtonPressed(int button) const override;
 
     bool isKeyPressed(int key) const override;
     void update() override;

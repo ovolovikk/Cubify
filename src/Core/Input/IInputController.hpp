@@ -19,7 +19,8 @@ public:
 
     // mouse
     virtual glm::vec2 getMouseDelta() const = 0;
-
+    virtual bool isMouseButtonPressed(int button) const = 0;
+    
     // system
     virtual bool isKeyPressed(int key) const = 0;
     virtual void update() = 0;
