@@ -39,9 +39,6 @@ private:
     std::unique_ptr<World> world;
     std::unique_ptr<TerrainGenerator> terrain_generator;
     std::unique_ptr<Player> player;
-
-    int width;
-    int height;
     
     bool free_cam_mode = false;
     bool f1_pressed = false;

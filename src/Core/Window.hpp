@@ -21,6 +21,7 @@ public:
     GLFWwindow* GetGLFWWindow() const { return window; }
     int getWidth() const{ return width; }
     int getHeight() const { return height; } 
+    void setSize(int w, int h) { width = w; height = h; }
 
 private:
     GLFWwindow* window;

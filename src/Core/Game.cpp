@@ -10,9 +10,8 @@
 #include "Helpers/Frustum.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
-    : width(width_), height(height_)
 {
-    window = std::make_unique<Window>(title_, width, height);
+    window = std::make_unique<Window>(title_, width_, height_);
 
     init();
     if (window->isOpen())
@@ -31,7 +30,7 @@ void Game::init()
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
 
     renderer = std::make_unique<Renderer>();
-    renderer->init(width, height);
+    renderer->init(window->getWidth(), window->getHeight());
 
     camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f));
     world = std::make_unique<World>();
@@ -120,10 +119,9 @@ void Game::update()
 
 void Game::onResize(int width_, int height_)
 {
-    width = width_;
-    height = height_;
-    if (renderer) renderer->resize(width, height);
-    if (camera && height > 0) camera->SetAspect((float)width / (float)height);
+    if (window) window->setSize(width_, height_);
+    if (renderer) renderer->resize(width_, height_);
+    if (camera && height_ > 0) camera->SetAspect((float)width_ / (float)height_);
 }
 
 void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
