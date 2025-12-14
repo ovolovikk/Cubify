@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <string>
 #include <glm/vec3.hpp>
 
 #include "World/Chunk.hpp"
@@ -34,6 +35,9 @@ private:
     void addChunk(int x, int z);
     void removeChunk(int x, int z);
     long long getChunkId(int x, int z) const;
+
+    void saveChunk(Chunk* chunk);
+    std::string getChunkFileName(int x, int z) const;
 };
 
 #endif // CHUNK_MANAGER_HPP

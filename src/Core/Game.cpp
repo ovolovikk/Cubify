@@ -65,6 +65,13 @@ void Game::update()
             f1_pressed = false;
         }
 
+        if (input_controller->isKeyPressed(GLFW_KEY_1)) {
+            selectedBlock = BlockType::GRASS;
+        }
+        if (input_controller->isKeyPressed(GLFW_KEY_2)) {
+            selectedBlock = BlockType::DIRT;
+        }
+
         // mouse detection
         if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
         {
@@ -74,6 +81,15 @@ void Game::update()
                 left_mouse_pressed = true;
             }
         } else left_mouse_pressed = false;
+
+        if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            if (!right_mouse_pressed)
+            {
+                world->rayCastPlaceBlock(camera->GetPosition(), camera->GetFront(), 4.0f, selectedBlock);
+                right_mouse_pressed = true;
+            }
+        } else right_mouse_pressed = false;
 
         double currentFrame = glfwGetTime();
         float deltaTime = float(currentFrame - lastFrame);

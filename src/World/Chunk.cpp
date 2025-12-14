@@ -22,6 +22,7 @@ void Chunk::setBlock(int x, int y, int z, BlockType type)
     if (isValidCoordinates(x, y, z)) {
         blocks[x][y][z] = type;
         dirty = true;
+        unsaved_changes = true;
     }
 }
 

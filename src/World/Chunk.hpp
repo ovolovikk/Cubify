@@ -30,6 +30,8 @@ public:
 
     bool isDirty() const { return dirty; }
     void setDirty(bool d) { dirty = d; }
+    bool hasUnsavedChanges() const { return unsaved_changes; }
+    void setUnsavedChanges(bool d) { unsaved_changes = d; }
     int getChunkX() const { return chunkX; }
     int getChunkZ() const { return chunkZ; }
     
@@ -38,12 +40,14 @@ public:
 
     Mesh& getMesh() { return mesh; }
     
+    friend class ChunkManager;
 private:
     Mesh mesh;
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     std::vector<Quad> quads;
 
     bool dirty = false;
+    bool unsaved_changes = false;
     int chunkX, chunkZ;
 };
 

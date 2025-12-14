@@ -9,6 +9,13 @@
 
 struct Frustum;
 
+struct RayCastResult
+{
+    bool success;
+    glm::ivec3 block_position;
+    glm::ivec3 previous_position;
+};
+
 class World
 {
 public:
@@ -19,7 +26,9 @@ public:
     World& operator=(const World&) = delete;
     
     void setBlock(int x, int y, int z, BlockType type);
+    RayCastResult rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance);
     void rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance);
+    void rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_distance, BlockType type);
 
     void update(glm::vec3 player_pos);
     void draw(Renderer& renderer, const Frustum& frustum);

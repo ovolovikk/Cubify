@@ -43,6 +43,8 @@ private:
     bool free_cam_mode = false;
     bool f1_pressed = false;
     bool left_mouse_pressed = false;
+    bool right_mouse_pressed = false;
+    BlockType selectedBlock = BlockType::GRASS;
 };
 
 #endif // GAME_HPP

@@ -3,10 +3,28 @@
 #include "World/ChunkMesher.hpp"
 
 #include <cmath>
+#include <fstream>
+#include <filesystem>
+#include <string>
 
-ChunkManager::ChunkManager() = default;
+namespace fs = std::filesystem;
 
-ChunkManager::~ChunkManager() = default;
+ChunkManager::ChunkManager()
+{
+    if (!fs::exists("saves")) {
+        fs::create_directory("saves");
+    }
+}
+
+ChunkManager::~ChunkManager()
+{
+    // save all chunks which player touched
+    for (auto& [id, chunk] : chunks) {
+        if (chunk->hasUnsavedChanges()) {
+            saveChunk(chunk.get());
+        }
+    }
+}
 
 long long ChunkManager::getChunkId(int x, int z) const
 {
@@ -35,7 +53,17 @@ void ChunkManager::addChunk(int x, int z)
     {
         auto chunk = std::make_unique<Chunk>(x, z);
         Chunk* chunkPtr = chunk.get();
-        terrain_generator.GenerateChunkTerrain(chunkPtr);
+        
+        std::string filename = getChunkFileName(x, z);
+        std::ifstream inFile(filename, std::ios::binary);
+        
+        if (inFile.is_open()) {
+             inFile.read((char*)chunkPtr->blocks, sizeof(chunkPtr->blocks));
+             inFile.close();
+             chunkPtr->setUnsavedChanges(false);
+        } else {
+             terrain_generator.GenerateChunkTerrain(chunkPtr);
+        }
         
         chunks[id] = std::move(chunk);
 
@@ -52,7 +80,27 @@ void ChunkManager::addChunk(int x, int z)
 void ChunkManager::removeChunk(int x, int z)
 {
     long long id = getChunkId(x, z);
-    chunks.erase(id);
+    auto it = chunks.find(id);
+    if (it != chunks.end()) {
+        if (it->second->hasUnsavedChanges()) {
+            saveChunk(it->second.get());
+        }
+        chunks.erase(it);
+    }
+}
+
+std::string ChunkManager::getChunkFileName(int x, int z) const {
+    return "saves/chunk_" + std::to_string(x) + "_" + std::to_string(z) + ".dat";
+}
+
+void ChunkManager::saveChunk(Chunk* chunk) {
+    std::string filename = getChunkFileName(chunk->getChunkX(), chunk->getChunkZ());
+    std::ofstream outFile(filename, std::ios::binary);
+    if (outFile) {
+        outFile.write((char*)chunk->blocks, sizeof(chunk->blocks));
+        outFile.close();
+        chunk->setUnsavedChanges(false);
+    }
 }
 
 void ChunkManager::setBlock(int x, int y, int z, BlockType type)

@@ -21,11 +21,13 @@ void World::setBlock(int x, int y, int z, BlockType type)
     chunk_manager->setBlock(x, y, z, type);
 }
 
-void World::rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance)
+RayCastResult World::rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance)
 {
     float step = 0.05f;
     glm::vec3 pos = origin;
     glm::vec3 dir = glm::normalize(direction);
+    
+    glm::ivec3 last_pos = glm::ivec3(std::floor(pos.x), std::floor(pos.y), std::floor(pos.z));
 
     for (float d = 0; d < max_distance; d+= step)
     {
@@ -34,6 +36,9 @@ void World::rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_d
         int x = static_cast<int>(std::floor(pos.x));
         int y = static_cast<int>(std::floor(pos.y));
         int z = static_cast<int>(std::floor(pos.z));
+
+        if (x == last_pos.x && y == last_pos.y && z == last_pos.z)
+            continue;
 
         int chunkX = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
         int chunkZ = static_cast<int>(std::floor(z / (float)CHUNK_SIZE));
@@ -46,11 +51,28 @@ void World::rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_d
 
             if (chunk->getBlock(localX, y, localZ) != BlockType::AIR)
             {
-                setBlock(x, y, z, BlockType::AIR);
-                chunk->setDirty(true);
-                return;
+                return {true, glm::ivec3(x, y, z), last_pos};
             }
         }
+        
+        last_pos = glm::ivec3(x, y, z);
+    }
+    return {false, glm::ivec3(0), glm::ivec3(0)};
+}
+
+void World::rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance)
+{
+    RayCastResult result = rayCast(origin, direction, max_distance);
+    if (result.success) {
+        setBlock(result.block_position.x, result.block_position.y, result.block_position.z, BlockType::AIR);
+    }
+}
+
+void World::rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_distance, BlockType type)
+{
+    RayCastResult result = rayCast(origin, direction, max_distance);
+    if (result.success) {
+        setBlock(result.previous_position.x, result.previous_position.y, result.previous_position.z, type);
     }
 }
 
