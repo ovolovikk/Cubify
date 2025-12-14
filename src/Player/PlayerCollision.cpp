@@ -13,7 +13,7 @@ static BlockType getBlock(World& world, int x, int y, int z)
     int chunk_x = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
     int chunk_z = static_cast<int>(std::floor(z / (float)CHUNK_SIZE));
 
-    Chunk* chunk = world.getChunk(chunk_x, chunk_z);
+    Chunk* chunk = world.getChunkManager().getChunk(chunk_x, chunk_z);
     if(!chunk) return BlockType::AIR;
 
     int local_x = x - chunk_x * CHUNK_SIZE;

@@ -80,6 +80,7 @@ set(SOURCES
     src/Player/PlayerPhysics.cpp
     src/Utils/NoiseGenerator.cpp
     src/Utils/UIController.cpp
+    src/World/ChunkManager.cpp
 )
 
 add_executable(Cubify ${SOURCES})
