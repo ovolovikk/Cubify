@@ -79,17 +79,6 @@ void Game::update()
         float deltaTime = float(currentFrame - lastFrame);
         lastFrame = currentFrame;
 
-        // FPS counter
-        nbFrames++;
-        if (currentFrame - lastTime >= 1.0) {
-            std::string title = "Cubify - FPS: " + std::to_string(nbFrames) +
-             " (" + std::to_string(1000.0 / double(nbFrames)) + " ms)";
-            
-            glfwSetWindowTitle(nativeWindow, title.c_str());
-            nbFrames = 0;
-            lastTime += 1.0;
-        }
-
         glm::mat4 view = camera->GetViewMatrix();
         glm::mat4 projection = camera->GetProjectionMatrix();
 

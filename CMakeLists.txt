@@ -79,6 +79,7 @@ set(SOURCES
     src/Player/PlayerCollision.cpp
     src/Player/PlayerPhysics.cpp
     src/Utils/NoiseGenerator.cpp
+    src/Utils/UIController.cpp
 )
 
 add_executable(Cubify ${SOURCES})
