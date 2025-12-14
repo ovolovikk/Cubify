@@ -12,12 +12,10 @@ using glm::vec3;
 class Camera
 {
 public:
-    Camera(vec3 _position, float _fov = 60.f, float _aspect = 16.f/9.f);
+    Camera(vec3 position_, float fov_ = 60.f, float aspect_ = 16.0 / 9.f);
 
     mat4 GetProjectionMatrix() const;
     mat4 GetViewMatrix() const;
-
-    bool frustumInterstectsAABB(const AABB& box) const;
 
     vec3 GetPosition() const { return position; }
     vec3 GetFront() const { return front; }
@@ -38,16 +36,16 @@ private:
 
     float fov;
     float aspect;
-    float near_plane = 0.1f;
-    float far_plane = 1000.f;
+    float near_plane;
+    float far_plane;
 
     float yaw; // vertical
     float pitch; // horizontal
     
-    const float MOVEMENT_SPEED = 60.0f;
-    const float MOUSE_SENSITIVITY = 0.1f;
+    static constexpr float MOVEMENT_SPEED = 10.0f;
+    static constexpr float MOUSE_SENSITIVITY = 0.1f;
     
     void updateCameraVectors();
 };
 
-#endif // CAMERA_H
+#endif // CAMERA_HPP

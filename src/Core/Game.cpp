@@ -32,7 +32,7 @@ void Game::init()
     renderer = std::make_unique<Renderer>();
     renderer->init(window->getWidth(), window->getHeight());
 
-    camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f));
+    camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f), 60.f, 4.f / 3.f);
     world = std::make_unique<World>();
     
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
@@ -42,9 +42,7 @@ void Game::init()
 
 void Game::update()
 {
-    double lastFrame = 0.0f;
-    double lastTime = 0.0f;
-    int nbFrames = 0;
+    double lastFrame = glfwGetTime();
 
     GLFWwindow* nativeWindow = window->GetGLFWWindow();
 
@@ -70,6 +68,15 @@ void Game::update()
         }
         if (input_controller->isKeyPressed(GLFW_KEY_2)) {
             selectedBlock = BlockType::DIRT;
+        }
+        if (input_controller->isKeyPressed(GLFW_KEY_3)) {
+            selectedBlock = BlockType::STONE;
+        }
+        if (input_controller->isKeyPressed(GLFW_KEY_4)) {
+            selectedBlock = BlockType::SAND;
+        }
+        if (input_controller->isKeyPressed(GLFW_KEY_5)) {
+            selectedBlock = BlockType::WOODEN_PLANK;
         }
 
         // mouse detection
@@ -101,12 +108,14 @@ void Game::update()
         if (free_cam_mode) {
             camera->processInput(*input_controller, deltaTime);
         } else {
-            player->update(deltaTime);
+            if (world_rendered) {
+                player->update(deltaTime);
+            }
         }
 
         world->update(camera->GetPosition());
 
-        //max visible distance based on render distance
+        // max visible distance based on render distance
         float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
 
         Frustum frustum;
@@ -115,6 +124,7 @@ void Game::update()
         renderer->beginFrame();
         renderer->setViewProjection(view, projection);
         world->draw(*renderer, frustum);
+        world_rendered = true;
         renderer->endFrame();
 
         window->swapBuffers();

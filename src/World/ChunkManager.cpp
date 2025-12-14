@@ -63,6 +63,7 @@ void ChunkManager::addChunk(int x, int z)
              chunkPtr->setUnsavedChanges(false);
         } else {
              terrain_generator.GenerateChunkTerrain(chunkPtr);
+             chunkPtr->setUnsavedChanges(false);
         }
         
         chunks[id] = std::move(chunk);

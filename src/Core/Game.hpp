@@ -44,6 +44,7 @@ private:
     bool f1_pressed = false;
     bool left_mouse_pressed = false;
     bool right_mouse_pressed = false;
+    bool world_rendered = false;
     BlockType selectedBlock = BlockType::GRASS;
 };
 

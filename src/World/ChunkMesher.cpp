@@ -43,15 +43,37 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
             {
                 BlockType type = chunk.getBlock(x, y, z);
                 if (type == BlockType::AIR) continue;
+                
+                float layerTop, layerSide, layerBottom;
 
-                float layerTop = 2.0f;    // default dirt
-                float layerSide = 2.0f;
-                float layerBottom = 2.0f;
+                if (type == BlockType::DIRT) {
+                layerTop = 2.0f; 
+                layerSide = 2.0f;
+                layerBottom = 2.0f;
+                }
 
                 if (type == BlockType::GRASS) {
                     layerTop = 0.0f;      // grass top
                     layerSide = 1.0f;     // grass side
                     layerBottom = 2.0f;   // dirt
+                }
+
+                if(type == BlockType::STONE) {
+                    layerTop = 3.0f;
+                    layerSide = 3.0f;
+                    layerBottom = 3.0f;
+                }
+
+                if(type == BlockType::SAND) {
+                    layerTop = 4.0f;
+                    layerSide = 4.0f;
+                    layerBottom = 4.0f;
+                }
+
+                if(type == BlockType::WOODEN_PLANK) {
+                    layerTop = 5.0f;
+                    layerSide = 5.0f;
+                    layerBottom = 5.0f;
                 }
                 
                 // left

@@ -8,7 +8,9 @@ enum class BlockType : uint8_t
     AIR = 0,
     DIRT,
     STONE,
-    GRASS
+    GRASS,
+    SAND,
+    WOODEN_PLANK
 };
 
 #endif // BLOCK_TYPE_HPP

@@ -30,7 +30,7 @@ public:
 private:
     std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;
     TerrainGenerator terrain_generator;
-    int render_distance = 8;
+    int render_distance = 16;
 
     void addChunk(int x, int z);
     void removeChunk(int x, int z);

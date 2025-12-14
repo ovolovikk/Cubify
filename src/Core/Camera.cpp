@@ -4,12 +4,13 @@
 
 #include "Core/Input/IInputController.hpp"
 
-Camera::Camera(vec3 _position, float _fov, float _aspect)
-    : position(_position), fov(_fov), aspect(_aspect), 
-      yaw(-90.0f), pitch(0.0f), worldUp(glm::vec3(0.0f, 1.0f, 0.0f))
+Camera::Camera(vec3 position_, float fov_, float aspect_)
+    : position(position_), fov(fov_), aspect(aspect_),
+    yaw(-90.0f), pitch(0.0f),
+    worldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
+    front(vec3(0.0f, 0.0f, -0.0f)), up(vec3(0.f, 1.f, 0.f)),
+    near_plane(0.1f), far_plane(1000.f)
 {
-    front = vec3(0.0f, 0.0f, -1.0f);
-    up = vec3(0.0f, 1.0f, 0.0f);
     updateCameraVectors();
 }
 
