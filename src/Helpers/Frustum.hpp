@@ -17,7 +17,7 @@ struct Frustum
         cam_front = glm::normalize(front);
         max_distance = range;
 
-        float halfFOV = glm::radians(fov / 2.0f);
+        halfFOV = glm::radians(fov / 2.0f);
         cutoff = cos(halfFOV + MARGIN);
     }
 
@@ -26,16 +26,20 @@ struct Frustum
         vec3 center = (min + max) * 0.5f;
 
         float dist = glm::distance(cam_pos, center);
-        if (dist > max_distance + EPSILON) return false;
+        
+        if (dist > max_distance + 128.0f) return false;
+
+        if (dist < 80.0f) return true;
 
         vec3 to_chunk = glm::normalize(center - cam_pos);
 
         float angle_cos = glm::dot(cam_front, to_chunk);
 
-        // if(true) -> invisible
-        if (angle_cos < cutoff)
+        float angular_radius = atan2(70.0f, dist);
+        float local_cutoff = cos(halfFOV + angular_radius);
+
+        if (angle_cos < local_cutoff)
         {
-            if(dist < EPSILON) return true;
             return false;
         }
 
@@ -47,6 +51,7 @@ private:
     vec3 cam_front;
     float max_distance;
     float cutoff;
+    float halfFOV;
 };
 
 #endif // FRUSTUM_HPP

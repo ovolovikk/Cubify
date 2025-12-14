@@ -133,7 +133,7 @@ glm::vec3 World::getSpawnPoint()
     addChunk(chunkX, chunkZ);
     
     Chunk* chunk = getChunk(chunkX, chunkZ);
-    float spawnY = 80.0f;
+    float spawnY = (float)CHUNK_HEIGHT + 2.0f;
 
     if (chunk) {
         int localX = targetX % CHUNK_SIZE;

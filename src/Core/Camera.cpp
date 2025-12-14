@@ -42,8 +42,8 @@ void Camera::processInput(const IInputController& input, float deltaTime)
     if (input.isMovingBackward()) position -= front * velocity;
     if (input.isMovingLeft())     position -= right * velocity;
     if (input.isMovingRight())    position += right * velocity;
-    if (input.isMovingUp())       position += up * velocity;
-    if (input.isMovingDown())     position -= up * velocity;
+    if (input.isMovingUp())       position += worldUp * velocity;
+    if (input.isMovingDown())     position -= worldUp * velocity;
 
     glm::vec2 mouseDelta = input.getMouseDelta();
     processMouseMovement(mouseDelta.x, mouseDelta.y);
