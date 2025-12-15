@@ -1,14 +1,14 @@
 #ifndef TERRAIN_GENERATOR_HPP
 #define TERRAIN_GENERATOR_HPP
 
-#include "Helpers/FastNoiseLite.h"
+#include "Utils/NoiseGenerator.hpp"
 
 class Chunk;
 
 class TerrainGenerator
 {
 public:
-	TerrainGenerator() = default;
+	TerrainGenerator();
 	
 	TerrainGenerator(const TerrainGenerator&) = delete;
 	TerrainGenerator& operator=(const TerrainGenerator&) = delete;
@@ -16,8 +16,8 @@ public:
 	void GenerateChunkTerrain(Chunk* chunk);
 
 private:
-	fnl_state noise;
-
+	NoiseGenerator noise_gen;
+    static constexpr auto WATER_LEVEL = 45;
 };
 
 #endif // TERRAIN_GENERATOR_HPP

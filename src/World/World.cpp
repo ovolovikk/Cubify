@@ -16,6 +16,11 @@ World::World()
 
 World::~World() = default;
 
+BlockType World::getBlock(int x, int y, int z) const
+{
+    return chunk_manager->getBlock(x, y, z);
+}
+
 void World::setBlock(int x, int y, int z, BlockType type)
 {
     chunk_manager->setBlock(x, y, z, type);
@@ -23,15 +28,14 @@ void World::setBlock(int x, int y, int z, BlockType type)
 
 RayCastResult World::rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance)
 {
-    float step = 0.05f;
     glm::vec3 pos = origin;
     glm::vec3 dir = glm::normalize(direction);
     
     glm::ivec3 last_pos = glm::ivec3(std::floor(pos.x), std::floor(pos.y), std::floor(pos.z));
 
-    for (float d = 0; d < max_distance; d+= step)
+    for (float d = 0; d < max_distance; d+= RAYCAST_STEP)
     {
-        pos += dir * step;
+        pos += dir * RAYCAST_STEP;
 
         int x = static_cast<int>(std::floor(pos.x));
         int y = static_cast<int>(std::floor(pos.y));

@@ -46,11 +46,11 @@ void Player::update(float dt)
         
         float current_speed = MOVE_SPEED;
         if (input.isSprinting()) {
-            current_speed *= 2.07f;
+            current_speed *= SPRINT_MLTPL;
         }
 
         if (!physics.isGrounded()) {
-            current_speed *= 0.1f;
+            current_speed *= FREE_FALL_SLOWDONW;
         }
         
         physics.move(move_dir, current_speed * dt);

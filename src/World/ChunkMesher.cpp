@@ -3,6 +3,22 @@
 #include "World/Chunk.hpp"
 #include "Helpers/Quad.hpp"
 
+namespace {
+    struct BlockTexture {
+        float top, side, bottom;
+    };
+
+    constexpr BlockTexture BLOCK_TEXTURES[] = {
+        {0.0f, 0.0f, 0.0f}, // AIR
+        {2.0f, 2.0f, 2.0f}, // DIRT
+        {3.0f, 3.0f, 3.0f}, // STONE
+        {0.0f, 1.0f, 2.0f}, // GRASS
+        {4.0f, 4.0f, 4.0f}, // SAND
+        {5.0f, 5.0f, 5.0f}, // WOODEN_PLANK
+        {6.0f, 6.0f, 6.0f}  // WATER
+    };
+}
+
 void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
 {
     chunk.clearQuads();
@@ -44,37 +60,10 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
                 BlockType type = chunk.getBlock(x, y, z);
                 if (type == BlockType::AIR) continue;
                 
-                float layerTop, layerSide, layerBottom;
-
-                if (type == BlockType::DIRT) {
-                layerTop = 2.0f; 
-                layerSide = 2.0f;
-                layerBottom = 2.0f;
-                }
-
-                if (type == BlockType::GRASS) {
-                    layerTop = 0.0f;      // grass top
-                    layerSide = 1.0f;     // grass side
-                    layerBottom = 2.0f;   // dirt
-                }
-
-                if(type == BlockType::STONE) {
-                    layerTop = 3.0f;
-                    layerSide = 3.0f;
-                    layerBottom = 3.0f;
-                }
-
-                if(type == BlockType::SAND) {
-                    layerTop = 4.0f;
-                    layerSide = 4.0f;
-                    layerBottom = 4.0f;
-                }
-
-                if(type == BlockType::WOODEN_PLANK) {
-                    layerTop = 5.0f;
-                    layerSide = 5.0f;
-                    layerBottom = 5.0f;
-                }
+                const auto& textures = BLOCK_TEXTURES[static_cast<size_t>(type)];
+                float layerTop = textures.top;
+                float layerSide = textures.side;
+                float layerBottom = textures.bottom;
                 
                 // left
                 if (getBlockAt(x - 1, y, z) == BlockType::AIR) {

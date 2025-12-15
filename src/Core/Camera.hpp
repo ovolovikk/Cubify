@@ -42,8 +42,8 @@ private:
     float yaw; // vertical
     float pitch; // horizontal
     
-    static constexpr float MOVEMENT_SPEED = 10.0f;
-    static constexpr float MOUSE_SENSITIVITY = 0.1f;
+    static constexpr auto MOVEMENT_SPEED = 10.0f;
+    static constexpr auto MOUSE_SENSITIVITY = 0.1f;
     
     void updateCameraVectors();
 };

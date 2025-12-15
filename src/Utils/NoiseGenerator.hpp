@@ -18,6 +18,14 @@ public:
 private:
     int seed;
     fnl_state noise;
+
+    static constexpr auto MIN_HEIGHT = 30;
+    static constexpr auto AMPLITUDE = 80;
+
+    static constexpr auto FREQUENCY = 0.005f;
+    static constexpr auto OCTAVES = 4;
+    static constexpr auto LACUNARITY = 2.0f;
+    static constexpr auto GAIN = 0.5f;
 };
 
 #endif // NOISE_GENERATOR_HPP

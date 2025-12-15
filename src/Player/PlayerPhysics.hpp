@@ -25,10 +25,10 @@ private:
     vec3 velocity;
 
     // physics constants
-    const float GRAVITY = -32.f;
-    const float DRAG = 10.f;
-    const float AIR_DRAG = 1.f;
-    const float MAX_FALL_SPEED = 50.0f;
+    static constexpr auto GRAVITY = -32.f;
+    static constexpr auto DRAG = 10.f;
+    static constexpr auto AIR_DRAG = 1.f;
+    static constexpr auto MAX_FALL_SPEED = 50.0f;
 
     AABB boundingBox;
 };

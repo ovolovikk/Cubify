@@ -13,13 +13,10 @@ public:
 
     void update();
 
+private:
     void showFPS();
     void showCoorditanes();
     void showRayCastBlock();
-
-private:
-
-
 };
 
 #endif // UI_CONTROLLER_HPP

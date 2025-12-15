@@ -104,6 +104,22 @@ void ChunkManager::saveChunk(Chunk* chunk) {
     }
 }
 
+BlockType ChunkManager::getBlock(int x, int y, int z) const
+{
+    int chunk_x = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
+    int chunk_z = static_cast<int>(std::floor(z / (float)CHUNK_SIZE));
+
+    const Chunk* chunk = getChunk(chunk_x, chunk_z);
+    if (!chunk) return BlockType::AIR;
+
+    int local_x = x - chunk_x * CHUNK_SIZE;
+    int local_z = z - chunk_z * CHUNK_SIZE;
+
+    if (y < 0 || y >= CHUNK_HEIGHT) return BlockType::AIR;
+
+    return chunk->getBlock(local_x, y, local_z);
+}
+
 void ChunkManager::setBlock(int x, int y, int z, BlockType type)
 {
     int chunk_x = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
@@ -142,9 +158,9 @@ void ChunkManager::update(glm::vec3 player_pos)
     int playerChunkZ = static_cast<int>(floor(player_pos.z / CHUNK_SIZE));
 
     // load chunks
-    for(int x = playerChunkX - render_distance; x <= playerChunkX + render_distance; ++x)
+    for(int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; ++x)
     {
-        for (int z = playerChunkZ - render_distance; z <= playerChunkZ + render_distance; ++z)
+        for (int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; ++z)
         {
             addChunk(x, z);
         }
@@ -158,7 +174,7 @@ void ChunkManager::update(glm::vec3 player_pos)
         int x = static_cast<int>(id >> 32);
         int z = static_cast<int>(id & 0xFFFFFFFF);
 
-        if(abs(x - playerChunkX) > render_distance || abs(z - playerChunkZ) > render_distance)
+        if(abs(x - playerChunkX) > RENDER_DISTANCE || abs(z - playerChunkZ) > RENDER_DISTANCE)
         {
             it = chunks.erase(it);
         } else ++it;

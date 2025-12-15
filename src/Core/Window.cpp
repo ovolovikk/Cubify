@@ -11,7 +11,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glewExperimental = true;
     if(!glfwInit())
     {
-        std::cout <<"glfw init error.\n";
+        std::cerr <<"glfw init error.\n";
         return;
     }
 
@@ -21,16 +21,16 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for MacOS
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, "Cubify", NULL, NULL);
+    window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(window == nullptr) {
-        std::cout << "window init error.\n";
+        std::cerr << "window init error.\n";
         return;
     }
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
 
     if (glewInit() != GLEW_OK) { 
-        std::cout << "glew init error\n";
+        std::cerr << "glew init error\n";
         return;
     }
 

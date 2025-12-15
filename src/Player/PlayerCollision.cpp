@@ -7,24 +7,7 @@
 #include "World/Chunk.hpp"
 #include "Helpers/BlockType.hpp"
 
-// works for global coordinates
-static BlockType getBlock(World& world, int x, int y, int z)
-{
-    int chunk_x = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
-    int chunk_z = static_cast<int>(std::floor(z / (float)CHUNK_SIZE));
-
-    Chunk* chunk = world.getChunkManager().getChunk(chunk_x, chunk_z);
-    if(!chunk) return BlockType::AIR;
-
-    int local_x = x - chunk_x * CHUNK_SIZE;
-    int local_z = z - chunk_z * CHUNK_SIZE;
-
-    if (y < 0 || y >= CHUNK_HEIGHT) return BlockType::AIR;
-
-    return chunk->getBlock(local_x, y, local_z);
-}
-
-PlayerCollision::PlayerCollision(World& world) : world(world)
+PlayerCollision::PlayerCollision(World& world) : world(world), grounded(false)
 {
 }
 
@@ -43,7 +26,7 @@ bool PlayerCollision::checkCollision(const AABB& box, const vec3& pos)
     for(int x = min_x; x <= max_x;++x)
         for(int y = min_y; y <= max_y;++y)
             for(int z = min_z; z <= max_z;++z)
-                if (getBlock(world, x, y, z) != BlockType::AIR) return true;
+                if (world.getBlock(x, y, z) != BlockType::AIR) return true;
 
     return false;
 }

@@ -17,7 +17,7 @@ private:
     bool checkCollision(const AABB& box, const vec3& pos);
     
     World& world;
-    bool grounded = false;
+    bool grounded;
 };
 
 #endif // PLAYER_COLLISION_HPP

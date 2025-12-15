@@ -1,10 +1,10 @@
-#include "TerrainGenerator.hpp"
+#include "World/TerrainGenerator.hpp"
 
-#include "Chunk.hpp"
-#include "Utils/NoiseGenerator.hpp"
+#include "World/Chunk.hpp"
 
-#define FNL_IMPL
-#include "Helpers/FastNoiseLite.h"
+TerrainGenerator::TerrainGenerator() : noise_gen(1337)
+{
+}
 
 void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
 {
@@ -13,22 +13,44 @@ void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
     {
         for (int lz = 0; lz < CHUNK_SIZE; ++lz)
         {
-            NoiseGenerator noise_g;
-            int height = noise_g.getBLockHeight(chunk, lx, lz);
+            int height = noise_gen.getBLockHeight(chunk, lx, lz);
 
             for (int ly = 0; ly < CHUNK_HEIGHT; ++ly)
             {
-                if (ly > height)
+                BlockType type = BlockType::AIR;
+
+                if (ly <= height)
                 {
-                    chunk->setBlock(lx, ly, lz, BlockType::AIR);
+                    if (ly < height - 3)
+                    {
+                        type = BlockType::STONE;
+                    }
+                    else
+                    {
+                        if (height <= WATER_LEVEL + 2)
+                        {
+                            type = BlockType::SAND;
+                        }
+                        else
+                        {
+                            if (ly == height) type = BlockType::GRASS;
+                            else type = BlockType::DIRT;
+                        }
+                    }
                 }
-                else if (ly == height)
+                else if (ly <= WATER_LEVEL)
                 {
-                    chunk->setBlock(lx, ly, lz, BlockType::GRASS);
+                    type = BlockType::WATER;
+                }
+
+                if (type != BlockType::AIR)
+                {
+                    chunk->setBlock(lx, ly, lz, type);
                 }
                 else
                 {
-                    chunk->setBlock(lx, ly, lz, BlockType::DIRT);
+                    // Ensure air is set if we are overwriting or initializing
+                    chunk->setBlock(lx, ly, lz, BlockType::AIR);
                 }
             }
         }

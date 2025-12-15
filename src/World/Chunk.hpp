@@ -8,8 +8,8 @@
 #include "Helpers/Quad.hpp"
 #include "Helpers/Mesh.hpp"
 
-constexpr int CHUNK_SIZE = 16;
-constexpr int CHUNK_HEIGHT = 128;
+constexpr auto CHUNK_SIZE = 16;
+constexpr auto CHUNK_HEIGHT = 128;
 
 class Chunk
 {

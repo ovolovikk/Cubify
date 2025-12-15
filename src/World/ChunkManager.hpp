@@ -24,13 +24,15 @@ public:
     const Chunk* getChunk(int x, int z) const;
     const auto& getChunks() const { return chunks; }
 
+    BlockType getBlock(int x, int y, int z) const;
     void setBlock(int x, int y, int z, BlockType type);
 
-    int getRenderDistance() const { return render_distance; }
+    int getRenderDistance() const { return RENDER_DISTANCE; }
 private:
     std::unordered_map<long long, std::unique_ptr<Chunk>> chunks;
     TerrainGenerator terrain_generator;
-    int render_distance = 16;
+    
+    static constexpr auto RENDER_DISTANCE = 24;
 
     void addChunk(int x, int z);
     void removeChunk(int x, int z);

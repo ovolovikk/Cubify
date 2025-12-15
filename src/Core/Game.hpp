@@ -46,6 +46,10 @@ private:
     bool right_mouse_pressed = false;
     bool world_rendered = false;
     BlockType selectedBlock = BlockType::GRASS;
+
+    static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 50.0f, 0.0f);
+    static constexpr auto CAMERA_FOV = 60.f;
+    static constexpr auto CAMERA_ASPECT = 4.f / 3.f;
 };
 
 #endif // GAME_HPP

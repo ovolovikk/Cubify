@@ -1,3 +1,4 @@
+#define FNL_IMPL
 #include "Utils/NoiseGenerator.hpp"
 
 #include "World/Chunk.hpp"
@@ -7,11 +8,11 @@ NoiseGenerator::NoiseGenerator(int seed_) : seed(seed_)
     noise = fnlCreateState();
     noise.noise_type = FNL_NOISE_OPENSIMPLEX2;
     noise.fractal_type = FNL_FRACTAL_FBM;
-    noise.octaves = 4;
-    noise.lacunarity = 2.f;
-    noise.gain = 0.5f;
+    noise.octaves = OCTAVES;
+    noise.lacunarity = LACUNARITY;
+    noise.gain = GAIN;
     noise.seed = seed;
-    noise.frequency = 0.005f;
+    noise.frequency = FREQUENCY;
 }
 
 int NoiseGenerator::getBLockHeight(Chunk* chunk, int lx, int lz) const
@@ -25,10 +26,7 @@ int NoiseGenerator::getBLockHeight(Chunk* chunk, int lx, int lz) const
 
     n = n * n * n;
 
-    int minHeight = 30;
-    int amplitude = 80;
-
-    int height = minHeight + static_cast<int>(n * amplitude);
+    int height = MIN_HEIGHT + static_cast<int>(n * AMPLITUDE);
 
     if (height < 0) height = 0;
     if (height >= CHUNK_HEIGHT) height = CHUNK_HEIGHT - 1;

@@ -16,18 +16,15 @@
 class Renderer
 {
 public:
-    Renderer();
+    Renderer(int width, int height);
     ~Renderer();
     
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    void init(int width, int height);
     void resize(int width, int height);
-    void shutdown();
 
     void beginFrame();
-    void endFrame();
 
     void setViewProjection(const glm::mat4& view, const glm::mat4& projection);
 
@@ -37,12 +34,12 @@ public:
 private:
     std::unique_ptr<Shader> shader;
     std::unique_ptr<TextureArray> texture_array;
-    GLuint sampler = 0;
-    GLuint vao = 0;
+    GLuint sampler;
+    GLuint vao;
     
 
-    glm::mat4 view_matrix = 1.f;
-    glm::mat4 projection_matrix = 1.f;
+    glm::mat4 view_matrix;
+    glm::mat4 projection_matrix;
 };
 
 #endif // RENDERER_HPP

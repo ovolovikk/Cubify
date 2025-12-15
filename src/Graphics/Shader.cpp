@@ -5,7 +5,9 @@
 #include <iostream>
 #include <vector>
 
-Shader::Shader() = default;
+Shader::Shader() : vertex_shader_ID(0), fragment_shader_ID(0), program_ID(0)
+{
+}
 
 Shader::~Shader()
 {

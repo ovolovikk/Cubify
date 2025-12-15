@@ -6,14 +6,8 @@
 
 #include <unordered_set>
 
-Renderer::Renderer() = default;
-
-Renderer::~Renderer()
-{
-    shutdown();
-}
-
-void Renderer::init(int width, int height)
+Renderer::Renderer(int width, int height)
+    : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f)
 {
     glViewport(0, 0, width, height);
 
@@ -38,12 +32,18 @@ void Renderer::init(int width, int height)
         "textures/dirt.png",
         "textures/stone.png",
         "textures/sand.png",
-        "textures/wooden_plank.png"
+        "textures/wooden_plank.png",
+        "textures/penis_water.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
 
     // required dummy vao for core profile
     glGenVertexArrays(1, &vao);
+}
+
+Renderer::~Renderer()
+{
+    glDeleteVertexArrays(1, &vao);
 }
 
 void Renderer::resize(int width, int height)
@@ -67,16 +67,6 @@ void Renderer::beginFrame()
     }
     
     glBindVertexArray(vao);
-}
-
-void Renderer::shutdown()
-{
-    glDeleteVertexArrays(1, &vao);
-}
-
-void Renderer::endFrame()
-{
-    //TODO
 }
 
 void Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection)

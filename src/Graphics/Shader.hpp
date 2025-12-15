@@ -27,9 +27,9 @@ public:
     void setInt(const string& name, const int value) const;
 
 private:
-    GLuint vertex_shader_ID = 0;
-    GLuint fragment_shader_ID = 0;
-    GLuint program_ID = 0; 
+    GLuint vertex_shader_ID;
+    GLuint fragment_shader_ID;
+    GLuint program_ID; 
 };
 
 #endif // SHADER_HPP

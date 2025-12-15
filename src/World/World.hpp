@@ -25,6 +25,7 @@ public:
     World(const World&) = delete;
     World& operator=(const World&) = delete;
     
+    BlockType getBlock(int x, int y, int z) const;
     void setBlock(int x, int y, int z, BlockType type);
     RayCastResult rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance);
     void rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance);
@@ -42,6 +43,8 @@ public:
 
 private:
     std::unique_ptr<ChunkManager> chunk_manager;
+
+    static constexpr auto RAYCAST_STEP = 0.05f;
 };
 
 #endif // WORLD_HPP

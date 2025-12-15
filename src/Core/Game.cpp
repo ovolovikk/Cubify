@@ -29,10 +29,9 @@ void Game::init()
 
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
 
-    renderer = std::make_unique<Renderer>();
-    renderer->init(window->getWidth(), window->getHeight());
+    renderer = std::make_unique<Renderer>(window->getWidth(), window->getHeight());
 
-    camera = std::make_unique<Camera>(glm::vec3(0.0f, 50.0f, 0.0f), 60.f, 4.f / 3.f);
+    camera = std::make_unique<Camera>(CAMERA_START_POS, CAMERA_FOV, CAMERA_ASPECT);
     world = std::make_unique<World>();
     
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
@@ -125,7 +124,6 @@ void Game::update()
         renderer->setViewProjection(view, projection);
         world->draw(*renderer, frustum);
         world_rendered = true;
-        renderer->endFrame();
 
         window->swapBuffers();
         window->pollEvents();

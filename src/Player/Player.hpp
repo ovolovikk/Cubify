@@ -31,8 +31,10 @@ private:
     PlayerCollision collision;
     PlayerPhysics physics;
 
-    const float MOVE_SPEED = 45.f;
-    const float JUMP_FORCE = 9.0f;
+    static constexpr auto MOVE_SPEED = 45.f;
+    static constexpr auto JUMP_FORCE = 9.0f;
+    static constexpr auto SPRINT_MLTPL = 2.03f;
+    static constexpr auto FREE_FALL_SLOWDONW = 0.1f;
 };
 
 #endif // PLAYER_HPP
