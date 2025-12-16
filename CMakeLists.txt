@@ -1,138 +1,75 @@
-cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0074 NEW) 
-cmake_policy(SET CMP0144 NEW) 
+cmake_minimum_required(VERSION 3.20)
 
-project(Cubify)
+project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
+# --- Configuration ---
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-if(WIN32)
-    if(NOT DEFINED GLEW_ROOT)
-       set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0") 
-    endif()
-    if(NOT DEFINED GLFW_ROOT)
-       set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64")
-    endif()
-    if(NOT DEFINED GLM_ROOT)
-       set(GLM_ROOT "C:/Users/shona/Documents/libs/glm-1.0.2")
-    endif()
+# Library Paths
+set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0" CACHE PATH "Path to GLEW root")
+set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64" CACHE PATH "Path to GLFW root")
+set(GLM_ROOT "C:/Users/shona/Documents/libs/glm-1.0.2" CACHE PATH "Path to GLM root")
 
-    list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}")
-    list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}")
-    list(APPEND CMAKE_PREFIX_PATH "${GLM_ROOT}/cmake/glm")
-    list(APPEND CMAKE_PREFIX_PATH "${GLFW_ROOT}")
-endif()
+list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}" "${GLFW_ROOT}" "${GLM_ROOT}")
 
-# Find packages
+# --- Dependencies ---
 find_package(GLEW REQUIRED)
 
-# Handle GLM
 find_package(glm QUIET)
 if(NOT glm_FOUND)
-    # Fallback: GLM is header-only, so we can just point to the include directory
-    message(STATUS "GLM package not found via find_package, using manual include path...")
-    if(EXISTS "${GLM_ROOT}/glm")
-        add_library(glm::glm INTERFACE IMPORTED)
-        target_include_directories(glm::glm INTERFACE "${GLM_ROOT}")
-        message(STATUS "Found GLM manually at ${GLM_ROOT}")
-    else()
-        message(FATAL_ERROR "Could not find GLM in ${GLM_ROOT}")
-    endif()
+    add_library(glm::glm INTERFACE IMPORTED)
+    target_include_directories(glm::glm INTERFACE "${GLM_ROOT}")
 endif()
 
-# Handle GLFW manually since binaries don't always have config files
 find_package(glfw3 3.3 QUIET)
-if(NOT glfw3_FOUND AND WIN32)
-    message(STATUS "GLFW3 package not found via find_package, trying manual paths...")
-    if(EXISTS "${GLFW_ROOT}/lib-vc2022/glfw3.lib")
-        add_library(glfw STATIC IMPORTED)
-        set_target_properties(glfw PROPERTIES
-            IMPORTED_LOCATION "${GLFW_ROOT}/lib-vc2022/glfw3.lib"
-            INTERFACE_INCLUDE_DIRECTORIES "${GLFW_ROOT}/include"
-        )
-        message(STATUS "Found GLFW3 manually at ${GLFW_ROOT}")
-    else()
-        message(FATAL_ERROR "Could not find GLFW3 library in ${GLFW_ROOT}/lib-vc2022/glfw3.lib")
-    endif()
-else()
-    # If found via find_package (e.g. on macOS or if config exists)
-    if(NOT TARGET glfw)
-        add_library(glfw ALIAS glfw3) # Create alias if needed
-    endif()
+if(NOT glfw3_FOUND)
+    add_library(glfw STATIC IMPORTED)
+    set_target_properties(glfw PROPERTIES
+        IMPORTED_LOCATION "${GLFW_ROOT}/lib-vc2022/glfw3.lib"
+        INTERFACE_INCLUDE_DIRECTORIES "${GLFW_ROOT}/include"
+    )
 endif()
 
-set(SOURCES
-    src/main.cpp
-    src/Core/Game.cpp
-    src/Core/Window.cpp
-    src/Core/Camera.cpp
-    src/Core/Input/GLFWInputController.cpp
-    src/Graphics/Renderer.cpp
-    src/Graphics/Shader.cpp
-    src/Graphics/TextureArray.cpp
-    src/World/World.cpp
-    src/World/Chunk.cpp
-    src/World/ChunkMesher.cpp
-    src/World/TerrainGenerator.cpp
-    src/Player/Player.cpp
-    src/Player/PlayerCollision.cpp
-    src/Player/PlayerPhysics.cpp
-    src/Utils/NoiseGenerator.cpp
-    src/Utils/UIController.cpp
-    src/World/ChunkManager.cpp
+# --- Sources ---
+# Automatically find all source files in src/ and subdirectories
+# CONFIGURE_DEPENDS ensures CMake re-runs if files are added/removed
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS 
+    "src/*.cpp" 
+    "src/*.c"
 )
 
 add_executable(Cubify ${SOURCES})
 
-# Include directories
 target_include_directories(Cubify PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Helpers
-    ${GLEW_ROOT}/include
-    ${GLFW_ROOT}/include
-    ${GLM_ROOT}
+    src
+    src/Helpers
+    src/Helpers/imgui
 )
 
-# Link libraries
-target_link_libraries(Cubify
-    PRIVATE
+target_link_libraries(Cubify PRIVATE
     GLEW::GLEW
     glfw
     glm::glm
+    opengl32
 )
 
-# Copy DLLs and Shaders on Windows
-if(WIN32)
-    add_custom_command(TARGET Cubify POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
-        $<TARGET_FILE_DIR:Cubify>
-        COMMENT "Copying glew32.dll to output directory"
-    )
-    
-    add_custom_command(TARGET Cubify POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/shaders"
-        "$<TARGET_FILE_DIR:Cubify>/shaders"
-        COMMENT "Copying shaders to output directory"
-    )
+# --- Post-Build ---
+add_custom_command(TARGET Cubify POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
+    "$<TARGET_FILE_DIR:Cubify>"
+)
 
-    # Copy textures directory alongside the executable
-    add_custom_command(TARGET Cubify POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${CMAKE_SOURCE_DIR}/textures"
-        "$<TARGET_FILE_DIR:Cubify>/textures"
-        COMMENT "Copying textures to output directory"
-    )
-endif()
+add_custom_command(TARGET Cubify POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/shaders"
+    "$<TARGET_FILE_DIR:Cubify>/shaders"
+)
 
-# For macOS specifically, we often need to link the OpenGL framework
-if(APPLE)
-    find_package(OpenGL REQUIRED)
-    target_link_libraries(Cubify PRIVATE OpenGL::GL)
-else()
-    # On Windows/Linux, GLEW/GLFW usually handle the OpenGL linking, 
-    # but sometimes explicit linking is needed depending on the driver.
-    target_link_libraries(Cubify PRIVATE opengl32)
-endif()
+add_custom_command(TARGET Cubify POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/textures"
+    "$<TARGET_FILE_DIR:Cubify>/textures"
+)
