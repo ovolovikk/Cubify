@@ -6,6 +6,9 @@
 
 #include <unordered_set>
 
+#include "Graphics/Shader.hpp"
+#include "Graphics/TextureArray.hpp"
+
 Renderer::Renderer(int width, int height)
     : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f)
 {

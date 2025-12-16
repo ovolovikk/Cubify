@@ -3,17 +3,18 @@
 
 #include <string>
 #include <memory>
+#include <glm/vec3.hpp>
 
-#include "Core/Window.hpp"
-#include "Core/Input/IInputController.hpp"
-#include "Graphics/Renderer.hpp"
-#include "Core/Camera.hpp"
-#include "World/World.hpp"
-#include "World/TerrainGenerator.hpp"
-#include "Player/Player.hpp"
+#include "Helpers/BlockType.hpp"
 
 struct GLFWwindow;
 class IInputController;
+class Renderer;
+class Camera;
+class World;
+class TerrainGenerator;
+class Player;
+class Window;
 
 class Game
 {

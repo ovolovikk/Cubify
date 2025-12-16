@@ -2,7 +2,6 @@
 #define MESH_HPP
 
 #include <GL/glew.h>
-#include <cstddef>
 
 struct Mesh {
     GLuint SSBO = 0;

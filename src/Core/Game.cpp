@@ -8,6 +8,11 @@
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Helpers/Frustum.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Core/Camera.hpp"
+#include "World/World.hpp"
+#include "World/TerrainGenerator.hpp"
+#include "Player/Player.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
 {

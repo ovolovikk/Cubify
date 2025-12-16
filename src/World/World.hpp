@@ -4,8 +4,8 @@
 #include <memory>
 #include <glm/glm.hpp>
 
-#include "World/ChunkManager.hpp"
 #include "Graphics/Renderer.hpp"
+#include "World/ChunkManager.hpp"
 
 struct Frustum;
 

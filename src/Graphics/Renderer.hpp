@@ -10,8 +10,9 @@
 
 #include "Helpers/Mesh.hpp"
 #include "Helpers/Quad.hpp"
-#include "Graphics/Shader.hpp"
-#include "Graphics/TextureArray.hpp"
+
+class Shader;
+class TextureArray;
 
 class Renderer
 {

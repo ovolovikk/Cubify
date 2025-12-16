@@ -1,12 +1,12 @@
 #ifndef UI_CONTROLLER_HPP
 #define UI_CONTROLLER_HPP
 
-//TODO
+struct GLFWwindow;
 
 class UIController
 {
 public:
-    UIController();
+    UIController(GLFWwindow* window);
 
     UIController(const UIController&) = delete;
     UIController& operator=(const UIController&) = delete;

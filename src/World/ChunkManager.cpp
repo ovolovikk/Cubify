@@ -1,11 +1,11 @@
 #include "ChunkManager.hpp"
 
-#include "World/ChunkMesher.hpp"
-
 #include <cmath>
 #include <fstream>
 #include <filesystem>
 #include <string>
+
+#include "World/ChunkMesher.hpp"
 
 namespace fs = std::filesystem;
 
