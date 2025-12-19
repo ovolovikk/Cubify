@@ -14,7 +14,7 @@ Renderer::Renderer(int width, int height)
 {
     glViewport(0, 0, width, height);
 
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+    glClearColor(0.28f, 0.66f, 1.f, 0.0f);
     
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -36,7 +36,7 @@ Renderer::Renderer(int width, int height)
         "textures/stone.png",
         "textures/sand.png",
         "textures/wooden_plank.png",
-        "textures/penis_water.png"
+        "textures/water.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
 

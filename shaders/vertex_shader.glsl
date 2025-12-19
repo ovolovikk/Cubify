@@ -1,5 +1,8 @@
 #version 430 core
 
+const float FOG_DENSITY = 0.003;
+const float FOG_POWER = 1.5;
+
 struct Quad
 {
     uint packed_position;
@@ -16,6 +19,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 out vec3 TexCoord;
+flat out vec3 Normal;
+out float Visibility;
 
 void main()
 {
@@ -61,8 +66,18 @@ void main()
     pos[u_axis] += u_local; 
     pos[v_axis] += v_local; 
 
-    gl_Position = projection * view * model * vec4(pos, 1.0);
+    vec4 position_relative = view * model * vec4(pos, 1.0);
+    gl_Position = projection * position_relative;
+
+    vec3 computed_normal = vec3(0.0);
     
+    computed_normal[perpendicular_axis] = is_positive_face ? 1.0 : -1.0;
+    
+    Normal = computed_normal;    
+    float distance = length(position_relative.xyz);
+    Visibility = exp(-pow((distance * FOG_DENSITY), FOG_POWER));
+    Visibility = clamp(Visibility, 0.0, 1.0);
+
     bool swapUV = (perpendicular_axis == 0 || perpendicular_axis == 1);
     if (swapUV) TexCoord = vec3(v_local, u_local, layer);
         else TexCoord = vec3(u_local, v_local, layer);
