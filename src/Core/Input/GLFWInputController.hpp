@@ -24,11 +24,15 @@ public:
     bool isKeyPressed(int key) const override;
     void update() override;
 
+    void setCursorEnabled(bool enabled) override;
+    bool isCursorEnabled() const override;
+
 private:
     GLFWwindow* window;
     double last_x, last_y;
     double delta_x, delta_y;
     bool first_mouse;
+    bool cursor_enabled = false;
     
 };
 

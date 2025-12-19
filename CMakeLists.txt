@@ -2,19 +2,16 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
-# --- Configuration ---
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Library Paths
 set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0" CACHE PATH "Path to GLEW root")
 set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64" CACHE PATH "Path to GLFW root")
 set(GLM_ROOT "C:/Users/shona/Documents/libs/glm-1.0.2" CACHE PATH "Path to GLM root")
 
 list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}" "${GLFW_ROOT}" "${GLM_ROOT}")
 
-# --- Dependencies ---
 find_package(GLEW REQUIRED)
 
 find_package(glm QUIET)
@@ -32,9 +29,6 @@ if(NOT glfw3_FOUND)
     )
 endif()
 
-# --- Sources ---
-# Automatically find all source files in src/ and subdirectories
-# CONFIGURE_DEPENDS ensures CMake re-runs if files are added/removed
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS 
     "src/*.cpp" 
     "src/*.c"

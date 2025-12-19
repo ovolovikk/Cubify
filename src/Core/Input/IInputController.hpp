@@ -20,6 +20,10 @@ public:
     // mouse
     virtual glm::vec2 getMouseDelta() const = 0;
     virtual bool isMouseButtonPressed(int button) const = 0;
+
+    // cursor control
+    virtual void setCursorEnabled(bool enabled) = 0;
+    virtual bool isCursorEnabled() const = 0;
     
     // system
     virtual bool isKeyPressed(int key) const = 0;

@@ -28,12 +28,45 @@ void GLFWInputController::update()
     }
 
     delta_x = curr_x - last_x;
-    delta_y = last_y - curr_y; // Reversed since y-coordinates go from bottom to top
+    delta_y = last_y - curr_y;
 
     last_x = curr_x;
     last_y = curr_y;
 }
 
+void GLFWInputController::setCursorEnabled(bool enabled)
+{
+    if (!window) return;
+
+    cursor_enabled = enabled;
+
+    if (enabled) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        last_x = w / 2.0;
+        last_y = h / 2.0;
+        glfwSetCursorPos(window, last_x, last_y);
+        delta_x = 0;
+        delta_y = 0;
+        first_mouse = true;
+    } else {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        last_x = w / 2.0;
+        last_y = h / 2.0;
+        glfwSetCursorPos(window, last_x, last_y);
+        delta_x = 0;
+        delta_y = 0;
+        first_mouse = true;
+    }
+}
+
+bool GLFWInputController::isCursorEnabled() const
+{
+    return cursor_enabled;
+}
 glm::vec2 GLFWInputController::getMouseDelta() const {
     return glm::vec2((float)delta_x, (float)delta_y);
 }

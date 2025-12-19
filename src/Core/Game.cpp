@@ -13,6 +13,7 @@
 #include "World/World.hpp"
 #include "World/TerrainGenerator.hpp"
 #include "Player/Player.hpp"
+#include "Utils/UIController.hpp"
 
 Game::Game(int width_, int height_, const std::string& title_)
 {
@@ -42,6 +43,8 @@ void Game::init()
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
 
     terrain_generator = std::make_unique<TerrainGenerator>();
+
+    ui_controller = std::make_unique<UIController>(nativeWindow);
 }
 
 void Game::update()
@@ -57,7 +60,6 @@ void Game::update()
             glfwSetWindowShouldClose(nativeWindow, true);
         }
 
-        // free cam
         if (input_controller->isKeyPressed(GLFW_KEY_F1)) {
             if (!f1_pressed) {
                 free_cam_mode = !free_cam_mode;
@@ -65,6 +67,16 @@ void Game::update()
             }
         } else {
             f1_pressed = false;
+        }
+
+        if (input_controller->isKeyPressed(GLFW_KEY_F3)) {
+            if (!f3_pressed) {
+                cursor_visible = !cursor_visible;
+                input_controller->setCursorEnabled(cursor_visible);
+                f3_pressed = true;
+            }
+        } else {
+            f3_pressed = false;
         }
 
         if (input_controller->isKeyPressed(GLFW_KEY_1)) {
@@ -129,6 +141,8 @@ void Game::update()
         renderer->setViewProjection(view, projection);
         world->draw(*renderer, frustum);
         world_rendered = true;
+
+        if (ui_controller) ui_controller->update(*camera, *world);
 
         window->swapBuffers();
         window->pollEvents();

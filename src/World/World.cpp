@@ -26,7 +26,7 @@ void World::setBlock(int x, int y, int z, BlockType type)
     chunk_manager->setBlock(x, y, z, type);
 }
 
-RayCastResult World::rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance)
+RayCastResult World::rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance) const
 {
     glm::vec3 pos = origin;
     glm::vec3 dir = glm::normalize(direction);
@@ -47,7 +47,7 @@ RayCastResult World::rayCast(glm::vec3 origin, glm::vec3 direction, float max_di
         int chunkX = static_cast<int>(std::floor(x / (float)CHUNK_SIZE));
         int chunkZ = static_cast<int>(std::floor(z / (float)CHUNK_SIZE));
 
-        Chunk* chunk = chunk_manager->getChunk(chunkX, chunkZ);
+        const Chunk* chunk = chunk_manager->getChunk(chunkX, chunkZ);
         if (chunk)
         {
             int localX = x - chunkX * CHUNK_SIZE;

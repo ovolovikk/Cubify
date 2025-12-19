@@ -15,6 +15,7 @@ class World;
 class TerrainGenerator;
 class Player;
 class Window;
+class UIController;
 
 class Game
 {
@@ -40,9 +41,12 @@ private:
     std::unique_ptr<World> world;
     std::unique_ptr<TerrainGenerator> terrain_generator;
     std::unique_ptr<Player> player;
+    std::unique_ptr<UIController> ui_controller;
     
     bool free_cam_mode = false;
     bool f1_pressed = false;
+    bool f3_pressed = false;
+    bool cursor_visible = false;
     bool left_mouse_pressed = false;
     bool right_mouse_pressed = false;
     bool world_rendered = false;
@@ -50,7 +54,7 @@ private:
 
     static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 50.0f, 0.0f);
     static constexpr auto CAMERA_FOV = 60.f;
-    static constexpr auto CAMERA_ASPECT = 4.f / 3.f;
+    static constexpr auto CAMERA_ASPECT = 16.f / 9.f;
 };
 
 #endif // GAME_HPP

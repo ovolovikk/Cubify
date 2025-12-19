@@ -62,7 +62,9 @@ void Player::update(float dt)
     }
 
     glm::vec2 mouse_delta = input.getMouseDelta();
-    camera.processMouseMovement(mouse_delta.x, mouse_delta.y);
+    if (!input.isCursorEnabled()) {
+        camera.processMouseMovement(mouse_delta.x, mouse_delta.y);
+    }
 
     physics.update(dt);
 

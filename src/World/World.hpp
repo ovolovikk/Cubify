@@ -27,7 +27,7 @@ public:
     
     BlockType getBlock(int x, int y, int z) const;
     void setBlock(int x, int y, int z, BlockType type);
-    RayCastResult rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance);
+    RayCastResult rayCast(glm::vec3 origin, glm::vec3 direction, float max_distance) const;
     void rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_distance);
     void rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_distance, BlockType type);
 
