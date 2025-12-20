@@ -38,9 +38,6 @@ public:
 
     int GetRenderDistance() const { return chunk_manager->getRenderDistance(); }
 
-    const ChunkManager& getChunkManager() const { return *chunk_manager; }
-    ChunkManager& getChunkManager() { return *chunk_manager; }
-
 private:
     std::unique_ptr<ChunkManager> chunk_manager;
 

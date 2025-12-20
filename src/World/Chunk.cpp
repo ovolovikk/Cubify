@@ -39,13 +39,6 @@ bool Chunk::isBlockAir(int x, int y, int z) const
     return getBlock(x, y, z) == BlockType::AIR;
 }
 
-bool Chunk::isValidCoordinates(int x, int y, int z) const
-{
-    return (x >= 0 && x < CHUNK_SIZE &&
-        y >= 0 && y < CHUNK_HEIGHT &&
-        z >= 0 && z < CHUNK_SIZE);
-}
-
 void Chunk::addQuad(const Quad& quad)
 {
     quads.push_back(quad);
@@ -58,10 +51,9 @@ void Chunk::clearQuads()
     dirty = true;
 }
 
-int Chunk::getSpawnY() const
+bool Chunk::isValidCoordinates(int x, int y, int z) const
 {
-    for(int y = 0;y < CHUNK_HEIGHT;++y)
-        if(blocks[0][y][0] == BlockType::GRASS)
-            return y;
-    return 0;
+    return (x >= 0 && x < CHUNK_SIZE &&
+        y >= 0 && y < CHUNK_HEIGHT &&
+        z >= 0 && z < CHUNK_SIZE);
 }

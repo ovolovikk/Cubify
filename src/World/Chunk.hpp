@@ -35,13 +35,13 @@ public:
     int getChunkX() const { return chunkX; }
     int getChunkZ() const { return chunkZ; }
     
-    int getSpawnY() const;
-    bool isValidCoordinates(int x, int y, int z) const;
 
     Mesh& getMesh() { return mesh; }
     
     friend class ChunkManager;
 private:
+    bool isValidCoordinates(int x, int y, int z) const;
+
     Mesh mesh;
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     std::vector<Quad> quads;

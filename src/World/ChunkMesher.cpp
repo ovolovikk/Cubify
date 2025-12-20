@@ -23,7 +23,7 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
 {
     chunk.clearQuads();
 
-    // Helper to check neighbors
+    // helper to check neighbors
     auto getBlockAt = [&](int x, int y, int z) -> BlockType
         {
             if (y < 0 || y >= CHUNK_HEIGHT) return BlockType::AIR;
@@ -94,8 +94,6 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
             }
         }
     }
-
-    chunk.setDirty(true);
 }
 
 void ChunkMesher::addQuad(Chunk& chunk, float x, float y, float z,
