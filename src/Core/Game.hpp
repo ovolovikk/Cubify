@@ -26,13 +26,16 @@ public:
     Game(const Game&) = delete;
     Game& operator=(const Game&) = delete;
 
-    void update(); // main loop
+    void run(); // main loop
 
     void onResize(int width, int height);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 private:
     void init();
-    void processInput(float deltaTime);
+    
+    void handleInput(float deltaTime);
+    void update(float deltaTime);
+    void render();
 
     std::unique_ptr<Window> window;
     std::unique_ptr<IInputController> input_controller;
