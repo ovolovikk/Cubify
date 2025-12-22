@@ -124,10 +124,6 @@ void Game::update(float deltaTime)
     }
 
     world->update(camera->GetPosition());
-
-    if (ui_controller) {
-        ui_controller->update(*camera, *world);
-    }
 }
 
 void Game::render()
@@ -146,6 +142,10 @@ void Game::render()
 
     world->draw(*renderer, frustum);
     world_rendered = true;
+
+    if (ui_controller) {
+        ui_controller->update(*camera, *world);
+    }
 }
 
 void Game::onResize(int width_, int height_)
