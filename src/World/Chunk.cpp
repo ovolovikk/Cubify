@@ -51,6 +51,18 @@ void Chunk::clearQuads()
     dirty = true;
 }
 
+AABB Chunk::getAABB() const
+{
+    AABB box;
+    float worldX = static_cast<float>(chunkX * CHUNK_SIZE);
+    float worldZ = static_cast<float>(chunkZ * CHUNK_SIZE);
+
+    box.min = glm::vec3(worldX, 0.f, worldZ);
+    box.max = glm::vec3(worldX + CHUNK_SIZE, CHUNK_HEIGHT, worldZ + CHUNK_SIZE);
+
+    return box;
+}
+
 bool Chunk::isValidCoordinates(int x, int y, int z) const
 {
     return (x >= 0 && x < CHUNK_SIZE &&

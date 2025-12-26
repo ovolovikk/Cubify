@@ -110,32 +110,41 @@ glm::vec3 World::getSpawnPoint()
 
 void World::draw(Renderer& renderer, const Frustum& frustum)
 {
-    for(auto& [id, chunk]: chunk_manager->getChunks())
+    for (auto& [id, chunk] : chunk_manager->getChunks())
     {
-        int x = static_cast<int>(id >> 32);
-        int z = static_cast<int>(id & 0xFFFFFFFF);
+        if (!frustum.intersectsChunk(*chunk))
+        {
+            continue;
+        }
 
-        vec3 min(x * CHUNK_SIZE, 0, z * CHUNK_SIZE);
-        vec3 max((x + 1) * CHUNK_SIZE, CHUNK_HEIGHT, (z + 1) * CHUNK_SIZE);
+        if (chunk->isDirty())
+        {
+            int x = chunk->getChunkX();
+            int z = chunk->getChunkZ();
 
-        // radar frustum approach
-        if(!frustum.isBoxVisible(min, max)) continue;
-
-        if (chunk->isDirty()) {
             ChunkNeighbors neighbors;
             neighbors.left = chunk_manager->getChunk(x - 1, z);
             neighbors.right = chunk_manager->getChunk(x + 1, z);
-            neighbors.back =chunk_manager->getChunk(x, z - 1);
+            neighbors.back = chunk_manager->getChunk(x, z - 1);
             neighbors.front = chunk_manager->getChunk(x, z + 1);
 
             ChunkMesher::generateMesh(*chunk, neighbors);
-
             renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
+
             chunk->setDirty(false);
         }
 
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x * CHUNK_SIZE, 0, z * CHUNK_SIZE));
-        renderer.draw(chunk->getMesh(), model);
+        if (chunk->getMesh().quadCount > 0)
+        {
+            glm::vec3 worldPos(
+                chunk->getChunkX() * CHUNK_SIZE,
+                0.f,
+                chunk->getChunkZ() * CHUNK_SIZE
+            );
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), worldPos);
+            renderer.draw(chunk->getMesh(), model);
+        }
     }
 }
 

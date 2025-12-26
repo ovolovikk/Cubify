@@ -132,13 +132,13 @@ void Game::render()
 
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 projection = camera->GetProjectionMatrix();
-    
+    glm::mat4 viewProj = projection * view;
+
     renderer->setViewProjection(view, projection);
 
     // frustum culling
     float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
-    Frustum frustum;
-    frustum.update(camera->GetPosition(), camera->GetFront(), camera->GetFOV(), maxDistance);
+    Frustum frustum(viewProj);
 
     world->draw(*renderer, frustum);
     world_rendered = true;

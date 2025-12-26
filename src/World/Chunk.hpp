@@ -7,6 +7,7 @@
 #include "Helpers/BlockType.hpp"
 #include "Helpers/Quad.hpp"
 #include "Helpers/Mesh.hpp"
+#include "Helpers/AABB.hpp"
 
 constexpr auto CHUNK_SIZE = 16;
 constexpr auto CHUNK_HEIGHT = 128;
@@ -38,6 +39,8 @@ public:
 
     Mesh& getMesh() { return mesh; }
     
+    AABB getAABB() const;
+
     friend class ChunkManager;
 private:
     bool isValidCoordinates(int x, int y, int z) const;
