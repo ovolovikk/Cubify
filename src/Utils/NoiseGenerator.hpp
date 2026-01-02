@@ -1,7 +1,7 @@
 #ifndef NOISE_GENERATOR_HPP
 #define NOISE_GENERATOR_HPP
 
-#include "Helpers/FastNoiseLite.h"
+#include "FastNoiseLite.h"
 
 class Chunk;
 

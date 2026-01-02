@@ -6,50 +6,59 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(GLEW_ROOT "C:/Users/shona/Documents/libs/glew-2.1.0" CACHE PATH "Path to GLEW root")
-set(GLFW_ROOT "C:/Users/shona/Documents/libs/glfw-3.4.bin.WIN64" CACHE PATH "Path to GLFW root")
-set(GLM_ROOT "C:/Users/shona/Documents/libs/glm-1.0.2" CACHE PATH "Path to GLM root")
+set(GLEW_ROOT "${CMAKE_SOURCE_DIR}/external/glew")
+set(GLFW_ROOT "${CMAKE_SOURCE_DIR}/external/glfw")
+set(GLM_ROOT  "${CMAKE_SOURCE_DIR}/external/glm")
 
 list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}" "${GLFW_ROOT}" "${GLM_ROOT}")
 
-find_package(GLEW REQUIRED)
+add_library(glew SHARED IMPORTED)
+set_target_properties(glew PROPERTIES
+    IMPORTED_IMPLIB "${GLEW_ROOT}/lib/Release/x64/glew32.lib"
+    IMPORTED_LOCATION "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
+    INTERFACE_INCLUDE_DIRECTORIES "${GLEW_ROOT}/include"
+)
 
-find_package(glm QUIET)
-if(NOT glm_FOUND)
-    add_library(glm::glm INTERFACE IMPORTED)
-    target_include_directories(glm::glm INTERFACE "${GLM_ROOT}")
-endif()
+add_library(glfw STATIC IMPORTED)
+set_target_properties(glfw PROPERTIES
+    IMPORTED_LOCATION "${GLFW_ROOT}/lib-vc2022/glfw3.lib"
+    INTERFACE_INCLUDE_DIRECTORIES "${GLFW_ROOT}/include"
+)
 
-find_package(glfw3 3.3 QUIET)
-if(NOT glfw3_FOUND)
-    add_library(glfw STATIC IMPORTED)
-    set_target_properties(glfw PROPERTIES
-        IMPORTED_LOCATION "${GLFW_ROOT}/lib-vc2022/glfw3.lib"
-        INTERFACE_INCLUDE_DIRECTORIES "${GLFW_ROOT}/include"
-    )
-endif()
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE "${GLM_ROOT}")
+
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS 
     "src/*.cpp" 
     "src/*.c"
 )
 
-add_executable(Cubify ${SOURCES})
+set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/external/imgui")
+set(IMGUI_SOURCES
+    "${IMGUI_DIR}/imgui.cpp"
+    "${IMGUI_DIR}/imgui_draw.cpp"
+    "${IMGUI_DIR}/imgui_tables.cpp"
+    "${IMGUI_DIR}/imgui_widgets.cpp"
+    "${IMGUI_DIR}/imgui_impl_glfw.cpp"
+    "${IMGUI_DIR}/imgui_impl_opengl3.cpp"
+)
+
+add_executable(Cubify ${SOURCES} ${IMGUI_SOURCES})
 
 target_include_directories(Cubify PRIVATE 
-    src
-    src/Helpers
-    src/Helpers/imgui
+    "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_SOURCE_DIR}/external"
+    "${CMAKE_SOURCE_DIR}/external/imgui"
+    "${CMAKE_SOURCE_DIR}/external/imgui/backends"
 )
 
 target_link_libraries(Cubify PRIVATE
-    GLEW::GLEW
+    glew
     glfw
-    glm::glm
+    glm
     opengl32
 )
-
-# --- Post-Build ---
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${GLEW_ROOT}/bin/Release/x64/glew32.dll"

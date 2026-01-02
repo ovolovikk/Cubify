@@ -1,7 +1,7 @@
 #include "Graphics/TextureArray.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "Helpers/stb_image.h"
+#include "stb_image.h"
 
 TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
 {
