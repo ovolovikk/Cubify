@@ -3,7 +3,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-// ... твои инклуды ... 
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Helpers/Frustum.hpp"

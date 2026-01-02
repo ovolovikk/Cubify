@@ -28,10 +28,10 @@ public:
     bool isCursorEnabled() const override;
 
 private:
-    GLFWwindow* window;
-    double last_x, last_y;
-    double delta_x, delta_y;
-    bool first_mouse;
+    GLFWwindow* window = nullptr;
+    double last_x = 0, last_y = 0;
+    double delta_x = 0, delta_y = 0;
+    bool first_mouse = true;
     bool cursor_enabled = false;
     
 };

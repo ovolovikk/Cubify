@@ -21,12 +21,15 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for MacOS
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-    if(window == nullptr) {
+    GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+    if(raw_window == nullptr)
+    {
         std::cerr << "window init error.\n";
         return;
     }
-    glfwMakeContextCurrent(window);
+    window.reset(raw_window, glfwDestroyWindow);
+
+    glfwMakeContextCurrent(window.get());
     glfwSwapInterval(0);
 
     if (glewInit() != GLEW_OK) { 
@@ -34,25 +37,24 @@ Window::Window(const std::string& title, int width_, int height_)
         return;
     }
 
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetWindowUserPointer(window, this);
+    glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetWindowUserPointer(window.get(), this);
 }
 
 Window::~Window()
 {
-    if (window) glfwDestroyWindow(window);
     if (true)   glfwTerminate();
 }
 
 bool Window::isOpen() const
 {
-    return !glfwWindowShouldClose(window);
+    return !glfwWindowShouldClose(window.get());
 }
 
 void Window::swapBuffers()
 {
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(window.get());
 }
 
 void Window::pollEvents()
