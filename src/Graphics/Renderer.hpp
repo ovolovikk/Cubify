@@ -4,9 +4,8 @@
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
 
-#include <string>
 #include <memory>
-#include <unordered_map>
+#include <vector>
 
 #include "Helpers/Mesh.hpp"
 #include "Helpers/Quad.hpp"

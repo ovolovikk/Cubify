@@ -2,7 +2,6 @@
 #define CHUNK_HPP
 
 #include <vector>
-#include <cstdint>
 
 #include "Helpers/BlockType.hpp"
 #include "Helpers/Quad.hpp"

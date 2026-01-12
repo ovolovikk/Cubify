@@ -1,7 +1,6 @@
 #include "World/ChunkMesher.hpp"
 
 #include "World/Chunk.hpp"
-#include "Helpers/Quad.hpp"
 
 namespace {
     struct BlockTexture {

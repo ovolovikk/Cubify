@@ -11,8 +11,6 @@
 #include "World/World.hpp"
 #include "Helpers/BlockType.hpp"
 
-#include <string>
-
 namespace {
 static const char* blockTypeToString(BlockType type)
 {

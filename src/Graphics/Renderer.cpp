@@ -4,8 +4,6 @@
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <unordered_set>
-
 #include "Graphics/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
 

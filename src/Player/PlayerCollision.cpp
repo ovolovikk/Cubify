@@ -1,10 +1,8 @@
 #include "Player/PlayerCollision.hpp"
 
 #include <cmath>
-#include <algorithm>
 
 #include "World/World.hpp"
-#include "World/Chunk.hpp"
 #include "Helpers/BlockType.hpp"
 
 PlayerCollision::PlayerCollision(World& world) : world(world), grounded(false)
@@ -23,7 +21,7 @@ bool PlayerCollision::checkCollision(const AABB& box, const vec3& pos)
     int min_z = static_cast<int>(std::floor(min.z));
     int max_z = static_cast<int>(std::floor(max.z));
 
-    for(int x = min_x; x <= max_x;++x)
+    for(int x = min_x; x <= max_x;++x) 
         for(int y = min_y; y <= max_y;++y)
             for(int z = min_z; z <= max_z;++z)
                 if (world.getBlock(x, y, z) != BlockType::AIR) return true;
