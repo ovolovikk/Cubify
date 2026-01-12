@@ -29,7 +29,6 @@ public:
     void run(); // main loop
 
     void onResize(int width, int height);
-    static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 private:
     void init();
     

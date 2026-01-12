@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Helpers/Logging/Log.hpp"
+
+#include <gl/gl.h>
 #include <iostream>
 
 Window::Window(const std::string& title, int width_, int height_)
@@ -28,6 +31,8 @@ Window::Window(const std::string& title, int width_, int height_)
         return;
     }
     window.reset(raw_window, glfwDestroyWindow);
+    LOGI("[Window] Title: %s", title.c_str());
+    LOGI("[Window] Size: %dx%d", width, height);
 
     glfwMakeContextCurrent(window.get());
     glfwSwapInterval(0);
@@ -36,10 +41,14 @@ Window::Window(const std::string& title, int width_, int height_)
         std::cerr << "glew init error\n";
         return;
     }
+    LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));
+    LOGI("[OpenGL] Renderer: %s", glGetString(GL_RENDERER));
+    LOGI("[OpenGL] Version : %s", glGetString(GL_VERSION));
 
     glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window.get(), this);
+    glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback);
 }
 
 Window::~Window()
@@ -60,4 +69,26 @@ void Window::swapBuffers()
 void Window::pollEvents()
 {
     glfwPollEvents();
+}
+
+void Window::onFramebufferResize(int fbWidth, int fbHeight)
+{
+    width = fbWidth;
+    height = fbHeight;
+    glViewport(0, 0, width, height);
+    if (m_resizeCallBack) m_resizeCallBack(width, height);
+}
+
+void Window::setResizeCallback(const ResizeCallbackFn& callback)
+{
+    m_resizeCallBack = callback;
+}
+
+void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height)
+{
+    Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    if (win)
+    {
+        win->onFramebufferResize(width, height);
+    }
 }

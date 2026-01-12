@@ -1,5 +1,4 @@
 #include "Game.hpp"
-#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -23,8 +22,9 @@ Game::~Game() = default;
 void Game::init()
 {   
     GLFWwindow* nativeWindow = window->GetGLFWWindow(); 
-    glfwSetWindowUserPointer(nativeWindow, this);
-    glfwSetFramebufferSizeCallback(nativeWindow, framebuffer_size_callback);
+    window->setResizeCallback([this](int w, int h){
+        this->onResize(w, h);
+    });
 
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
     renderer = std::make_unique<Renderer>(window->getWidth(), window->getHeight());
@@ -152,10 +152,4 @@ void Game::onResize(int width_, int height_)
     if (window) window->setSize(width_, height_);
     if (renderer) renderer->resize(width_, height_);
     if (camera && height_ > 0) camera->SetAspect((float)width_ / (float)height_);
-}
-
-void Game::framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (game) game->onResize(width, height);
 }
