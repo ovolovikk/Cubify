@@ -1,10 +1,14 @@
 #include "Graphics/TextureArray.hpp"
 
+#include "Graphics/Renderer.hpp"
+#include "Core/Logging/Log.hpp"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
 {
+    LOGI("[TextureArray] Number of textures: %d", layer_paths.size());
     layers_count = static_cast<int>(layer_paths.size());
     if (layers_count == 0) return;
 
@@ -18,7 +22,7 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
         stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(layer_paths[i].c_str(), &w, &h, &comp, 0);
         if (!data) {
-            printf("Failed to load texture layer: %s\n", layer_paths[i].c_str());
+            LOGE("Failed to load texture layer: %s", layer_paths[i].c_str());
             for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
             return;
         }
@@ -28,7 +32,7 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
             components_count = comp;
         } else {
             if (w != p_x || h != p_y || comp != components_count) {
-                printf("layer %d size mismatch.", i);
+                LOGE("layer %d size mismatch.", i);
                 stbi_image_free(data);
                 for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
                 return;
@@ -51,16 +55,9 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i,
                         p_x, p_y, 1,
                         source_format, GL_UNSIGNED_BYTE, images[i]);
-    
-    GLfloat Aniso = 0.0f;
-    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &Aniso);
-    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, Aniso);
-
-    // reduce angle-dependening artifactrs
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-
-    // avoiding sampling atlas parts
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_ANISOTROPY_EXT, ANISO);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);

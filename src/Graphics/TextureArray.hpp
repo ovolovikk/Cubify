@@ -24,6 +24,7 @@ public:
 private:
     GLuint texture_ID;
     int p_x, p_y, layers_count;
+    static constexpr GLfloat ANISO = 1.f;
 };
 
 #endif // TEXTURE_ARRAY_HPP
