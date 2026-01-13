@@ -3,10 +3,10 @@
 
 #include <vector>
 
-#include "Helpers/BlockType.hpp"
-#include "Helpers/Quad.hpp"
-#include "Helpers/Mesh.hpp"
-#include "Helpers/AABB.hpp"
+#include "Core/BlockType.hpp"
+#include "Graphics/Quad.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Math/AABB.hpp"
 
 constexpr auto CHUNK_SIZE = 16;
 constexpr auto CHUNK_HEIGHT = 128;

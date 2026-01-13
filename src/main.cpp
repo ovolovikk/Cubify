@@ -1,8 +1,6 @@
 #include "Core/Game.hpp"
-#include "Helpers/Logging/LogScope.hpp"
-#include "Helpers/Logging/Log.hpp"
-
-#include <iostream>
+#include "Core/Logging/LogScope.hpp"
+#include "Core/Logging/Log.hpp"
 
 int main()
 {   
@@ -10,7 +8,6 @@ int main()
     LOGI("=== Cubify Start ===");
 
     std::string title = "Cubify!";
-    std::cout << title << std::endl;
 
     Game game(1920, 1080, title);
     game.run();

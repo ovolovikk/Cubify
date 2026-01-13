@@ -6,6 +6,7 @@
 
 #include "Graphics/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
+#include "Core/Logging/Log.hpp"
 
 Renderer::Renderer(int width, int height)
     : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f)
@@ -23,9 +24,11 @@ Renderer::Renderer(int width, int height)
     // subsystem initialization
     shader = std::make_unique<Shader>();
     if (!shader->load("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl")) {
-        printf("Failed to load shaders\n");
+        LOGE("Failed to load shaders");
         return;
     }
+    
+    LOGI("Renderer Initialized");
 
     std::vector<string> layers = {
         "textures/grass_top.png",

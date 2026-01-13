@@ -9,7 +9,7 @@
 
 #include "Core/Camera.hpp"
 #include "World/World.hpp"
-#include "Helpers/BlockType.hpp"
+#include "Core/BlockType.hpp"
 
 namespace {
 static const char* blockTypeToString(BlockType type)

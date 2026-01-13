@@ -3,10 +3,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "Helpers/Logging/Log.hpp"
+#include "Core/Logging/Log.hpp"
 
 #include <gl/gl.h>
-#include <iostream>
 
 Window::Window(const std::string& title, int width_, int height_)
     : width(width_), height(height_), window(nullptr)
@@ -14,7 +13,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glewExperimental = true;
     if(!glfwInit())
     {
-        std::cerr <<"glfw init error.\n";
+        LOGE("glfw init error.");
         return;
     }
 
@@ -27,7 +26,7 @@ Window::Window(const std::string& title, int width_, int height_)
     GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(raw_window == nullptr)
     {
-        std::cerr << "window init error.\n";
+        LOGE("window init error.");
         return;
     }
     window.reset(raw_window, glfwDestroyWindow);
@@ -38,7 +37,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwSwapInterval(0);
 
     if (glewInit() != GLEW_OK) { 
-        std::cerr << "glew init error\n";
+        LOGE("glew init error");
         return;
     }
     LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));

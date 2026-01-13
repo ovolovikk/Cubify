@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "World/ChunkMesher.hpp"
-#include "Helpers/Frustum.hpp"
+#include "Math/Frustum.hpp"
 
 World::World()
 {

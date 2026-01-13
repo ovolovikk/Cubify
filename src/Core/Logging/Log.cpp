@@ -1,4 +1,4 @@
-#include "Helpers/Logging/Log.hpp"
+#include "Core/Logging/Log.hpp"
 #include <fstream>
 #include <cstdarg>
 #include <stdio.h>

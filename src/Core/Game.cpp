@@ -4,7 +4,7 @@
 
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
-#include "Helpers/Frustum.hpp"
+#include "Math/Frustum.hpp"
 #include "Graphics/Renderer.hpp"
 #include "Core/Camera.hpp"
 #include "World/World.hpp"

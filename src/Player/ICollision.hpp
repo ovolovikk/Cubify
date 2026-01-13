@@ -2,7 +2,7 @@
 #define I_COLLISION_HPP
 
 #include <glm/vec3.hpp>
-#include "Helpers/AABB.hpp"
+#include "Math/AABB.hpp"
 
 using glm::vec3;
 

@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "World/World.hpp"
-#include "Helpers/BlockType.hpp"
+#include "Core/BlockType.hpp"
 
 PlayerCollision::PlayerCollision(World& world) : world(world), grounded(false)
 {

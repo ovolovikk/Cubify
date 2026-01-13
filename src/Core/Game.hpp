@@ -5,7 +5,7 @@
 #include <memory>
 #include <glm/vec3.hpp>
 
-#include "Helpers/BlockType.hpp"
+#include "Core/BlockType.hpp"
 
 struct GLFWwindow;
 class IInputController;

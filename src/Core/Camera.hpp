@@ -3,8 +3,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Helpers/AABB.hpp"
-
 class IInputController;
 
 using glm::mat4;

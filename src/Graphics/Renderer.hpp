@@ -7,8 +7,8 @@
 #include <memory>
 #include <vector>
 
-#include "Helpers/Mesh.hpp"
-#include "Helpers/Quad.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Quad.hpp"
 
 class Shader;
 class TextureArray;

@@ -1,5 +1,6 @@
 #include "Graphics/Shader.hpp"
 
+#include "Core/Logging/Log.hpp"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -37,7 +38,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     }
     else 
     {
-        std::cerr << "ERROR: Vertex shader couldn't be opened: " << vertex_shader_path << std::endl;
+        LOGE("ERROR: Vertex shader couldn't be opened: %s", vertex_shader_path.c_str());
         return false;
     }
     
@@ -54,7 +55,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     {
         std::vector<char> vertex_shader_error_message(info_log_length + 1);
         glGetShaderInfoLog(vertex_shader_ID, info_log_length, NULL, &vertex_shader_error_message[0]);
-        printf("%s\n", &vertex_shader_error_message[0]);
+        LOGE("%s", &vertex_shader_error_message[0]);
     }
     
     // fragment Shader
@@ -69,7 +70,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     }
     else 
     {
-        std::cerr << "ERROR: Fragment shader couldn't be opened: " << fragment_shader_path << std::endl;
+        LOGE("ERROR: Fragment shader couldn't be opened: %s", fragment_shader_path.c_str());
         return false;
     }
 
@@ -83,7 +84,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     {
         std::vector<char> fragment_shader_error_message(info_log_length + 1);
         glGetShaderInfoLog(fragment_shader_ID, info_log_length, NULL, &fragment_shader_error_message[0]);
-        printf("%s\n", &fragment_shader_error_message[0]);
+        LOGE("%s", &fragment_shader_error_message[0]);
     }
 
     // assigning shaders to program
@@ -97,7 +98,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     {
         std::vector<char> program_error_message(info_log_length + 1);
         glGetProgramInfoLog(program_ID, info_log_length, NULL, &program_error_message[0]);
-        printf("%s\n", &program_error_message[0]);
+        LOGE("%s", &program_error_message[0]);
     }
 
     return true;
