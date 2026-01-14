@@ -22,7 +22,7 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
         stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(layer_paths[i].c_str(), &w, &h, &comp, 0);
         if (!data) {
-            LOGE("Failed to load texture layer: %s", layer_paths[i].c_str());
+            LOGE("[TextureArray] Failed to load texture layer: %s", layer_paths[i].c_str());
             for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
             return;
         }
@@ -32,7 +32,7 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
             components_count = comp;
         } else {
             if (w != p_x || h != p_y || comp != components_count) {
-                LOGE("layer %d size mismatch.", i);
+                LOGE("[TextureArray] layer %d size mismatch", i);
                 stbi_image_free(data);
                 for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
                 return;

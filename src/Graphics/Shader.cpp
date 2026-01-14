@@ -38,7 +38,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     }
     else 
     {
-        LOGE("ERROR: Vertex shader couldn't be opened: %s", vertex_shader_path.c_str());
+        LOGE("[Shader] Vertex shader couldn't be opened: %s", vertex_shader_path.c_str());
         return false;
     }
     
@@ -70,7 +70,7 @@ bool Shader::load(string vertex_shader_path, string fragment_shader_path)
     }
     else 
     {
-        LOGE("ERROR: Fragment shader couldn't be opened: %s", fragment_shader_path.c_str());
+        LOGE("[Shader] Fragment shader couldn't be opened: %s", fragment_shader_path.c_str());
         return false;
     }
 

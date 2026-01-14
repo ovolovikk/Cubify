@@ -13,7 +13,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glewExperimental = true;
     if(!glfwInit())
     {
-        LOGE("glfw init error.");
+        LOGE("[Window][GLFW] Initialization failed");
         return;
     }
 
@@ -26,7 +26,7 @@ Window::Window(const std::string& title, int width_, int height_)
     GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(raw_window == nullptr)
     {
-        LOGE("window init error.");
+        LOGE("[Window] Initialization failed");
         return;
     }
     window.reset(raw_window, glfwDestroyWindow);
@@ -37,7 +37,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwSwapInterval(0);
 
     if (glewInit() != GLEW_OK) { 
-        LOGE("glew init error");
+        LOGE("[Window][GLEW] Initialization failed");
         return;
     }
     LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));

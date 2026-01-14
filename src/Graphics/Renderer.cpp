@@ -22,13 +22,12 @@ Renderer::Renderer(int width, int height)
     glCullFace(GL_BACK);
 
     // subsystem initialization
+    LOGI("[Renderer] Initializing Renderer");
     shader = std::make_unique<Shader>();
     if (!shader->load("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl")) {
-        LOGE("Failed to load shaders");
+        LOGE("[Renderer] Failed to load shaders");
         return;
     }
-    
-    LOGI("Renderer Initialized");
 
     std::vector<string> layers = {
         "textures/grass_top.png",
@@ -53,6 +52,11 @@ Renderer::~Renderer()
 void Renderer::resize(int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void Renderer::onResize(int width, int height)
+{
+    resize(width, height);
 }
 
 void Renderer::beginFrame()

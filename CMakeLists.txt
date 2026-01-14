@@ -45,7 +45,7 @@ set(IMGUI_SOURCES
     "${IMGUI_DIR}/imgui_impl_opengl3.cpp"
 )
 
-add_executable(Cubify WIN32 ${SOURCES} ${IMGUI_SOURCES})
+add_executable(Cubify ${SOURCES} ${IMGUI_SOURCES})
 
 target_include_directories(Cubify PRIVATE 
     "${CMAKE_SOURCE_DIR}/src"

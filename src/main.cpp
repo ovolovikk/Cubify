@@ -1,16 +1,24 @@
-#include "Core/Game.hpp"
+#include "Core/Application.hpp"
 #include "Core/Logging/LogScope.hpp"
 #include "Core/Logging/Log.hpp"
 
 int main()
 {   
+    // for RAII
     LogScope log;
     LOGI("=== Cubify Start ===");
 
-    std::string title = "Cubify!";
+    ApplicationConfig config;
+    config.title = "Cubify";
+    config.width = 1920;
+    config.height = 1080;
 
-    Game game(1920, 1080, title);
-    game.run();
+    Application::Create(config);
+
+    APP.run();
+
+    Application::Destroy();
+    LOGI("=== Cubify End ===");
 
     return 0;
 }

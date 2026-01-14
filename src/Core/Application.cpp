@@ -1,0 +1,195 @@
+#include "Core/Application.hpp"
+
+#include "Core/Window.hpp"
+#include "Core/Game.hpp"
+#include "Graphics/Renderer.hpp"
+#include "Core/Logging/Log.hpp"
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <memory>
+
+Application* Application::s_instance = nullptr;
+
+Application &Application::Get()
+{
+    return *s_instance;
+}
+
+bool Application::Exists()
+{
+    if(s_instance != nullptr) return true;
+    LOGE("[Application] Tried access instance which not exists");
+    return false;
+}
+
+Application& Application::Create(const ApplicationConfig& config)
+{
+    if(s_instance == nullptr)
+    {
+        LOGI("[Application] Created Application instance");
+        s_instance = new Application(config);
+    }
+    return *s_instance;
+}
+
+void Application::Destroy()
+{
+    if(s_instance != nullptr)
+    {
+        LOGI("[Application] Destroyed Application instance");
+        delete s_instance;
+        s_instance = nullptr;
+    }
+    return;
+}
+
+void Application::run()
+{
+    if(!m_running || !m_window || !m_window->isOpen())
+    {
+        LOGE("[Application] Can't run, not properly initialized");
+        return;
+    }
+
+    LOGI("=== Application Main loop started ===");
+
+    while(m_running && m_window->isOpen())
+    {
+        beginFrame();
+
+        if(m_game)
+        {
+            m_game->onUpdate(m_deltaTime);
+            m_game->onRender();
+        }
+
+        endFrame();
+    }
+
+    LOGI("=== Application Main loop ended ===");
+}
+
+void Application::quit()
+{
+    LOGI("[Application] QUIT requested");
+    m_running = false;
+}
+
+Window &Application::getWindow()
+{
+    if (m_window == nullptr)
+    {
+        LOGE("[Application] Window is nullptr");
+    }
+    return *m_window;
+}
+
+Renderer &Application::getRenderer()
+{
+    if (m_renderer == nullptr)
+    {
+        LOGE("[Application] Renderer is nullptr");
+    }
+    return *m_renderer;
+}
+
+bool Application::is_running() const
+{
+    return m_running;
+}
+
+float Application::getDeltaTime() const
+{
+    return m_deltaTime;
+}
+
+double Application::getTime() const
+{
+    return glfwGetTime();
+}
+
+void Application::registerShutdownCallBack(ShutdownCallback callback)
+{
+    m_shutdownCallbacks.push_back(std::move(callback));
+}
+
+Application::Application(const ApplicationConfig& config)
+    : m_config(config)
+{
+    LOGI("=== Application Initializing ===");
+    initSubsystems();
+}
+
+Application::~Application()
+{
+    LOGI("=== Application Shutting down ===");
+    shutdownSubsystems();
+}
+
+void Application::initSubsystems()
+{
+    LOGI("[Subsystem] Initializing Window");
+    m_window = std::make_unique<Window>(m_config.title, m_config.width, m_config.height);
+    if(!m_window->isOpen())
+    {
+        LOGE("[Subsystem] Failed to create Window. Aborting");
+    }
+
+    m_window->setResizeCallback([this](int w, int h) {
+        if(m_renderer)
+        {
+            m_renderer->onResize(w, h);
+        }
+        if(m_game)
+        {
+            m_game->onResize(w, h);
+        }
+    });
+
+    LOGI("[Subsystem] Initializing Renderer");
+    m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight());
+
+    LOGI("[Subsystem] Initializing Game");
+    m_game = std::make_unique<Game>(*m_window, *m_renderer);
+
+    m_running = true;
+    m_lastFrameTime = getTime();
+
+    LOGI("=== All Subsystems initialized ===");
+}
+
+void Application::shutdownSubsystems()
+{
+    // Shutting down in reverse order: Renderer->Game->Window
+
+    // Call registered shutdown callbacks in reverse order
+    LOGI("[Shutdown] Executing %zu shutdown callbacks...", m_shutdownCallbacks.size());
+    for (auto it = m_shutdownCallbacks.rbegin(); it != m_shutdownCallbacks.rend(); ++it)
+    {
+        (*it)();
+    }
+    m_shutdownCallbacks.clear();
+
+    LOGI("[Subsystem] Shutting down Renderer");
+    m_renderer.reset();
+
+    LOGI("[Subsystem] Shutting down Game");
+    m_game.reset();
+
+    LOGI("[Subsystem] Shutting down Window");
+    m_window.reset();
+}
+
+void Application::beginFrame()
+{
+    double currentTime = glfwGetTime();
+    m_deltaTime =  static_cast<float>(currentTime - m_lastFrameTime);
+    m_lastFrameTime = currentTime;
+}
+
+void Application::endFrame()
+{
+    m_window->swapBuffers();
+    m_window->pollEvents();
+}

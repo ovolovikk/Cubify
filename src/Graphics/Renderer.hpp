@@ -23,6 +23,7 @@ public:
     Renderer& operator=(const Renderer&) = delete;
 
     void resize(int width, int height);
+    void onResize(int width, int height);
 
     void beginFrame();
 

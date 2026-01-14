@@ -107,6 +107,7 @@ glm::vec3 World::getSpawnPoint()
     return glm::vec3((float)targetX, spawnY, (float)targetZ);
 }
 
+// TODO SPLIT DEPENDENCIES SO IT DOESN'T KNOWS ABOUT RENDERER
 void World::draw(Renderer& renderer, const Frustum& frustum)
 {
     for (auto& [id, chunk] : chunk_manager->getChunks())

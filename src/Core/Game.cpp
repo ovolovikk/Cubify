@@ -1,66 +1,83 @@
 #include "Game.hpp"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "Core/Application.hpp"
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
+#include "Core/Logging/Log.hpp"
+#include "Core/Camera.hpp"
 #include "Math/Frustum.hpp"
 #include "Graphics/Renderer.hpp"
-#include "Core/Camera.hpp"
 #include "World/World.hpp"
 #include "Player/Player.hpp"
 #include "Utils/UIController.hpp"
 
-Game::Game(int width_, int height_, const std::string& title_)
-{
-    window = std::make_unique<Window>(title_, width_, height_);
+Game::Game(Window& window, Renderer& renderer)
+    : m_window(window), m_renderer(renderer)
+{  
+    LOGI("[Game] Constructing...");
     init();
+    LOGI("[Game] Ready");
 }
 
-Game::~Game() = default;
+Game::~Game()
+{
+    LOGI("[Game] Destroying...");
+}
 
 void Game::init()
 {   
-    GLFWwindow* nativeWindow = window->GetGLFWWindow(); 
-    window->setResizeCallback([this](int w, int h){
-        this->onResize(w, h);
-    });
+    GLFWwindow* nativeWindow = m_window.GetGLFWWindow(); 
 
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
-    renderer = std::make_unique<Renderer>(window->getWidth(), window->getHeight());
     camera = std::make_unique<Camera>(CAMERA_START_POS, CAMERA_FOV, CAMERA_ASPECT);
     world = std::make_unique<World>();
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
     ui_controller = std::make_unique<UIController>(nativeWindow);
 }
 
-void Game::run()
+void Game::onUpdate(float deltaTime)
 {
-    if (!window->isOpen()) return;
+    input_controller->update();
+    handleInput(deltaTime);
 
-    double lastFrame = glfwGetTime();
+    if (!free_cam_mode && world_rendered) {
+        player->update(deltaTime);
+    }
 
-    while(window->isOpen()) {
-        double currentFrame = glfwGetTime();
-        float deltaTime = float(currentFrame - lastFrame);
-        lastFrame = currentFrame;
+    world->update(camera->GetPosition());
+}
 
-        input_controller->update();
-        handleInput(deltaTime);
-        update(deltaTime);
-        render();
+void Game::onRender()
+{
+    m_renderer.beginFrame();
 
-        window->swapBuffers();
-        window->pollEvents();
+    glm::mat4 view = camera->GetViewMatrix();
+    glm::mat4 projection = camera->GetProjectionMatrix();
+    glm::mat4 viewProj = projection * view;
+
+    m_renderer.setViewProjection(view, projection);
+
+    // frustum culling
+    float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
+    Frustum frustum(viewProj);
+
+    world->draw(m_renderer, frustum);
+    world_rendered = true;
+
+    if (ui_controller) {
+        ui_controller->update(*camera, *world);
     }
 }
 
 void Game::handleInput(float deltaTime)
 {
-    GLFWwindow* nativeWindow = window->GetGLFWWindow();
+    GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
 
     if(input_controller->isKeyPressed(GLFW_KEY_ESCAPE)) {
-        glfwSetWindowShouldClose(nativeWindow, true);
+        APP.quit();
     }
     // free cam
     if (input_controller->isKeyPressed(GLFW_KEY_F1)) {
@@ -116,40 +133,9 @@ void Game::handleInput(float deltaTime)
     }
 }
 
-void Game::update(float deltaTime)
+void Game::onResize(int width, int height)
 {
-    if (!free_cam_mode && world_rendered) {
-        player->update(deltaTime);
-    }
-
-    world->update(camera->GetPosition());
-}
-
-void Game::render()
-{
-    renderer->beginFrame();
-
-    glm::mat4 view = camera->GetViewMatrix();
-    glm::mat4 projection = camera->GetProjectionMatrix();
-    glm::mat4 viewProj = projection * view;
-
-    renderer->setViewProjection(view, projection);
-
-    // frustum culling
-    float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
-    Frustum frustum(viewProj);
-
-    world->draw(*renderer, frustum);
-    world_rendered = true;
-
-    if (ui_controller) {
-        ui_controller->update(*camera, *world);
-    }
-}
-
-void Game::onResize(int width_, int height_)
-{
-    if (window) window->setSize(width_, height_);
-    if (renderer) renderer->resize(width_, height_);
-    if (camera && height_ > 0) camera->SetAspect((float)width_ / (float)height_);
+    m_window.setSize(width, height);
+    m_renderer.resize(width, height);
+    if (camera && height > 0) camera->SetAspect((float)width / (float)height);
 }
