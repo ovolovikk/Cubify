@@ -1,7 +1,5 @@
 #include "World/Chunk.hpp"
 
-#include "Graphics/Quad.hpp"
-
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {
     for (int i = 0; i < CHUNK_SIZE; ++i)
