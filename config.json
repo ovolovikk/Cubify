@@ -10,7 +10,7 @@
     "pConfig": {
         "moveSpeed": 45.0,
         "sprintMultiplier": 2.03,
-        "jumpForce": 9.0,
+        "jumpForce": 9.0
     },
     "cConfig": {
         "fov": 60.0,

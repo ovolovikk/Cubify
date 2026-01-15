@@ -109,6 +109,7 @@ void Game::handleInput(float deltaTime)
     if (input_controller->isKeyPressed(GLFW_KEY_3)) selectedBlock = BlockType::STONE;
     if (input_controller->isKeyPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
     if (input_controller->isKeyPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
+    if (input_controller->isKeyPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
     
     // destroy blocks
     if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {

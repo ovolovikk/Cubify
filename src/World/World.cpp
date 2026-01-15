@@ -5,6 +5,7 @@
 
 #include <cmath>
 
+#include "Core/BlockType.hpp"
 #include "World/ChunkMesher.hpp"
 #include "Math/Frustum.hpp"
 
@@ -67,7 +68,8 @@ void World::rayCastBreakBlock(glm::vec3 origin, glm::vec3 direction, float max_d
 {
     RayCastResult result = rayCast(origin, direction, max_distance);
     if (result.success) {
-        setBlock(result.block_position.x, result.block_position.y, result.block_position.z, BlockType::AIR);
+        if (getBlock(result.block_position.x, result.block_position.y, result.block_position.z) != BlockType::BEDROCK)
+            setBlock(result.block_position.x, result.block_position.y, result.block_position.z, BlockType::AIR);
     }
 }
 
@@ -75,7 +77,22 @@ void World::rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_d
 {
     RayCastResult result = rayCast(origin, direction, max_distance);
     if (result.success) {
-        setBlock(result.previous_position.x, result.previous_position.y, result.previous_position.z, type);
+        // Check for block not being inside of a player
+        int playerBlockX = static_cast<int>(std::floor(origin.x));
+        int playerBlockY = static_cast<int>(std::floor(origin.y));
+        int playerBlockZ = static_cast<int>(std::floor(origin.z));
+        
+        int placeX = result.previous_position.x;
+        int placeY = result.previous_position.y;
+        int placeZ = result.previous_position.z;
+        
+        if (placeX == playerBlockX && placeZ == playerBlockZ) {
+            if (placeY == playerBlockY || placeY == playerBlockY - 1) {
+                return;
+            }
+        }
+        
+        setBlock(placeX, placeY, placeZ, type);
     }
 }
 

@@ -1,5 +1,6 @@
 #include "World/TerrainGenerator.hpp"
 
+#include "Core/BlockType.hpp"
 #include "World/Chunk.hpp"
 
 TerrainGenerator::TerrainGenerator() : noise_gen(1337)
@@ -21,7 +22,11 @@ void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
 
                 if (ly <= height)
                 {
-                    if (ly < height - 3)
+                    if (ly == 0)
+                    {
+                        type = BlockType::BEDROCK;
+                    }
+                    else if (ly < height - 3)
                     {
                         type = BlockType::STONE;
                     }

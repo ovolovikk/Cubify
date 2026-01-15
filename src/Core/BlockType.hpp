@@ -11,7 +11,8 @@ enum class BlockType : uint8_t
     GRASS,
     SAND,
     WOODEN_PLANK,
-    WATER
+    WATER,
+    BEDROCK
 };
 
 #endif // BLOCK_TYPE_HPP

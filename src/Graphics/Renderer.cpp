@@ -36,7 +36,8 @@ Renderer::Renderer(int width, int height)
         "textures/stone.png",
         "textures/sand.png",
         "textures/wooden_plank.png",
-        "textures/water.png"
+        "textures/water.png",
+        "textures/bedrock.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
 
