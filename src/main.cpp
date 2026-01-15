@@ -1,6 +1,7 @@
 #include "Core/Application.hpp"
 #include "Core/Logging/LogScope.hpp"
 #include "Core/Logging/Log.hpp"
+#include "Utils/Config.hpp"
 
 int main()
 {   
@@ -8,10 +9,14 @@ int main()
     LogScope log;
     LOGI("=== Cubify Start ===");
 
+    Config::Load("config.json");
+    auto& cfg = Config::Get();
+
     ApplicationConfig config;
     config.title = "Cubify";
-    config.width = 1920;
-    config.height = 1080;
+    config.width = cfg.wConfig.width;
+    config.height = cfg.wConfig.height;
+    config.vsync = cfg.wConfig.vsync;
 
     Application::Create(config);
 

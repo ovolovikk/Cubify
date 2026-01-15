@@ -13,6 +13,7 @@
 #include "World/World.hpp"
 #include "Player/Player.hpp"
 #include "Utils/UIController.hpp"
+#include "Utils/Config.hpp"
 
 Game::Game(Window& window, Renderer& renderer)
     : m_window(window), m_renderer(renderer)
@@ -29,10 +30,12 @@ Game::~Game()
 
 void Game::init()
 {   
-    GLFWwindow* nativeWindow = m_window.GetGLFWWindow(); 
+    GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
+    auto& cfg = Config::Get();
 
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
-    camera = std::make_unique<Camera>(CAMERA_START_POS, CAMERA_FOV, CAMERA_ASPECT);
+    float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
+    camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>();
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
     ui_controller = std::make_unique<UIController>(nativeWindow);

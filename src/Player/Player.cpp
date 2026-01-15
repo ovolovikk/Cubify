@@ -6,6 +6,7 @@
 #include "Core/Camera.hpp"
 #include "Core/Input/IInputController.hpp"
 #include "World/World.hpp"
+#include "Utils/Config.hpp"
 
 Player::Player(Camera& camera_, IInputController& input_, World& world_, const vec3& initial_pos)
     : camera(camera_), input(input_), collision(world_), physics(collision)
@@ -43,10 +44,11 @@ void Player::update(float dt)
 
     if (glm::length(move_dir) > 0.01f) {
         move_dir = glm::normalize(move_dir);
+        auto& p = Config::Get().pConfig;
         
-        float current_speed = MOVE_SPEED;
+        float current_speed = p.moveSpeed;
         if (input.isSprinting()) {
-            current_speed *= SPRINT_MLTPL;
+            current_speed *= p.sprintMultiplier;
         }
 
         if (!physics.isGrounded()) {
@@ -58,7 +60,7 @@ void Player::update(float dt)
 
     if (input.isKeyPressed(GLFW_KEY_SPACE))
     {
-        physics.jump(JUMP_FORCE);
+        physics.jump(Config::Get().pConfig.jumpForce);
     }
 
     glm::vec2 mouse_delta = input.getMouseDelta();

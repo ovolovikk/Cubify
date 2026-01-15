@@ -60,8 +60,6 @@ private:
 
     // Camera Params
     static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 50.0f, 0.0f);
-    static constexpr auto CAMERA_FOV = 60.f;
-    static constexpr auto CAMERA_ASPECT = 16.f / 9.f;
 };
 
 #endif // GAME_HPP

@@ -1,6 +1,6 @@
 #version 430 core
 
-const float FOG_DENSITY = 0.0025;
+const float FOG_DENSITY = 0.005;
 const float FOG_POWER = 1.5;
 
 struct Quad

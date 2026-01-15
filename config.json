@@ -1,0 +1,19 @@
+{
+    "wConfig": {
+        "width": 1920,
+        "height": 1080,
+        "vsync": false
+    },
+    "gConfig": {
+        "renderDistance": 2
+    },
+    "pConfig": {
+        "moveSpeed": 45.0,
+        "sprintMultiplier": 2.03,
+        "jumpForce": 9.0,
+    },
+    "cConfig": {
+        "fov": 60.0,
+        "sensitivity": 0.1
+    }
+}

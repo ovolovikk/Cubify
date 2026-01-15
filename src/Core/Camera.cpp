@@ -3,6 +3,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include "Core/Input/IInputController.hpp"
+#include "Utils/Config.hpp"
 
 Camera::Camera(vec3 position_, float fov_, float aspect_)
     : position(position_), fov(fov_), aspect(aspect_),
@@ -52,8 +53,9 @@ void Camera::processInput(const IInputController& input, float deltaTime)
 
 void Camera::processMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
-    xoffset *= MOUSE_SENSITIVITY;
-    yoffset *= MOUSE_SENSITIVITY;
+    float sens = Config::Get().cConfig.sensitivity;
+    xoffset *= sens;
+    yoffset *= sens;
 
     yaw   += xoffset;
     pitch += yoffset;

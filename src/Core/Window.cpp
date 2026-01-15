@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Core/Logging/Log.hpp"
+#include "Utils/Config.hpp"
 
 #include <gl/gl.h>
 
@@ -34,7 +35,7 @@ Window::Window(const std::string& title, int width_, int height_)
     LOGI("[Window] Size: %dx%d", width, height);
 
     glfwMakeContextCurrent(window.get());
-    glfwSwapInterval(0);
+    glfwSwapInterval(Config::Get().wConfig.vsync ? 1 : 0);
 
     if (glewInit() != GLEW_OK) { 
         LOGE("[Window][GLEW] Initialization failed");
@@ -52,7 +53,7 @@ Window::Window(const std::string& title, int width_, int height_)
 
 Window::~Window()
 {
-    if (true)   glfwTerminate();
+    glfwTerminate();
 }
 
 bool Window::isOpen() const

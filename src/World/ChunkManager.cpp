@@ -156,11 +156,12 @@ void ChunkManager::update(glm::vec3 player_pos)
 {
     int playerChunkX = static_cast<int>(floor(player_pos.x / CHUNK_SIZE));
     int playerChunkZ = static_cast<int>(floor(player_pos.z / CHUNK_SIZE));
+    int renderDist = Config::Get().gConfig.renderDistance;
 
     // load chunks
-    for(int x = playerChunkX - RENDER_DISTANCE; x <= playerChunkX + RENDER_DISTANCE; ++x)
+    for(int x = playerChunkX - renderDist; x <= playerChunkX + renderDist; ++x)
     {
-        for (int z = playerChunkZ - RENDER_DISTANCE; z <= playerChunkZ + RENDER_DISTANCE; ++z)
+        for (int z = playerChunkZ - renderDist; z <= playerChunkZ + renderDist; ++z)
         {
             addChunk(x, z);
         }
@@ -174,7 +175,7 @@ void ChunkManager::update(glm::vec3 player_pos)
         int x = static_cast<int>(id >> 32);
         int z = static_cast<int>(id & 0xFFFFFFFF);
 
-        if(abs(x - playerChunkX) > RENDER_DISTANCE || abs(z - playerChunkZ) > RENDER_DISTANCE)
+        if(abs(x - playerChunkX) > renderDist || abs(z - playerChunkZ) > renderDist)
         {
             it = chunks.erase(it);
         } else ++it;
