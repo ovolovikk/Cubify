@@ -5,7 +5,7 @@
         "vsync": false
     },
     "gConfig": {
-        "renderDistance": 2
+        "renderDistance": 12
     },
     "pConfig": {
         "moveSpeed": 45.0,

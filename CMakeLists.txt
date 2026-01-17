@@ -77,3 +77,9 @@ add_custom_command(TARGET Cubify POST_BUILD
     "${CMAKE_SOURCE_DIR}/textures"
     "$<TARGET_FILE_DIR:Cubify>/textures"
 )
+
+add_custom_command(TARGET Cubify POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/sounds"
+    "$<TARGET_FILE_DIR:Cubify>/sounds"
+)

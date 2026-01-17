@@ -59,7 +59,7 @@ void Config::Validate()
     clamp(w.height, 480, 4320, 1080);
 
     auto& g = m_config.gConfig;
-    clamp(g.renderDistance, (uint8_t)2, (uint8_t)128, (uint8_t)64);
+    clamp(g.renderDistance, (uint8_t)2, (uint8_t)128, (uint8_t)12);
 
     auto& p = m_config.pConfig;
     clamp(p.moveSpeed, 1.0f, 200.0f, 45.0f);

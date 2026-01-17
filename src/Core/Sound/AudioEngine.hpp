@@ -1,0 +1,28 @@
+#ifndef AUDIO_ENGINE_HPP
+#define AUDIO_ENGINE_HPP
+
+#include "miniaudio.h"
+
+#include <string>
+
+class AudioEngine
+{
+public:
+    static AudioEngine& Instance();
+
+    AudioEngine(const AudioEngine&) = delete;
+    AudioEngine& operator=(const AudioEngine&) = delete;
+
+    void PlayMusic(const std::string& path = "sounds/interstellar.mp3");
+
+    void PlayShortSound(const std::string& path);
+
+private:
+    ma_engine m_engine;
+
+    AudioEngine();
+    ~AudioEngine();
+    bool m_initialized;
+};
+
+#endif // AUDIO_ENGINE_HPP

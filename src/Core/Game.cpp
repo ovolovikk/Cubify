@@ -2,12 +2,14 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 
 #include "Core/Application.hpp"
 #include "Core/Window.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Core/Logging/Log.hpp"
 #include "Core/Camera.hpp"
+#include "Core/Sound/AudioEngine.hpp"
 #include "Math/Frustum.hpp"
 #include "Graphics/Renderer.hpp"
 #include "World/World.hpp"
@@ -32,6 +34,8 @@ void Game::init()
 {   
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
     auto& cfg = Config::Get();
+    auto& audio_engine = AudioEngine::Instance();
+    audio_engine.PlayMusic();
 
     input_controller = std::make_unique<GLFWInputController>(nativeWindow);
     float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
