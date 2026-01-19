@@ -19,7 +19,7 @@ class DebugUI;
 class Game
 {
 public:
-    Game(Window& window, Renderer& renderer);
+    Game(Window& window, Renderer& renderer, IInputController& inputController);
     ~Game();
 
     Game(const Game&) = delete;
@@ -40,9 +40,9 @@ private:
     // Borrowed from APP
     Window& m_window;
     Renderer& m_renderer;
+    IInputController& m_inputController;
 
     // Owned by a Game
-    std::unique_ptr<IInputController> input_controller;
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
     std::unique_ptr<TerrainGenerator> terrain_generator;

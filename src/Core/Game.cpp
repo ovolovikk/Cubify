@@ -6,7 +6,7 @@
 
 #include "Core/Application.hpp"
 #include "Core/Window.hpp"
-#include "Core/Input/GLFWInputController.hpp"
+#include "Core/Input/IInputController.hpp"
 #include "Core/Logging/Log.hpp"
 #include "Core/Camera.hpp"
 #include "Core/Sound/AudioEngine.hpp"
@@ -17,8 +17,8 @@
 #include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
 
-Game::Game(Window& window, Renderer& renderer)
-    : m_window(window), m_renderer(renderer)
+Game::Game(Window& window, Renderer& renderer, IInputController& inputController)
+    : m_window(window), m_renderer(renderer), m_inputController(inputController)
 {  
     LOGI("[Game] Constructing...");
     init();
@@ -47,17 +47,16 @@ void Game::init()
     auto& audio_engine = AudioEngine::Instance();
     audio_engine.PlayMusic();
 
-    input_controller = std::make_unique<GLFWInputController>(nativeWindow);
     float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>();
-    player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
+    player = std::make_unique<Player>(*camera, m_inputController, *world, world->getSpawnPoint());
     // UIController will be initialized later when game starts playing
 }
 
 void Game::onUpdate(float deltaTime)
 {
-    input_controller->update();
+    m_inputController.update();
     handleInput(deltaTime);
 
     if (!free_cam_mode && world_rendered) {
@@ -85,7 +84,7 @@ void Game::onRender()
     world_rendered = true;
 
     if (debug_ui) {
-        // debug_ui->update(*camera, *world);
+        debug_ui->update(*camera, *world);
     }
 }
 
@@ -93,11 +92,11 @@ void Game::handleInput(float deltaTime)
 {
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
 
-    if(input_controller->isKeyPressed(GLFW_KEY_ESCAPE)) {
+    if(m_inputController.isKeyPressed(GLFW_KEY_ESCAPE)) {
         APP.quit();
     }
     // free cam
-    if (input_controller->isKeyPressed(GLFW_KEY_F1)) {
+    if (m_inputController.isKeyPressed(GLFW_KEY_F1)) {
         if (!f1_pressed) {
             free_cam_mode = !free_cam_mode;
             f1_pressed = true;
@@ -107,10 +106,10 @@ void Game::handleInput(float deltaTime)
     }
 
     // cursor
-    if (input_controller->isKeyPressed(GLFW_KEY_F3)) {
+    if (m_inputController.isKeyPressed(GLFW_KEY_F3)) {
         if (!f3_pressed) {
             cursor_visible = !cursor_visible;
-            input_controller->setCursorEnabled(cursor_visible);
+            m_inputController.setCursorEnabled(cursor_visible);
             f3_pressed = true;
         }
     } else {
@@ -118,7 +117,7 @@ void Game::handleInput(float deltaTime)
     }
 
     // fullscreen toggle
-    if (input_controller->isKeyPressed(GLFW_KEY_F11)) {
+    if (m_inputController.isKeyPressed(GLFW_KEY_F11)) {
         if (!f11_pressed) {
             m_window.toggleFullscreen();
             f11_pressed = true;
@@ -128,15 +127,15 @@ void Game::handleInput(float deltaTime)
     }
 
     // block choose
-    if (input_controller->isKeyPressed(GLFW_KEY_1)) selectedBlock = BlockType::GRASS;
-    if (input_controller->isKeyPressed(GLFW_KEY_2)) selectedBlock = BlockType::DIRT;
-    if (input_controller->isKeyPressed(GLFW_KEY_3)) selectedBlock = BlockType::STONE;
-    if (input_controller->isKeyPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
-    if (input_controller->isKeyPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
-    if (input_controller->isKeyPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
+    if (m_inputController.isKeyPressed(GLFW_KEY_1)) selectedBlock = BlockType::GRASS;
+    if (m_inputController.isKeyPressed(GLFW_KEY_2)) selectedBlock = BlockType::DIRT;
+    if (m_inputController.isKeyPressed(GLFW_KEY_3)) selectedBlock = BlockType::STONE;
+    if (m_inputController.isKeyPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
+    if (m_inputController.isKeyPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
+    if (m_inputController.isKeyPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
     
     // destroy blocks
-    if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+    if (m_inputController.isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
         if (!left_mouse_pressed) {
             world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
             left_mouse_pressed = true;
@@ -146,7 +145,7 @@ void Game::handleInput(float deltaTime)
     }
 
     // place blocks
-    if (input_controller->isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+    if (m_inputController.isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
         if (!right_mouse_pressed) {
             world->rayCastPlaceBlock(camera->GetPosition(), camera->GetFront(), 4.0f, selectedBlock);
             right_mouse_pressed = true;
@@ -157,7 +156,7 @@ void Game::handleInput(float deltaTime)
 
     // fly input
     if (free_cam_mode) {
-        camera->processInput(*input_controller, deltaTime);
+        camera->processInput(m_inputController, deltaTime);
     }
 }
 

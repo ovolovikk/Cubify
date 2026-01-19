@@ -6,10 +6,13 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "Core/Input/IInputController.hpp"
+#include "Core/Window.hpp"
 #include "Core/Logging/Log.hpp"
 #include "stb_image.h"
 
-MainMenu::MainMenu(GLFWwindow* window)
+MainMenu::MainMenu(GLFWwindow* window, Window& appWindow, IInputController& inputController)
+    : m_window(appWindow), m_inputController(inputController)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -73,6 +76,42 @@ void MainMenu::loadBackgroundTexture()
     LOGI("[MainMenu] Background texture loaded (%dx%d)", m_bgWidth, m_bgHeight);
 }
 
+void MainMenu::onUpdate(float deltaTime)
+{
+    m_inputController.update();
+    handleInput();
+}
+
+void MainMenu::handleInput()
+{
+    // Escape - quit
+    if (m_inputController.isKeyPressed(GLFW_KEY_ESCAPE)) {
+        if (m_onQuit) m_onQuit();
+    }
+
+    // F11 - fullscreen toggle
+    if (m_inputController.isKeyPressed(GLFW_KEY_F11)) {
+        if (!m_f11Pressed) {
+            m_window.toggleFullscreen();
+            m_f11Pressed = true;
+        }
+    } else {
+        m_f11Pressed = false;
+    }
+
+    // F3 - enable cursor
+    if (m_inputController.isKeyPressed(GLFW_KEY_F3)) {
+        if (!m_f3Pressed) {
+            m_cursor_visible = !m_cursor_visible;
+            m_inputController.setCursorEnabled(m_cursor_visible);
+            m_f3Pressed = true;
+        }
+    } else {
+        m_f3Pressed = false;
+    }
+
+}
+
 void MainMenu::render(int windowWidth, int windowHeight)
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -80,9 +119,39 @@ void MainMenu::render(int windowWidth, int windowHeight)
     ImGui::NewFrame();
 
     renderBackground(windowWidth, windowHeight);
+    renderMenuButtons(windowWidth, windowHeight);
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
+{
+    ImVec2 buttonSize(200, 50);
+    float centerX = (windowWidth - buttonSize.x) * 0.5f;
+    float centerY = windowHeight * 0.5f;
+
+    ImGui::SetNextWindowPos(ImVec2(centerX, centerY));
+    ImGui::SetNextWindowSize(ImVec2(buttonSize.x + 20, buttonSize.y * 3 + 40));
+
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration 
+                           | ImGuiWindowFlags_NoMove 
+                           | ImGuiWindowFlags_NoSavedSettings
+                           | ImGuiWindowFlags_NoBackground;
+
+    ImGui::Begin("##MenuButtons", nullptr, flags);
+
+    if (ImGui::Button("Play", buttonSize))
+    {
+        if (m_onPlay) m_onPlay();
+    }
+
+    if (ImGui::Button("Quit", buttonSize))
+    {
+        if (m_onQuit) m_onQuit();
+    }
+
+    ImGui::End();
 }
 
 void MainMenu::renderBackground(int windowWidth, int windowHeight)

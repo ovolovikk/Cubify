@@ -3,6 +3,7 @@
 #include "Core/AppState.hpp"
 #include "Core/Window.hpp"
 #include "Core/Game.hpp"
+#include "Core/Input/GLFWInputController.hpp"
 #include "Graphics/Renderer.hpp"
 #include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
@@ -63,6 +64,7 @@ void Application::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         if(m_mainMenu)
         {
+            m_mainMenu->onUpdate(m_deltaTime);
             m_mainMenu->render(m_window->getWidth(), m_window->getHeight());
         }
         endFrame();
@@ -172,8 +174,11 @@ void Application::initSubsystems()
     LOGI("[Subsystem] Initializing Renderer");
     m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight());
 
+    LOGI("[Subsystem] Initializing InputController");
+    m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
+
     LOGI("[Subsystem] Initializing MainMenu");
-    m_mainMenu = std::make_unique<MainMenu>(m_window->GetGLFWWindow());
+    m_mainMenu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
     m_mainMenu->setPlayCallback([this]() {
         m_currentState = AppState::PLAYING;
     });
@@ -182,7 +187,7 @@ void Application::initSubsystems()
     });
     
     LOGI("[Subsystem] Initializing Game");
-    m_game = std::make_unique<Game>(*m_window, *m_renderer);
+    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController);
 
     m_currentState = AppState::MENU;
     m_lastFrameTime = getTime();
@@ -207,6 +212,9 @@ void Application::shutdownSubsystems()
 
     LOGI("[Subsystem] Shutting down Game");
     m_game.reset();
+
+    LOGI("[Subsystem] Shutting down InputController");
+    m_inputController.reset();
 
     LOGI("[Subsystem] Shutting down Window");
     m_window.reset();

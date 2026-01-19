@@ -12,6 +12,7 @@ class Window;
 class Renderer;
 class Game;
 class MainMenu;
+class IInputController;
 
 struct ApplicationConfig
 {
@@ -69,6 +70,7 @@ private:
 
     std::unique_ptr<Window> m_window;
     std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
     std::unique_ptr<MainMenu> m_mainMenu;
 
