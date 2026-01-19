@@ -2,6 +2,7 @@
 #define APPLICATION_HPP
 
 #include "Core/AppState.hpp"
+#include "World/WorldType.hpp"
 
 #include <memory>
 #include <string>
@@ -65,6 +66,7 @@ private:
      
     ApplicationConfig m_config;
     AppState m_currentState = AppState::UNINITIALIZED;
+    WorldType m_selectedWorldType = WorldType::MINECRAFT;
     float m_deltaTime = 0.f;
     double m_lastFrameTime = 0.0;
 

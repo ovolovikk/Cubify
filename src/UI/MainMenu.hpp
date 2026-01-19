@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#include "World/WorldType.hpp"
+
 struct GLFWwindow;
 class IInputController;
 class Window;
@@ -12,7 +14,7 @@ class Window;
 class MainMenu
 {
 public:
-    using PlayCallback = std::function<void()>;
+    using PlayCallback = std::function<void(WorldType)>;
     using QuitCallback = std::function<void()>;
 
     MainMenu(GLFWwindow* window, Window& appWindow, IInputController& inputController);

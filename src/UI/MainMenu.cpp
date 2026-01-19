@@ -134,32 +134,99 @@ void MainMenu::render(int windowWidth, int windowHeight)
 
 void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
 {
-    ImVec2 buttonSize(200, 50);
-    float centerX = (windowWidth - buttonSize.x) * 0.5f;
-    float centerY = windowHeight * 0.5f;
+    //Style config
+    ImVec2 buttonSize(280, 55);
+    float panelPadding = 40.f;
+    float panelWidth = buttonSize.x + (panelPadding * 2.0f);
+    float titleHeight = 30.f;
+    float subtitleHeight = 25.f;
+    float separatorHeight = 20.f;
+    float spacingTotal = 80.f;
+    float verticalPadding = 50.f;
+    float panelHeight = titleHeight + subtitleHeight + (buttonSize.y * 5) + (separatorHeight * 2) + spacingTotal + verticalPadding;
+    float centerX = (windowWidth - panelWidth) * 0.5f;
+    float centerY = (windowHeight - panelHeight) * 0.5f;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 15.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(panelPadding, 25.f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(20, 12));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 12));
+
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.05f, 0.05f, 0.1f, 0.85f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.3f, 0.5f, 0.8f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.15f, 0.25f, 0.45f, 0.9f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.25f, 0.45f, 0.75f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.1f, 0.3f, 0.6f, 1.0f));
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.95f, 1.f));
 
     ImGui::SetNextWindowPos(ImVec2(centerX, centerY));
-    ImGui::SetNextWindowSize(ImVec2(buttonSize.x + 20, buttonSize.y * 3 + 40));
+    ImGui::SetNextWindowSize(ImVec2(panelWidth, panelHeight));
 
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration 
-                           | ImGuiWindowFlags_NoMove 
-                           | ImGuiWindowFlags_NoSavedSettings
-                           | ImGuiWindowFlags_NoBackground;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration
+                           | ImGuiWindowFlags_NoMove
+                           | ImGuiWindowFlags_NoSavedSettings;
 
     ImGui::Begin("##MenuButtons", nullptr, flags);
 
-    if (ImGui::Button("Play", buttonSize))
-    {
-        if (m_onPlay) m_onPlay();
-    }
+    float totalWidth = ImGui::GetWindowSize().x;
 
+    // --- Заголовок ---
+    float titleWidth = ImGui::CalcTextSize("C U B I F Y").x;
+    ImGui::SetCursorPosX((totalWidth - titleWidth) * 0.5f);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.7f, 1.0f, 1.0f));
+    ImGui::Text("C U B I F Y");
+    ImGui::PopStyleColor();
+    
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // --- Подзаголовок ---
+    float subtitleWidth = ImGui::CalcTextSize("Select Your World").x;
+    ImGui::SetCursorPosX((totalWidth - subtitleWidth) * 0.5f);
+    ImGui::Text("Select Your World");
+    
+    ImGui::Spacing();
+
+    // --- Кнопки миров ---
+    float buttonOffsetX = (totalWidth - buttonSize.x) * 0.5f;
+
+    auto drawWorldButton = [&](const char* label, WorldType type) {
+        ImGui::SetCursorPosX(buttonOffsetX);
+        if (ImGui::Button(label, buttonSize)) {
+            if (m_onPlay) m_onPlay(type);
+        }
+    };
+
+    drawWorldButton("Minecraft", WorldType::MINECRAFT);
+    drawWorldButton("Edmund's Planet", WorldType::MINECRAFT);
+    drawWorldButton("Dr. Mann's Planet", WorldType::MINECRAFT);
+    drawWorldButton("Miller's Planet", WorldType::MINECRAFT);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.4f, 0.15f, 0.15f, 0.9f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.1f, 0.1f, 1.0f));
+    ImGui::SetCursorPosX(buttonOffsetX);
     if (ImGui::Button("Quit", buttonSize))
     {
         if (m_onQuit) m_onQuit();
     }
+    
+    ImGui::PopStyleColor(3);
 
     ImGui::End();
+
+    ImGui::PopStyleColor(6); 
+    ImGui::PopStyleVar(5);
 }
+
+
 
 void MainMenu::renderBackground(int windowWidth, int windowHeight)
 {

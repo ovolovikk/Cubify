@@ -179,8 +179,10 @@ void Application::initSubsystems()
 
     LOGI("[Subsystem] Initializing MainMenu");
     m_mainMenu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
-    m_mainMenu->setPlayCallback([this]() {
+    m_mainMenu->setPlayCallback([this](WorldType worldType) {
+        m_selectedWorldType = worldType;
         m_currentState = AppState::PLAYING;
+        LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
     });
     m_mainMenu->setQuitCallback([this]() {
         m_currentState = AppState::SHUTTING_DOWN;
