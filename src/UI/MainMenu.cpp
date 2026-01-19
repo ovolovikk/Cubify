@@ -19,6 +19,13 @@ MainMenu::MainMenu(GLFWwindow* window, Window& appWindow, IInputController& inpu
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+    ImFont* spaceFont = io.Fonts->AddFontFromFileTTF("fonts/space_font.ttf");
+    if(!spaceFont)
+    {
+        LOGE("[MainMenu] Failed to load space font");
+    }
+    ImGui::PushFont(spaceFont);
+
     ImGui::StyleColorsDark();
     
     ImGuiStyle& style = ImGui::GetStyle();
