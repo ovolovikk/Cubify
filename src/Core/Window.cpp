@@ -92,3 +92,28 @@ void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height
         win->onFramebufferResize(width, height);
     }
 }
+
+void Window::toggleFullscreen()
+{
+    if (!window) return;
+
+    if (m_isFullscreen)
+    {
+        glfwSetWindowMonitor(window.get(), nullptr, m_windowedPosX, m_windowedPosY, m_windowedWidth, m_windowedHeight, 0);
+        m_isFullscreen = false;
+        LOGI("[Window] Switched to windowed mode");
+    }
+    else
+    {
+        glfwGetWindowPos(window.get(), &m_windowedPosX, &m_windowedPosY);
+        glfwGetWindowSize(window.get(), &m_windowedWidth, &m_windowedHeight);
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+        // Switch to fullscreen
+        glfwSetWindowMonitor(window.get(), monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        m_isFullscreen = true;
+        LOGI("[Window] Switched to fullscreen mode");
+    }
+}

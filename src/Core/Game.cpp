@@ -14,7 +14,7 @@
 #include "Graphics/Renderer.hpp"
 #include "World/World.hpp"
 #include "Player/Player.hpp"
-#include "Utils/UIController.hpp"
+#include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
 
 Game::Game(Window& window, Renderer& renderer)
@@ -30,6 +30,16 @@ Game::~Game()
     LOGI("[Game] Destroying...");
 }
 
+void Game::initUI()
+{
+    if(!debug_ui)
+    {
+        GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
+        debug_ui = std::make_unique<DebugUI>(nativeWindow);
+        LOGI("[Game] DebugUI initialized");
+    }
+}
+
 void Game::init()
 {   
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
@@ -42,7 +52,7 @@ void Game::init()
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>();
     player = std::make_unique<Player>(*camera, *input_controller, *world, world->getSpawnPoint());
-    ui_controller = std::make_unique<UIController>(nativeWindow);
+    // UIController will be initialized later when game starts playing
 }
 
 void Game::onUpdate(float deltaTime)
@@ -74,8 +84,8 @@ void Game::onRender()
     world->draw(m_renderer, frustum);
     world_rendered = true;
 
-    if (ui_controller) {
-        ui_controller->update(*camera, *world);
+    if (debug_ui) {
+        // debug_ui->update(*camera, *world);
     }
 }
 
@@ -105,6 +115,16 @@ void Game::handleInput(float deltaTime)
         }
     } else {
         f3_pressed = false;
+    }
+
+    // fullscreen toggle
+    if (input_controller->isKeyPressed(GLFW_KEY_F11)) {
+        if (!f11_pressed) {
+            m_window.toggleFullscreen();
+            f11_pressed = true;
+        }
+    } else {
+        f11_pressed = false;
     }
 
     // block choose

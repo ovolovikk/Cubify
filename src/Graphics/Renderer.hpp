@@ -37,7 +37,6 @@ private:
     std::unique_ptr<TextureArray> texture_array;
     GLuint sampler;
     GLuint vao;
-    
 
     glm::mat4 view_matrix;
     glm::mat4 projection_matrix;

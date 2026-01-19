@@ -31,11 +31,21 @@ public:
     void setResizeCallback(const ResizeCallbackFn& callback);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+    void toggleFullscreen();
+    bool isFullscreen() const { return m_isFullscreen; }
+
 private:
     std::shared_ptr<GLFWwindow> window = nullptr;
     int width = 1920;
     int height = 1080;
     ResizeCallbackFn m_resizeCallBack;
+
+    // Fullscreen state
+    bool m_isFullscreen = false;
+    int m_windowedPosX = 0;
+    int m_windowedPosY = 0;
+    int m_windowedWidth = 1920;
+    int m_windowedHeight = 1080;
 };
 
 #endif // WINDOW_HPP

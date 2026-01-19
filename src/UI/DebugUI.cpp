@@ -1,4 +1,4 @@
-#include "Utils/UIController.hpp"
+#include "UI/DebugUI.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -27,7 +27,7 @@ static const char* blockTypeToString(BlockType type)
 }
 }
 
-UIController::UIController(GLFWwindow* window)
+DebugUI::DebugUI(GLFWwindow* window)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -41,14 +41,14 @@ UIController::UIController(GLFWwindow* window)
     wireframe = false;
 }
 
-UIController::~UIController()
+DebugUI::~DebugUI()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void UIController::update(const Camera& camera, const World& world)
+void DebugUI::update(const Camera& camera, const World& world)
 {
     if (wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -66,7 +66,7 @@ void UIController::update(const Camera& camera, const World& world)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void UIController::showDebugWindow(const Camera& camera, const World& world)
+void DebugUI::showDebugWindow(const Camera& camera, const World& world)
 {
     ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(300, 180), ImGuiCond_FirstUseEver);

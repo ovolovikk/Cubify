@@ -1,9 +1,12 @@
 #include "Core/Application.hpp"
 
+#include "Core/AppState.hpp"
 #include "Core/Window.hpp"
 #include "Core/Game.hpp"
 #include "Graphics/Renderer.hpp"
+#include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
+#include "miniaudio.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -46,15 +49,34 @@ void Application::Destroy()
 
 void Application::run()
 {
-    if(!m_running || !m_window || !m_window->isOpen())
+    if(m_currentState == AppState::UNINITIALIZED || !m_window || !m_window->isOpen())
     {
         LOGE("[Application] Can't run, not properly initialized");
         return;
     }
 
-    LOGI("=== Application Main loop started ===");
+    LOGI("=== Application Menu started ===");
+    while(m_currentState == AppState::MENU && m_window->isOpen())
+    {
+        beginFrame();
+            
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(m_mainMenu)
+        {
+            m_mainMenu->render(m_window->getWidth(), m_window->getHeight());
+        }
+        endFrame();
+    }
+    LOGI("=== Application Menu closed ===");
 
-    while(m_running && m_window->isOpen())
+    m_mainMenu.reset();
+
+    if(m_game)
+    {
+        m_game->initUI();
+    }
+    LOGI("=== Application Main loop started ===");
+    while(m_currentState == AppState::PLAYING && m_window->isOpen())
     {
         beginFrame();
 
@@ -73,7 +95,7 @@ void Application::run()
 void Application::quit()
 {
     LOGI("[Application] QUIT requested");
-    m_running = false;
+    m_currentState = AppState::SHUTTING_DOWN;
 }
 
 Window &Application::getWindow()
@@ -96,7 +118,7 @@ Renderer &Application::getRenderer()
 
 bool Application::is_running() const
 {
-    return m_running;
+    return m_currentState == AppState::PLAYING || m_currentState == AppState::PAUSED;
 }
 
 float Application::getDeltaTime() const
@@ -150,10 +172,19 @@ void Application::initSubsystems()
     LOGI("[Subsystem] Initializing Renderer");
     m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight());
 
+    LOGI("[Subsystem] Initializing MainMenu");
+    m_mainMenu = std::make_unique<MainMenu>(m_window->GetGLFWWindow());
+    m_mainMenu->setPlayCallback([this]() {
+        m_currentState = AppState::PLAYING;
+    });
+    m_mainMenu->setQuitCallback([this]() {
+        m_currentState = AppState::SHUTTING_DOWN;
+    });
+    
     LOGI("[Subsystem] Initializing Game");
     m_game = std::make_unique<Game>(*m_window, *m_renderer);
 
-    m_running = true;
+    m_currentState = AppState::MENU;
     m_lastFrameTime = getTime();
 
     LOGI("=== All Subsystems initialized ===");

@@ -14,7 +14,7 @@ class World;
 class TerrainGenerator;
 class Player;
 class Window;
-class UIController;
+class DebugUI;
 
 class Game
 {
@@ -30,6 +30,8 @@ public:
     void onRender();
 
     void onResize(int width, int height);
+
+    void initUI(); // Initialize UI after menu is destroyed
 private:
     void init();
     
@@ -45,13 +47,14 @@ private:
     std::unique_ptr<World> world;
     std::unique_ptr<TerrainGenerator> terrain_generator;
     std::unique_ptr<Player> player;
-    std::unique_ptr<UIController> ui_controller;
+    std::unique_ptr<DebugUI> debug_ui;
     
 
     // Input state
     bool free_cam_mode = false;
     bool f1_pressed = false;
     bool f3_pressed = false;
+    bool f11_pressed = false;
     bool cursor_visible = false;
     bool left_mouse_pressed = false;
     bool right_mouse_pressed = false;
