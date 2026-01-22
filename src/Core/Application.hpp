@@ -2,7 +2,6 @@
 #define APPLICATION_HPP
 
 #include "Core/AppState.hpp"
-#include "Core/Sound/AudioEngine.hpp"
 #include "UI/DebugUI.hpp"
 #include "World/WorldType.hpp"
 

@@ -3,8 +3,7 @@
 #include <GLFW/glfw3.h>
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+
 
 #include "Core/Input/IInputController.hpp"
 #include "Core/Window.hpp"
@@ -34,7 +33,11 @@ void MainMenu::loadBackgroundTexture()
     LOGI("[MainMenu] Loading background texture");
     int chanells = 0;
     stbi_set_flip_vertically_on_load(false);
-    unsigned char* data = stbi_load("textures/backgrounds/menu_background.png", &m_bgWidth, &m_bgHeight, &chanells, 4);
+    unsigned char* data = stbi_load("assets/textures/backgrounds/menu_background.png",
+                                     &m_bgWidth,
+                                     &m_bgHeight,
+                                     &chanells,
+                                     4);
 
     if (!data)
     {

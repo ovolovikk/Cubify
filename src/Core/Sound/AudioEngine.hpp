@@ -13,7 +13,7 @@ public:
     AudioEngine(const AudioEngine&) = delete;
     AudioEngine& operator=(const AudioEngine&) = delete;
 
-    void PlayMusic(const std::string& path = "sounds/interstellar.mp3");
+    void PlayMusic(const std::string& path = "assets/sounds/interstellar.mp3");
 
     void PlayShortSound(const std::string& path);
 

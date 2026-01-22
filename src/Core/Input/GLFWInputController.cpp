@@ -1,5 +1,4 @@
 #include "Core/Input/GLFWInputController.hpp"
-#include "Core/Logging/Log.hpp"
 
 #include <GLFW/glfw3.h>
 

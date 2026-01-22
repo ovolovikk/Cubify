@@ -67,6 +67,12 @@ add_custom_command(TARGET Cubify POST_BUILD
 )
 
 add_custom_command(TARGET Cubify POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_SOURCE_DIR}/config.json"
+    "$<TARGET_FILE_DIR:Cubify>"
+)
+
+add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/shaders"
     "$<TARGET_FILE_DIR:Cubify>/shaders"
@@ -74,18 +80,6 @@ add_custom_command(TARGET Cubify POST_BUILD
 
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/textures"
-    "$<TARGET_FILE_DIR:Cubify>/textures"
-)
-
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/sounds"
-    "$<TARGET_FILE_DIR:Cubify>/sounds"
-)
-
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/fonts"
-    "$<TARGET_FILE_DIR:Cubify>/fonts"
+    "${CMAKE_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:Cubify>/assets"
 )

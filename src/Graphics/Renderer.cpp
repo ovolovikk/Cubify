@@ -30,14 +30,14 @@ Renderer::Renderer(int width, int height)
     }
 
     std::vector<string> layers = {
-        "textures/grass_top.png",
-        "textures/grass_side.png",
-        "textures/dirt.png",
-        "textures/stone.png",
-        "textures/sand.png",
-        "textures/wooden_plank.png",
-        "textures/water.png",
-        "textures/bedrock.png"
+        "assets/textures/grass_top.png",
+        "assets/textures/grass_side.png",
+        "assets/textures/dirt.png",
+        "assets/textures/stone.png",
+        "assets/textures/sand.png",
+        "assets/textures/wooden_plank.png",
+        "assets/textures/water.png",
+        "assets/textures/bedrock.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
 

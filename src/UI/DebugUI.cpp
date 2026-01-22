@@ -37,7 +37,7 @@ DebugUI::DebugUI(GLFWwindow* window)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     // Load font used by MainMenu
-    ImFont* spaceFont = io.Fonts->AddFontFromFileTTF("fonts/space_font.ttf");
+    ImFont* spaceFont = io.Fonts->AddFontFromFileTTF("assets/fonts/space_font.ttf");
     if(!spaceFont) {
         LOGW("[DebugUI] Failed to load space_font.ttf");
     }
