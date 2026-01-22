@@ -17,12 +17,13 @@ public:
 
     void PlayShortSound(const std::string& path);
 
+    void changeVolume(float volume = 50.0f);
 private:
     ma_engine m_engine;
+    bool m_initialized;
 
     AudioEngine();
     ~AudioEngine();
-    bool m_initialized;
 };
 
 #endif // AUDIO_ENGINE_HPP

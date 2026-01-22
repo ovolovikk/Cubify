@@ -53,3 +53,9 @@ void AudioEngine::PlayShortSound(const std::string& path)
 
     ma_engine_play_sound(&m_engine, path.c_str(), NULL);
 }
+
+void AudioEngine::changeVolume(float volume)
+{
+    volume = static_cast<float>(volume) / 100.0f;
+    ma_engine_set_volume(&m_engine, volume);
+}

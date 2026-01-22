@@ -2,6 +2,8 @@
 #define APPLICATION_HPP
 
 #include "Core/AppState.hpp"
+#include "Core/Sound/AudioEngine.hpp"
+#include "UI/DebugUI.hpp"
 #include "World/WorldType.hpp"
 
 #include <memory>
@@ -14,6 +16,7 @@ class Renderer;
 class Game;
 class MainMenu;
 class IInputController;
+class DebugUI;
 
 struct ApplicationConfig
 {
@@ -45,6 +48,7 @@ public:
 
     Window& getWindow();
     Renderer& getRenderer();
+    DebugUI& getDebugUI() { return *m_debug_ui; }
     bool is_running() const;
     float getDeltaTime() const;
     double getTime() const;
@@ -74,7 +78,8 @@ private:
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
-    std::unique_ptr<MainMenu> m_mainMenu;
+    std::unique_ptr<MainMenu> m_main_menu;
+    std::unique_ptr<DebugUI> m_debug_ui;
 
     // delete in order which is reversed to initialization
     std::vector<ShutdownCallback> m_shutdownCallbacks;

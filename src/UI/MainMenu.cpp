@@ -14,29 +14,6 @@
 MainMenu::MainMenu(GLFWwindow* window, Window& appWindow, IInputController& inputController)
     : m_window(appWindow), m_inputController(inputController)
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
-    ImFont* spaceFont = io.Fonts->AddFontFromFileTTF("fonts/space_font.ttf");
-    if(!spaceFont)
-    {
-        LOGE("[MainMenu] Failed to load space font");
-    }
-    ImGui::PushFont(spaceFont);
-
-    ImGui::StyleColorsDark();
-    
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowRounding = 8.0f;
-    style.FrameRounding = 4.0f;
-    style.FramePadding = ImVec2(12, 6);
-    style.ItemSpacing = ImVec2(10, 10);
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 430 core");
-
     loadBackgroundTexture();
 
     LOGI("[MainMenu] Initialized");
@@ -48,10 +25,6 @@ MainMenu::~MainMenu()
     {
         glDeleteTextures(1, &m_backgroundTexture);
     }
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 
     LOGI("[MainMenu] Destroyed");
 }
@@ -92,49 +65,32 @@ void MainMenu::onUpdate(float deltaTime)
 void MainMenu::handleInput()
 {
     // Escape - quit
-    if (m_inputController.isKeyPressed(GLFW_KEY_ESCAPE)) {
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_ESCAPE)) {
         if (m_onQuit) m_onQuit();
     }
 
     // F11 - fullscreen toggle
-    if (m_inputController.isKeyPressed(GLFW_KEY_F11)) {
-        if (!m_f11Pressed) {
-            m_window.toggleFullscreen();
-            m_f11Pressed = true;
-        }
-    } else {
-        m_f11Pressed = false;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_F11)) {
+        m_window.toggleFullscreen();
     }
 
     // F3 - enable cursor
-    if (m_inputController.isKeyPressed(GLFW_KEY_F3)) {
-        if (!m_f3Pressed) {
-            m_cursor_visible = !m_cursor_visible;
-            m_inputController.setCursorEnabled(m_cursor_visible);
-            m_f3Pressed = true;
-        }
-    } else {
-        m_f3Pressed = false;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_F3)) {
+        m_cursor_visible = !m_cursor_visible;
+        m_inputController.setCursorEnabled(m_cursor_visible);
     }
 
 }
 
 void MainMenu::render(int windowWidth, int windowHeight)
 {
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
     renderBackground(windowWidth, windowHeight);
     renderMenuButtons(windowWidth, windowHeight);
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
 {
-    //Style config
+    // Style config
     ImVec2 buttonSize(280, 55);
     float panelPadding = 40.f;
     float panelWidth = buttonSize.x + (panelPadding * 2.0f);
@@ -172,7 +128,7 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
 
     float totalWidth = ImGui::GetWindowSize().x;
 
-    // --- Заголовок ---
+    // Title
     float titleWidth = ImGui::CalcTextSize("C U B I F Y").x;
     ImGui::SetCursorPosX((totalWidth - titleWidth) * 0.5f);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.7f, 1.0f, 1.0f));
@@ -183,14 +139,14 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     ImGui::Separator();
     ImGui::Spacing();
 
-    // --- Подзаголовок ---
+    // Subtitle
     float subtitleWidth = ImGui::CalcTextSize("Select Your World").x;
     ImGui::SetCursorPosX((totalWidth - subtitleWidth) * 0.5f);
     ImGui::Text("Select Your World");
     
     ImGui::Spacing();
 
-    // --- Кнопки миров ---
+    // Worlds buttons
     float buttonOffsetX = (totalWidth - buttonSize.x) * 0.5f;
 
     auto drawWorldButton = [&](const char* label, WorldType type) {

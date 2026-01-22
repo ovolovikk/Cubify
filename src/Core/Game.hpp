@@ -28,10 +28,10 @@ public:
     // Called each frame by APP
     void onUpdate(float DeltaTime);
     void onRender();
+    void onRenderDebug(DebugUI* debugUI);
 
     void onResize(int width, int height);
 
-    void initUI(); // Initialize UI after menu is destroyed
 private:
     void init();
     
@@ -47,17 +47,11 @@ private:
     std::unique_ptr<World> world;
     std::unique_ptr<TerrainGenerator> terrain_generator;
     std::unique_ptr<Player> player;
-    std::unique_ptr<DebugUI> debug_ui;
-    
 
+private:
     // Input state
     bool free_cam_mode = false;
-    bool f1_pressed = false;
-    bool f3_pressed = false;
-    bool f11_pressed = false;
     bool cursor_visible = false;
-    bool left_mouse_pressed = false;
-    bool right_mouse_pressed = false;
     bool world_rendered = false;
     BlockType selectedBlock = BlockType::GRASS;
 

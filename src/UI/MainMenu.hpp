@@ -43,8 +43,6 @@ private:
     int m_bgHeight = 0;
 
     // Input state
-    bool m_f3Pressed = false;
-    bool m_f11Pressed = false;
     bool m_cursor_visible = false;
 
     PlayCallback m_onPlay;

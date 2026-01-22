@@ -30,16 +30,6 @@ Game::~Game()
     LOGI("[Game] Destroying...");
 }
 
-void Game::initUI()
-{
-    if(!debug_ui)
-    {
-        GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
-        debug_ui = std::make_unique<DebugUI>(nativeWindow);
-        LOGI("[Game] DebugUI initialized");
-    }
-}
-
 void Game::init()
 {   
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
@@ -51,7 +41,6 @@ void Game::init()
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>();
     player = std::make_unique<Player>(*camera, m_inputController, *world, world->getSpawnPoint());
-    // UIController will be initialized later when game starts playing
 }
 
 void Game::onUpdate(float deltaTime)
@@ -82,9 +71,13 @@ void Game::onRender()
 
     world->draw(m_renderer, frustum);
     world_rendered = true;
+}
 
-    if (debug_ui) {
-        debug_ui->update(*camera, *world);
+void Game::onRenderDebug(DebugUI* debugUI)
+{
+    if(debugUI != nullptr && debugUI->isVisible())
+    {
+    debugUI->renderGameInfo(*camera.get(), *world.get());
     }
 }
 
@@ -92,66 +85,42 @@ void Game::handleInput(float deltaTime)
 {
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
 
-    if(m_inputController.isKeyPressed(GLFW_KEY_ESCAPE)) {
+    if(m_inputController.wasKeyJustPressed(GLFW_KEY_ESCAPE)) {
         APP.quit();
     }
-    // free cam
-    if (m_inputController.isKeyPressed(GLFW_KEY_F1)) {
-        if (!f1_pressed) {
-            free_cam_mode = !free_cam_mode;
-            f1_pressed = true;
-        }
-    } else {
-        f1_pressed = false;
+    // Free cam toogle
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_F1)) {
+        free_cam_mode = !free_cam_mode;
     }
 
-    // cursor
-    if (m_inputController.isKeyPressed(GLFW_KEY_F3)) {
-        if (!f3_pressed) {
+    // Cursor toogle
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_F3)) {
             cursor_visible = !cursor_visible;
             m_inputController.setCursorEnabled(cursor_visible);
-            f3_pressed = true;
-        }
-    } else {
-        f3_pressed = false;
     }
 
     // fullscreen toggle
-    if (m_inputController.isKeyPressed(GLFW_KEY_F11)) {
-        if (!f11_pressed) {
-            m_window.toggleFullscreen();
-            f11_pressed = true;
-        }
-    } else {
-        f11_pressed = false;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_F11)) {
+        m_window.toggleFullscreen();
     }
 
-    // block choose
-    if (m_inputController.isKeyPressed(GLFW_KEY_1)) selectedBlock = BlockType::GRASS;
-    if (m_inputController.isKeyPressed(GLFW_KEY_2)) selectedBlock = BlockType::DIRT;
-    if (m_inputController.isKeyPressed(GLFW_KEY_3)) selectedBlock = BlockType::STONE;
-    if (m_inputController.isKeyPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
-    if (m_inputController.isKeyPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
-    if (m_inputController.isKeyPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
+    // Choosing a block
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_1)) {
+        selectedBlock = BlockType::GRASS;
+    }
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_2)) selectedBlock = BlockType::DIRT;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_3)) selectedBlock = BlockType::STONE;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
     
     // destroy blocks
-    if (m_inputController.isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT)) {
-        if (!left_mouse_pressed) {
-            world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
-            left_mouse_pressed = true;
-        }
-    } else {
-        left_mouse_pressed = false;
+    if (m_inputController.wasMouseButtonJustPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+        world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
     }
-
     // place blocks
-    if (m_inputController.isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
-        if (!right_mouse_pressed) {
-            world->rayCastPlaceBlock(camera->GetPosition(), camera->GetFront(), 4.0f, selectedBlock);
-            right_mouse_pressed = true;
-        }
-    } else {
-        right_mouse_pressed = false;
+    if (m_inputController.wasMouseButtonJustPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
+        world->rayCastPlaceBlock(camera->GetPosition(), camera->GetFront(), 4.0f, selectedBlock);
     }
 
     // fly input

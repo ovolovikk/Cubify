@@ -60,32 +60,55 @@ void Application::run()
     while(m_currentState == AppState::MENU && m_window->isOpen())
     {
         beginFrame();
+
+        // Toggle debug on F5
+        if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
+            if(m_debug_ui) m_debug_ui->toggleVisible();
+        }
+
+        if(m_debug_ui) m_debug_ui->begin();
             
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        if(m_mainMenu)
+        
+        if(m_main_menu)
         {
-            m_mainMenu->onUpdate(m_deltaTime);
-            m_mainMenu->render(m_window->getWidth(), m_window->getHeight());
+            m_main_menu->onUpdate(m_deltaTime);
+            m_main_menu->render(m_window->getWidth(), m_window->getHeight());
         }
+
+        if(m_debug_ui) {
+            m_debug_ui->renderAppInfo();
+            m_debug_ui->end();
+        }
+
         endFrame();
     }
     LOGI("=== Application Menu closed ===");
 
-    m_mainMenu.reset();
+    m_main_menu.reset();
 
-    if(m_game)
-    {
-        m_game->initUI();
-    }
     LOGI("=== Application Main loop started ===");
     while(m_currentState == AppState::PLAYING && m_window->isOpen())
     {
         beginFrame();
 
+        // Toggle debug on F5
+        if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
+            if(m_debug_ui) m_debug_ui->toggleVisible();
+        }
+
+        if(m_debug_ui) m_debug_ui->begin();
+
         if(m_game)
         {
             m_game->onUpdate(m_deltaTime);
             m_game->onRender();
+        }
+
+        if(m_debug_ui) {
+            m_debug_ui->renderAppInfo();
+            m_game->onRenderDebug(m_debug_ui.get());
+            m_debug_ui->end();
         }
 
         endFrame();
@@ -177,14 +200,17 @@ void Application::initSubsystems()
     LOGI("[Subsystem] Initializing InputController");
     m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
 
+    LOGI("[Subsystem] Initializing DebugUI");
+    m_debug_ui = std::make_unique<DebugUI>(m_window->GetGLFWWindow());
+
     LOGI("[Subsystem] Initializing MainMenu");
-    m_mainMenu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
-    m_mainMenu->setPlayCallback([this](WorldType worldType) {
+    m_main_menu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
+    m_main_menu->setPlayCallback([this](WorldType worldType) {
         m_selectedWorldType = worldType;
         m_currentState = AppState::PLAYING;
         LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
     });
-    m_mainMenu->setQuitCallback([this]() {
+    m_main_menu->setQuitCallback([this]() {
         m_currentState = AppState::SHUTTING_DOWN;
     });
     

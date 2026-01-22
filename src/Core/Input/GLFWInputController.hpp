@@ -3,6 +3,8 @@
 
 #include "Core/Input/IInputController.hpp"
 
+#include <unordered_map>
+
 struct GLFWwindow;
 
 class GLFWInputController : public IInputController
@@ -20,8 +22,13 @@ public:
 
     glm::vec2 getMouseDelta() const override;
     bool isMouseButtonPressed(int button) const override;
+    bool wasMouseButtonJustPressed(int button) const override;
+    bool wasMouseButtonJustReleased(int button) const override;
 
     bool isKeyPressed(int key) const override;
+    bool wasKeyJustPressed(int key) const override;
+    bool wasKeyJustReleased(int key) const override;
+
     void update() override;
 
     void setCursorEnabled(bool enabled) override;
@@ -34,6 +41,10 @@ private:
     bool first_mouse = true;
     bool cursor_enabled = false;
     
+    std::unordered_map<int, bool> m_prevKeyState;
+    std::unordered_map<int, bool> m_currKeyState;
+    std::unordered_map<int, bool> m_prevMouseState;
+    std::unordered_map<int, bool> m_currMouseState;
 };
 
 #endif // GLFW_INPUT_CONTROLLER
