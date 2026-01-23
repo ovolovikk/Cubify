@@ -5,6 +5,9 @@
 
 #include "Core/Camera.hpp"
 #include "Core/Input/IInputController.hpp"
+#include "Core/Logging/Log.hpp"
+#include "Core/Sound/AudioEngine.hpp"
+#include "Core/Logging/Log.hpp"
 #include "World/World.hpp"
 #include "Utils/Config.hpp"
 
@@ -48,11 +51,13 @@ void Player::update(float dt)
         
         float current_speed = p.moveSpeed;
         if (input.isSprinting()) {
+            LOGI("[Camera] Player running sound");
+            AudioEngine::Instance().PlayShortSound("assets/sounds/running.mp3");
             current_speed *= p.sprintMultiplier;
         }
 
         if (!physics.isGrounded()) {
-            current_speed *= FREE_FALL_SLOWDONW;
+            current_speed *= p.freeFallSlowdown;
         }
         
         physics.move(move_dir, current_speed * dt);
@@ -60,7 +65,10 @@ void Player::update(float dt)
 
     if (input.isKeyPressed(GLFW_KEY_SPACE))
     {
-        physics.jump(Config::Get().pConfig.jumpForce);
+        if (physics.jump(Config::Get().pConfig.jumpForce)) {
+            LOGI("[Player] jumping sound there");
+            AudioEngine::Instance().PlayShortSound("assets/sounds/jumping.mp3");
+        }
     }
 
     glm::vec2 mouse_delta = input.getMouseDelta();

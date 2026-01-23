@@ -4,6 +4,7 @@
 #include "Core/Window.hpp"
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
+#include "Core/Sound/AudioEngine.hpp"
 #include "Graphics/Renderer.hpp"
 #include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
@@ -57,6 +58,7 @@ void Application::run()
     }
 
     LOGI("=== Application Menu started ===");
+    AudioEngine::Instance().PlayMusic("assets/sounds/main_menu_theme.ogg");
     while(m_currentState == AppState::MENU && m_window->isOpen())
     {
         beginFrame();
@@ -86,7 +88,7 @@ void Application::run()
     LOGI("=== Application Menu closed ===");
 
     m_main_menu.reset();
-
+    AudioEngine::Instance().PlayMusic("assets/sounds/main_game_theme.ogg");
     LOGI("=== Application Main loop started ===");
     while(m_currentState == AppState::PLAYING && m_window->isOpen())
     {

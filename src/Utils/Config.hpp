@@ -19,6 +19,10 @@ struct PlayerConfig {
     float moveSpeed;
     float sprintMultiplier;
     float jumpForce;
+    float freeFallSlowdown;
+    float gravity;
+    float drag;
+    float airDrag;
 };
 
 struct CameraConfig {
@@ -35,7 +39,7 @@ struct GameConfig {
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WindowConfig, width, height, vsync)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GraphicsConfig, renderDistance)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerConfig, moveSpeed, sprintMultiplier, jumpForce)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerConfig, moveSpeed, sprintMultiplier, jumpForce, freeFallSlowdown, gravity, drag, airDrag)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CameraConfig, fov, sensitivity)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GameConfig, wConfig, gConfig, pConfig, cConfig)
 

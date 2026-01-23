@@ -65,6 +65,10 @@ void Config::Validate()
     clamp(p.moveSpeed, 1.0f, 200.0f, 45.0f);
     clamp(p.sprintMultiplier, 1.0f, 5.0f, 2.03f);
     clamp(p.jumpForce, 0.0f, 50.0f, 9.0f);
+    clamp(p.freeFallSlowdown, 0.0f, 1.0f, 0.1f);
+    clamp(p.gravity, -100.0f, 100.0f, -32.0f);
+    clamp(p.drag, 0.0f, 100.0f, 10.0f);
+    clamp(p.airDrag, 0.0f, 100.0f, 1.0f);
 
     auto& c = m_config.cConfig;
     clamp(c.fov, 30.0f, 120.0f, 60.0f);

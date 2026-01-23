@@ -10,7 +10,11 @@
     "pConfig": {
         "moveSpeed": 45.0,
         "sprintMultiplier": 2.03,
-        "jumpForce": 9.0
+        "jumpForce": 9.0,
+        "freeFallSlowdown": 0.1,
+        "gravity": -32.0,
+        "drag": 10.0,
+        "airDrag": 1.0
     },
     "cConfig": {
         "fov": 60.0,

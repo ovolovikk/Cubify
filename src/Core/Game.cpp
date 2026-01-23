@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "Core/Application.hpp"
+#include "Core/Sound/AudioEngine.hpp"
 #include "Core/Window.hpp"
 #include "Core/Input/IInputController.hpp"
 #include "Core/Logging/Log.hpp"
@@ -34,8 +35,6 @@ void Game::init()
 {   
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
     auto& cfg = Config::Get();
-    auto& audio_engine = AudioEngine::Instance();
-    audio_engine.PlayMusic();
 
     float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
@@ -116,6 +115,7 @@ void Game::handleInput(float deltaTime)
     
     // destroy blocks
     if (m_inputController.wasMouseButtonJustPressed(GLFW_MOUSE_BUTTON_LEFT)) {
+        AudioEngine::Instance().PlayShortSound("assets/sounds/breaking_block.mp3");
         world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
     }
     // place blocks

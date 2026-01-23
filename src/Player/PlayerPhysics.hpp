@@ -10,7 +10,7 @@ public:
 
     void update(float dt);
 
-    void jump(float force);
+    bool jump(float force);
     void move(const vec3& direction, float acceleration);
 
     vec3 getPosition() const { return position; }
@@ -24,10 +24,6 @@ private:
     vec3 position;
     vec3 velocity;
 
-    // physics constants
-    static constexpr auto GRAVITY = -32.f;
-    static constexpr auto DRAG = 10.f;
-    static constexpr auto AIR_DRAG = 1.f;
     static constexpr auto MAX_FALL_SPEED = 50.0f;
 
     AABB boundingBox;
