@@ -3,12 +3,14 @@
 
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 #include <memory>
 #include <vector>
 
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Quad.hpp"
+#include "World/WorldSettings.hpp"
 
 class Shader;
 class TextureArray;
@@ -26,8 +28,11 @@ public:
     void onResize(int width, int height);
 
     void beginFrame();
+    void beginTransparentPass();
+    void endTransparentPass();
 
     void setViewProjection(const glm::mat4& view, const glm::mat4& projection);
+    void setWorldSettings(const WorldSettings& settings);
 
     void uploadMesh(Mesh& mesh, const std::vector<Quad>& quads);
     void draw(const Mesh& mesh, const glm::mat4& model);
@@ -40,6 +45,7 @@ private:
 
     glm::mat4 view_matrix;
     glm::mat4 projection_matrix;
+    WorldSettings world_settings;
 };
 
 #endif // RENDERER_HPP

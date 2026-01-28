@@ -9,17 +9,21 @@
 #include "Core/Logging/Log.hpp"
 
 Renderer::Renderer(int width, int height)
-    : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f)
+    : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f),
+      world_settings(WorldSettings::getForWorldType(WorldType::MINECRAFT))
 {
     glViewport(0, 0, width, height);
 
-    glClearColor(0.28f, 0.66f, 1.f, 0.0f);
+    glClearColor(world_settings.skyColor.r, world_settings.skyColor.g, world_settings.skyColor.b, 1.0f);
     
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE); // MSAA if avaivable
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // subsystem initialization
     LOGI("[Renderer] Initializing Renderer");
@@ -37,7 +41,14 @@ Renderer::Renderer(int width, int height)
         "assets/textures/sand.png",
         "assets/textures/wooden_plank.png",
         "assets/textures/water.png",
-        "assets/textures/bedrock.png"
+        "assets/textures/bedrock.png",
+        "assets/textures/ice.png",
+        "assets/textures/edmunds_grass_top.png",
+        "assets/textures/edmunds_grass_side.png",
+        "assets/textures/edmunds_dirt.png",
+        "assets/textures/edmunds_stone.png",
+        "assets/textures/edmunds_sand.png",
+        "assets/textures/edmunds_water.png"
     };
     texture_array = std::make_unique<TextureArray>(layers);
 
@@ -60,6 +71,12 @@ void Renderer::onResize(int width, int height)
     resize(width, height);
 }
 
+void Renderer::setWorldSettings(const WorldSettings& settings)
+{
+    world_settings = settings;
+    glClearColor(world_settings.skyColor.r, world_settings.skyColor.g, world_settings.skyColor.b, 1.0f);
+}
+
 void Renderer::beginFrame()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -69,6 +86,9 @@ void Renderer::beginFrame()
         shader->setMat4("projection", projection_matrix);
         shader->setMat4("view", view_matrix);
         shader->setInt("u_Textures", 0);
+        shader->setFloat("fogDensity", world_settings.fogDensity);
+        shader->setFloat("fogPower", world_settings.fogPower);
+        shader->setFloat("u_Time", static_cast<float>(glfwGetTime()));
     }
     
     if(texture_array) {
@@ -76,6 +96,16 @@ void Renderer::beginFrame()
     }
     
     glBindVertexArray(vao);
+}
+
+void Renderer::beginTransparentPass()
+{
+    glDepthMask(GL_FALSE);
+}
+
+void Renderer::endTransparentPass()
+{
+    glDepthMask(GL_TRUE);
 }
 
 void Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection)

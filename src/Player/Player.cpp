@@ -51,8 +51,6 @@ void Player::update(float dt)
         
         float current_speed = p.moveSpeed;
         if (input.isSprinting()) {
-            LOGI("[Camera] Player running sound");
-            AudioEngine::Instance().PlayShortSound("assets/sounds/running.mp3");
             current_speed *= p.sprintMultiplier;
         }
 

@@ -211,13 +211,12 @@ void Application::initSubsystems()
         m_selectedWorldType = worldType;
         m_currentState = AppState::PLAYING;
         LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
+        LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
+        m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
     });
     m_main_menu->setQuitCallback([this]() {
         m_currentState = AppState::SHUTTING_DOWN;
     });
-    
-    LOGI("[Subsystem] Initializing Game");
-    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController);
 
     m_currentState = AppState::MENU;
     m_lastFrameTime = getTime();

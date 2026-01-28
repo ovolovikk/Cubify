@@ -24,6 +24,7 @@ static const char* blockTypeToString(BlockType type)
         case BlockType::SAND: return "SAND";
         case BlockType::WOODEN_PLANK: return "WOODEN_PLANK";
         case BlockType::WATER: return "WATER";
+        case BlockType::ICE: return "ICE";
         default: return "UNKNOWN";
     }
 }

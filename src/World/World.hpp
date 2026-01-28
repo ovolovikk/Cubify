@@ -6,6 +6,7 @@
 
 #include "Graphics/Renderer.hpp"
 #include "World/ChunkManager.hpp"
+#include "World/WorldType.hpp"
 
 struct Frustum;
 
@@ -19,7 +20,7 @@ struct RayCastResult
 class World
 {
 public:
-    World();
+    explicit World(WorldType worldType = WorldType::MINECRAFT);
     ~World();
 
     World(const World&) = delete;

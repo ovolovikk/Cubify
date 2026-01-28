@@ -12,7 +12,13 @@ enum class BlockType : uint8_t
     SAND,
     WOODEN_PLANK,
     WATER,
-    BEDROCK
+    BEDROCK,
+    ICE,
+    EDMUNDS_GRASS,
+    EDMUNDS_DIRT,
+    EDMUNDS_STONE,
+    EDMUNDS_SAND,
+    EDMUNDS_WATER
 };
 
 #endif // BLOCK_TYPE_HPP

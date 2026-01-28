@@ -6,13 +6,22 @@
 #include <string>
 
 #include "World/ChunkMesher.hpp"
+#include "World/Generators/TerrainGeneratorFactory.hpp"
 
 namespace fs = std::filesystem;
 
-ChunkManager::ChunkManager()
+ChunkManager::ChunkManager(WorldType worldType)
+    : m_worldType(worldType)
 {
+    terrain_generator = TerrainGeneratorFactory::create(worldType);
+    
+    // Создаём папку для сохранений этого мира
+    m_saveFolder = "saves/" + getWorldFolderName() + "/";
     if (!fs::exists("saves")) {
         fs::create_directory("saves");
+    }
+    if (!fs::exists(m_saveFolder)) {
+        fs::create_directory(m_saveFolder);
     }
 }
 
@@ -46,36 +55,39 @@ const Chunk* ChunkManager::getChunk(int x, int z) const
     return nullptr;
 }
 
-void ChunkManager::addChunk(int x, int z)
+bool ChunkManager::addChunk(int x, int z)
 {
     long long id = getChunkId(x, z);
-    if (chunks.find(id) == chunks.end())
+    if (chunks.find(id) != chunks.end())
     {
-        auto chunk = std::make_unique<Chunk>(x, z);
-        Chunk* chunkPtr = chunk.get();
-        
-        std::string filename = getChunkFileName(x, z);
-        std::ifstream inFile(filename, std::ios::binary);
-        
-        if (inFile.is_open()) {
-             inFile.read((char*)chunkPtr->blocks, sizeof(chunkPtr->blocks));
-             inFile.close();
-             chunkPtr->setUnsavedChanges(false);
-        } else {
-             terrain_generator.GenerateChunkTerrain(chunkPtr);
-             chunkPtr->setUnsavedChanges(false);
-        }
-        
-        chunks[id] = std::move(chunk);
-
-        ChunkNeighbors neighbors;
-        neighbors.left = getChunk(x - 1, z);
-        neighbors.right = getChunk(x + 1, z);
-        neighbors.back = getChunk(x, z - 1);
-        neighbors.front = getChunk(x, z + 1);
-
-        ChunkMesher::generateMesh(*chunkPtr, neighbors);
+        return false;  // уже есть
     }
+    
+    auto chunk = std::make_unique<Chunk>(x, z);
+    Chunk* chunkPtr = chunk.get();
+    
+    std::string filename = getChunkFileName(x, z);
+    std::ifstream inFile(filename, std::ios::binary);
+    
+    if (inFile.is_open()) {
+         inFile.read((char*)chunkPtr->blocks, sizeof(chunkPtr->blocks));
+         inFile.close();
+         chunkPtr->setUnsavedChanges(false);
+    } else {
+         terrain_generator->generateChunkTerrain(chunkPtr);
+         chunkPtr->setUnsavedChanges(false);
+    }
+    
+    chunks[id] = std::move(chunk);
+
+    ChunkNeighbors neighbors;
+    neighbors.left = getChunk(x - 1, z);
+    neighbors.right = getChunk(x + 1, z);
+    neighbors.back = getChunk(x, z - 1);
+    neighbors.front = getChunk(x, z + 1);
+
+    ChunkMesher::generateMesh(*chunkPtr, neighbors);
+    return true;
 }
 
 void ChunkManager::removeChunk(int x, int z)
@@ -91,7 +103,17 @@ void ChunkManager::removeChunk(int x, int z)
 }
 
 std::string ChunkManager::getChunkFileName(int x, int z) const {
-    return "saves/chunk_" + std::to_string(x) + "_" + std::to_string(z) + ".dat";
+    return m_saveFolder + "chunk_" + std::to_string(x) + "_" + std::to_string(z) + ".dat";
+}
+
+std::string ChunkManager::getWorldFolderName() const {
+    switch (m_worldType) {
+        case WorldType::MINECRAFT: return "minecraft";
+        case WorldType::EDMUNDS:   return "edmunds";
+        case WorldType::MANN:      return "mann";
+        case WorldType::MILLER:    return "miller";
+        default:                   return "unknown";
+    }
 }
 
 void ChunkManager::saveChunk(Chunk* chunk) {
@@ -156,29 +178,45 @@ void ChunkManager::update(glm::vec3 player_pos)
 {
     int playerChunkX = static_cast<int>(floor(player_pos.x / CHUNK_SIZE));
     int playerChunkZ = static_cast<int>(floor(player_pos.z / CHUNK_SIZE));
+    
+    bool chunkChanged = (playerChunkX != m_lastPlayerChunkX || playerChunkZ != m_lastPlayerChunkZ);
+    bool wasForceUpdate = m_forceUpdate;
+    
+    m_lastPlayerChunkX = playerChunkX;
+    m_lastPlayerChunkZ = playerChunkZ;
+    m_forceUpdate = false;
+    
     int renderDist = Config::Get().gConfig.renderDistance;
 
     // load chunks
-    for(int x = playerChunkX - renderDist; x <= playerChunkX + renderDist; ++x)
+    // При первом запуске (force) грузим всё, потом - лениво по MAX_CHUNKS_PER_FRAME за кадр
+    int loaded = 0;
+    int limit = wasForceUpdate ? 9999 : MAX_CHUNKS_PER_FRAME;
+    
+    for(int x = playerChunkX - renderDist; x <= playerChunkX + renderDist && loaded < limit; ++x)
     {
-        for (int z = playerChunkZ - renderDist; z <= playerChunkZ + renderDist; ++z)
+        for (int z = playerChunkZ - renderDist; z <= playerChunkZ + renderDist && loaded < limit; ++z)
         {
-            addChunk(x, z);
+            if (addChunk(x, z)) {
+                loaded++;
+            }
         }
     }
 
-    // unload chunks
-    for(auto it = chunks.begin();it != chunks.end();)
+    // unload chunks (только если сменили чанк)
+    if (chunkChanged || wasForceUpdate)
     {
-        long long id = it->first;
-
-        int x = static_cast<int>(id >> 32);
-        int z = static_cast<int>(id & 0xFFFFFFFF);
-
-        if(abs(x - playerChunkX) > renderDist || abs(z - playerChunkZ) > renderDist)
+        for(auto it = chunks.begin();it != chunks.end();)
         {
-            it = chunks.erase(it);
-        } else ++it;
+            long long id = it->first;
 
+            int x = static_cast<int>(id >> 32);
+            int z = static_cast<int>(id & 0xFFFFFFFF);
+
+            if(abs(x - playerChunkX) > renderDist || abs(z - playerChunkZ) > renderDist)
+            {
+                it = chunks.erase(it);
+            } else ++it;
+        }
     }
 }

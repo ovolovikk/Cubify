@@ -13,6 +13,9 @@ Chunk::~Chunk()
     if(mesh.SSBO != 0) {
         glDeleteBuffers(1, &mesh.SSBO);
     }
+    if(transparentMesh.SSBO != 0) {
+        glDeleteBuffers(1, &transparentMesh.SSBO);
+    }
 }
 
 void Chunk::setBlock(int x, int y, int z, BlockType type)
@@ -43,9 +46,16 @@ void Chunk::addQuad(const Quad& quad)
     dirty = true;
 }
 
+void Chunk::addTransparentQuad(const Quad& quad)
+{
+    transparentQuads.push_back(quad);
+    dirty = true;
+}
+
 void Chunk::clearQuads()
 {
     quads.clear();
+    transparentQuads.clear();
     dirty = true;
 }
 

@@ -23,7 +23,8 @@ private:
     static void addQuad(Chunk& chunk, float x, float y, float z,
         float layer,
         int perpendicular_axis,
-        bool back_face);
+        bool back_face,
+        bool transparent = false);
 };
 
 #endif // !CHUNK_MESHER_HPP

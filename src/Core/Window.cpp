@@ -8,6 +8,8 @@
 
 #include <gl/gl.h>
 
+#include "stb_image.h"
+
 Window::Window(const std::string& title, int width_, int height_)
     : width(width_), height(height_), window(nullptr)
 {
@@ -21,7 +23,7 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for MacOS
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
@@ -33,6 +35,16 @@ Window::Window(const std::string& title, int width_, int height_)
     window.reset(raw_window, glfwDestroyWindow);
     LOGI("[Window] Title: %s", title.c_str());
     LOGI("[Window] Size: %dx%d", width, height);
+    
+    GLFWimage icon;
+    icon.pixels = stbi_load("assets/textures/icon/icon.png", &icon.width, &icon.height, nullptr, 4);
+    if (icon.pixels) {
+        glfwSetWindowIcon(window.get(), 1, &icon);
+        stbi_image_free(icon.pixels);
+        LOGI("[Window] Icon loaded");
+    } else {
+        LOGW("[Window] Failed to load icon.png");
+    }
 
     glfwMakeContextCurrent(window.get());
     glfwSwapInterval(Config::Get().wConfig.vsync ? 1 : 0);

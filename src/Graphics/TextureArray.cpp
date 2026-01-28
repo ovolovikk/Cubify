@@ -16,11 +16,12 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
     std::vector<unsigned char*> images(layers_count, nullptr);
 
     // for all layers validate 16x16 is given
+    components_count = 4;
     for (int i = 0; i < layers_count; ++i)
     {
         int w = 0, h = 0, comp = 0;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(layer_paths[i].c_str(), &w, &h, &comp, 0);
+        unsigned char* data = stbi_load(layer_paths[i].c_str(), &w, &h, &comp, 4);
         if (!data) {
             LOGE("[TextureArray] Failed to load texture layer: %s", layer_paths[i].c_str());
             for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
@@ -29,10 +30,9 @@ TextureArray::TextureArray(const std::vector<std::string>& layer_paths)
         if (i == 0) {
             p_x = w;
             p_y = h;
-            components_count = comp;
         } else {
-            if (w != p_x || h != p_y || comp != components_count) {
-                LOGE("[TextureArray] layer %d size mismatch", i);
+            if (w != p_x || h != p_y) {
+                LOGE("[TextureArray] layer %d size mismatch (%dx%d vs %dx%d)", i, w, h, p_x, p_y);
                 stbi_image_free(data);
                 for (int j = 0; j < i; ++j) stbi_image_free(images[j]);
                 return;

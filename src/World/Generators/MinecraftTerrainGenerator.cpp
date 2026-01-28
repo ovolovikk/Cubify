@@ -1,15 +1,17 @@
-#include "World/TerrainGenerator.hpp"
+#include "World/Generators/MinecraftTerrainGenerator.hpp"
 
 #include "Core/BlockType.hpp"
 #include "World/Chunk.hpp"
 
-TerrainGenerator::TerrainGenerator() : noise_gen(1337)
+MinecraftTerrainGenerator::MinecraftTerrainGenerator(int seed) 
+    : TerrainGenerator(seed)
 {
 }
 
-void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
+void MinecraftTerrainGenerator::generateChunkTerrain(Chunk* chunk)
 {
     if (!chunk) return;
+
     for (int lx = 0; lx < CHUNK_SIZE; ++lx)
     {
         for (int lz = 0; lz < CHUNK_SIZE; ++lz)
@@ -32,7 +34,7 @@ void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
                     }
                     else
                     {
-                        if (height <= WATER_LEVEL + 2)
+                        if (height <= MINECRAFT_WATER_LEVEL + 2)
                         {
                             type = BlockType::SAND;
                         }
@@ -43,20 +45,12 @@ void TerrainGenerator::GenerateChunkTerrain(Chunk* chunk)
                         }
                     }
                 }
-                else if (ly <= WATER_LEVEL)
+                else if (ly <= MINECRAFT_WATER_LEVEL)
                 {
                     type = BlockType::WATER;
                 }
 
-                if (type != BlockType::AIR)
-                {
-                    chunk->setBlock(lx, ly, lz, type);
-                }
-                else
-                {
-                    // Ensure air is set if we are overwriting or initializing
-                    chunk->setBlock(lx, ly, lz, BlockType::AIR);
-                }
+                chunk->setBlock(lx, ly, lz, type);
             }
         }
     }

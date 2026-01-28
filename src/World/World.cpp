@@ -9,9 +9,9 @@
 #include "World/ChunkMesher.hpp"
 #include "Math/Frustum.hpp"
 
-World::World()
+World::World(WorldType worldType)
 {
-    chunk_manager = std::make_unique<ChunkManager>();
+    chunk_manager = std::make_unique<ChunkManager>(worldType);
 }
 
 World::~World() = default;
@@ -127,6 +127,7 @@ glm::vec3 World::getSpawnPoint()
 // TODO SPLIT DEPENDENCIES SO IT DOESN'T KNOWS ABOUT RENDERER
 void World::draw(Renderer& renderer, const Frustum& frustum)
 {
+    // First pass: draw all opaque geometry
     for (auto& [id, chunk] : chunk_manager->getChunks())
     {
         if (!frustum.intersectsChunk(*chunk))
@@ -147,6 +148,7 @@ void World::draw(Renderer& renderer, const Frustum& frustum)
 
             ChunkMesher::generateMesh(*chunk, neighbors);
             renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
+            renderer.uploadMesh(chunk->getTransparentMesh(), chunk->getTransparentQuads());
 
             chunk->setDirty(false);
         }
@@ -163,6 +165,29 @@ void World::draw(Renderer& renderer, const Frustum& frustum)
             renderer.draw(chunk->getMesh(), model);
         }
     }
+    
+    // Second pass: draw transparent geometry (water) with depth write disabled
+    renderer.beginTransparentPass();
+    for (auto& [id, chunk] : chunk_manager->getChunks())
+    {
+        if (!frustum.intersectsChunk(*chunk))
+        {
+            continue;
+        }
+
+        if (chunk->getTransparentMesh().quadCount > 0)
+        {
+            glm::vec3 worldPos(
+                chunk->getChunkX() * CHUNK_SIZE,
+                0.f,
+                chunk->getChunkZ() * CHUNK_SIZE
+            );
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), worldPos);
+            renderer.draw(chunk->getTransparentMesh(), model);
+        }
+    }
+    renderer.endTransparentPass();
 }
 
 void World::update(glm::vec3 player_pos)

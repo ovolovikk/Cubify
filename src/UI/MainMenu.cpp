@@ -160,9 +160,9 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     };
 
     drawWorldButton("Minecraft", WorldType::MINECRAFT);
-    drawWorldButton("Edmund's Planet", WorldType::MINECRAFT);
-    drawWorldButton("Dr. Mann's Planet", WorldType::MINECRAFT);
-    drawWorldButton("Miller's Planet", WorldType::MINECRAFT);
+    drawWorldButton("Edmund's Planet", WorldType::EDMUNDS);
+    drawWorldButton("Dr. Mann's Planet", WorldType::MANN);
+    drawWorldButton("Miller's Planet", WorldType::MILLER);
 
     ImGui::Spacing();
     ImGui::Separator();

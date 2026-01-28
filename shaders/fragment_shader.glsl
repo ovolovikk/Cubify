@@ -3,6 +3,7 @@
 in vec3 TexCoord;
 flat in vec3 Normal;
 in float Visibility;
+flat in float IsWater;
 
 out vec4 FragColor;
 
@@ -16,6 +17,9 @@ const float SUN_INTENSITY = 0.6;
 void main()
 {
     vec4 texColor = texture(u_Textures, TexCoord);
+    
+    // Discard fully transparent pixels
+    if (texColor.a < 0.01) discard;
 
     // Wrap Lightning (light all sides of a block)
     float NdotL = dot(Normal, SUN_DIRECTION);
@@ -35,5 +39,10 @@ void main()
     vec3 litColor = lighting * texColor.rgb;
     vec3 finalColor = mix(SKY_COLOR, litColor, Visibility);
 
-    FragColor = vec4(finalColor, texColor.a);
+    float alpha = texColor.a;
+    if (IsWater > 0.5) {
+        alpha = 0.6; // Force water transparency
+    }
+    
+    FragColor = vec4(finalColor, alpha);
 }

@@ -14,12 +14,13 @@
 #include "Math/Frustum.hpp"
 #include "Graphics/Renderer.hpp"
 #include "World/World.hpp"
+#include "World/WorldSettings.hpp"
 #include "Player/Player.hpp"
 #include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
 
-Game::Game(Window& window, Renderer& renderer, IInputController& inputController)
-    : m_window(window), m_renderer(renderer), m_inputController(inputController)
+Game::Game(Window& window, Renderer& renderer, IInputController& inputController, WorldType worldType)
+    : m_window(window), m_renderer(renderer), m_inputController(inputController), m_worldType(worldType)
 {  
     LOGI("[Game] Constructing...");
     init();
@@ -35,10 +36,13 @@ void Game::init()
 {   
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
     auto& cfg = Config::Get();
+    WorldSettings settings = WorldSettings::getForWorldType(m_worldType);
+    m_renderer.setWorldSettings(settings);
+    LOGI("[Game] Applied world settings for type: %d", static_cast<int>(m_worldType));
 
     float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
-    world = std::make_unique<World>();
+    world = std::make_unique<World>(m_worldType);
     player = std::make_unique<Player>(*camera, m_inputController, *world, world->getSpawnPoint());
 }
 
@@ -98,7 +102,7 @@ void Game::handleInput(float deltaTime)
             m_inputController.setCursorEnabled(cursor_visible);
     }
 
-    // fullscreen toggle
+    // Fullscreen toggle
     if (m_inputController.wasKeyJustPressed(GLFW_KEY_F11)) {
         m_window.toggleFullscreen();
     }
@@ -112,18 +116,19 @@ void Game::handleInput(float deltaTime)
     if (m_inputController.wasKeyJustPressed(GLFW_KEY_4)) selectedBlock = BlockType::SAND;
     if (m_inputController.wasKeyJustPressed(GLFW_KEY_5)) selectedBlock = BlockType::WOODEN_PLANK;
     if (m_inputController.wasKeyJustPressed(GLFW_KEY_6)) selectedBlock = BlockType::BEDROCK;
+    if (m_inputController.wasKeyJustPressed(GLFW_KEY_7)) selectedBlock = BlockType::ICE;
     
-    // destroy blocks
+    // Destroy blocks
     if (m_inputController.wasMouseButtonJustPressed(GLFW_MOUSE_BUTTON_LEFT)) {
         AudioEngine::Instance().PlayShortSound("assets/sounds/breaking_block.mp3");
         world->rayCastBreakBlock(camera->GetPosition(), camera->GetFront(), 4.0f);
     }
-    // place blocks
+    // Place blocks
     if (m_inputController.wasMouseButtonJustPressed(GLFW_MOUSE_BUTTON_RIGHT)) {
         world->rayCastPlaceBlock(camera->GetPosition(), camera->GetFront(), 4.0f, selectedBlock);
     }
 
-    // fly input
+    // Move input
     if (free_cam_mode) {
         camera->processInput(m_inputController, deltaTime);
     }

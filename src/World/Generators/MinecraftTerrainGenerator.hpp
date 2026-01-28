@@ -1,0 +1,20 @@
+#ifndef MINECRAFT_TERRAIN_GENERATOR_HPP
+#define MINECRAFT_TERRAIN_GENERATOR_HPP
+
+#include "World/Generators/TerrainGenerator.hpp"
+
+class Chunk;
+
+class MinecraftTerrainGenerator : public TerrainGenerator
+{
+public:
+    explicit MinecraftTerrainGenerator(int seed = 1337);
+    ~MinecraftTerrainGenerator() override = default;
+
+    void generateChunkTerrain(Chunk* chunk) override;
+
+private:
+    static constexpr int MINECRAFT_WATER_LEVEL = 40;
+};
+
+#endif // MINECRAFT_TERRAIN_GENERATOR_HPP

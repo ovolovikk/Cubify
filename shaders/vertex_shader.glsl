@@ -1,7 +1,8 @@
 #version 430 core
 
-const float FOG_DENSITY = 0.005;
-const float FOG_POWER = 1.5;
+uniform float fogDensity;
+uniform float fogPower;
+uniform float u_Time;
 
 struct Quad
 {
@@ -21,6 +22,7 @@ uniform mat4 projection;
 out vec3 TexCoord;
 flat out vec3 Normal;
 out float Visibility;
+flat out float IsWater;
 
 void main()
 {
@@ -75,10 +77,22 @@ void main()
     
     Normal = computed_normal;    
     float distance = length(position_relative.xyz);
-    Visibility = exp(-pow((distance * FOG_DENSITY), FOG_POWER));
+    Visibility = exp(-pow((distance * fogDensity), fogPower));
     Visibility = clamp(Visibility, 0.0, 1.0);
 
+    // Water and Edmunds Water
+    IsWater = (layer == 6.0 || layer == 14.0) ? 1.0 : 0.0;
+    
+    // simple UV-based animation
+    float u_final = u_local;
+    float v_final = v_local;
+    if (IsWater > 0.5) {
+        float speed = 1.5;
+        u_final += sin(u_Time * speed + pos.x * 0.5 + pos.z * 0.3) * 0.15;
+        v_final += cos(u_Time * speed * 0.7 + pos.z * 0.5) * 0.15;
+    }
+    
     bool swapUV = (perpendicular_axis == 0 || perpendicular_axis == 1);
-    if (swapUV) TexCoord = vec3(v_local, u_local, layer);
-        else TexCoord = vec3(u_local, v_local, layer);
+    if (swapUV) TexCoord = vec3(v_final, u_final, layer);
+        else TexCoord = vec3(u_final, v_final, layer);
 }

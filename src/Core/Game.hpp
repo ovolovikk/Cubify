@@ -5,13 +5,13 @@
 #include <glm/vec3.hpp>
 
 #include "Core/BlockType.hpp"
+#include "World/WorldType.hpp"
 
 struct GLFWwindow;
 class IInputController;
 class Renderer;
 class Camera;
 class World;
-class TerrainGenerator;
 class Player;
 class Window;
 class DebugUI;
@@ -19,7 +19,7 @@ class DebugUI;
 class Game
 {
 public:
-    Game(Window& window, Renderer& renderer, IInputController& inputController);
+    Game(Window& window, Renderer& renderer, IInputController& inputController, WorldType worldType);
     ~Game();
 
     Game(const Game&) = delete;
@@ -41,11 +41,11 @@ private:
     Window& m_window;
     Renderer& m_renderer;
     IInputController& m_inputController;
+    WorldType m_worldType;
 
     // Owned by a Game
     std::unique_ptr<Camera> camera;
     std::unique_ptr<World> world;
-    std::unique_ptr<TerrainGenerator> terrain_generator;
     std::unique_ptr<Player> player;
 
 private:
@@ -55,7 +55,6 @@ private:
     bool world_rendered = false;
     BlockType selectedBlock = BlockType::GRASS;
 
-    // Camera Params
     static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 50.0f, 0.0f);
 };
 
