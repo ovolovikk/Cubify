@@ -10,7 +10,7 @@ Camera::Camera(vec3 position_, float fov_, float aspect_)
     yaw(-90.0f), pitch(0.0f),
     worldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
     front(vec3(0.0f, 0.0f, -0.0f)), up(vec3(0.f, 1.f, 0.f)),
-    near_plane(0.1f), far_plane(3500.f)
+    near_plane(0.1f), far_plane(2500.f)
 {
     updateCameraVectors();
 }

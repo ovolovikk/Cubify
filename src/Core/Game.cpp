@@ -104,7 +104,7 @@ void Game::handleInput(float deltaTime)
     GLFWwindow* nativeWindow = m_window.GetGLFWWindow();
 
     if(m_inputController.wasKeyJustPressed(GLFW_KEY_ESCAPE)) {
-        APP.quit();
+        APP.returnToMenu();
     }
     // Free cam toogle
     if (m_inputController.wasKeyJustPressed(GLFW_KEY_F1)) {

@@ -44,6 +44,7 @@ public:
     // lifecycle
     void run();
     void quit();
+    void returnToMenu();
 
     Window& getWindow();
     Renderer& getRenderer();

@@ -57,71 +57,124 @@ void Application::run()
         return;
     }
 
-    LOGI("=== Application Menu started ===");
-    AudioEngine::Instance().PlayMusic("assets/sounds/main_menu_theme.ogg");
-    while(m_currentState == AppState::MENU && m_window->isOpen())
+    while(m_currentState != AppState::SHUTTING_DOWN && m_window->isOpen())
     {
-        beginFrame();
-
-        // Toggle debug on F5
-        if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
-            if(m_debug_ui) m_debug_ui->toggleVisible();
-        }
-
-        if(m_debug_ui) m_debug_ui->begin();
+        if(m_currentState == AppState::MENU)
+        {
+            LOGI("=== Application Menu started ===");
+            AudioEngine::Instance().PlayMusic("assets/sounds/main_menu_theme.ogg");
             
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            if(!m_main_menu)
+            {
+                m_main_menu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
+                m_main_menu->setPlayCallback([this](WorldType worldType, bool is_void_mode) {
+                    m_selectedWorldType = worldType;
+                    m_currentState = AppState::PLAYING;
+                    LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
+
+                    LOGI("[Subsystem] Initializing Renderer");
+                    m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), is_void_mode);
+
+                    LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
+                    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
+                });
+                m_main_menu->setQuitCallback([this]() {
+                    m_currentState = AppState::SHUTTING_DOWN;
+                });
+            }
+            
+            // Clear any stale key states coming from game (prevent immediate quit)
+            m_inputController->update();
+            
+            while(m_currentState == AppState::MENU && m_window->isOpen())
+            {
+                beginFrame();
+
+                if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
+                    if(m_debug_ui) m_debug_ui->toggleVisible();
+                }
+
+                if(m_debug_ui) m_debug_ui->begin();
+                    
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                
+                if(m_main_menu)
+                {
+                    m_main_menu->onUpdate(m_deltaTime);
+                    m_main_menu->render(m_window->getWidth(), m_window->getHeight());
+                }
+
+                if(m_debug_ui) {
+                    m_debug_ui->renderAppInfo();
+                    m_debug_ui->end();
+                }
+
+                endFrame();
+            }
+            LOGI("=== Application Menu closed ===");
+        }
         
-        if(m_main_menu)
+        if(m_currentState == AppState::PLAYING)
         {
-            m_main_menu->onUpdate(m_deltaTime);
-            m_main_menu->render(m_window->getWidth(), m_window->getHeight());
-        }
+            m_main_menu.reset();
+            LOGI("=== Application Main loop started ===");
+            
+            while(m_currentState == AppState::PLAYING && m_window->isOpen())
+            {
+                beginFrame();
 
-        if(m_debug_ui) {
-            m_debug_ui->renderAppInfo();
-            m_debug_ui->end();
-        }
+                if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
+                    if(m_debug_ui) m_debug_ui->toggleVisible();
+                }
 
-        endFrame();
+                if(m_debug_ui) m_debug_ui->begin();
+
+                if(m_game)
+                {
+                    m_game->onUpdate(m_deltaTime);
+                }
+                
+                // Be careful, game might be destroyed in onUpdate if returnToMenu is called
+                if(m_game)
+                {
+                    m_game->onRender();
+                }
+
+                if(m_debug_ui) {
+                    m_debug_ui->renderAppInfo();
+                    if(m_game) m_game->onRenderDebug(m_debug_ui.get());
+                    m_debug_ui->end();
+                }
+
+                endFrame();
+            }
+
+            LOGI("=== Application Main loop ended ===");
+            
+            // Safe to destroy game and renderer now that we exited the game loop
+            LOGI("[Application] Safe destruction of Game/Renderer starting");
+            m_game.reset();
+            m_renderer.reset();
+            LOGI("[Application] Safe destruction complete");
+        }
     }
-    LOGI("=== Application Menu closed ===");
-
-    m_main_menu.reset();
-    LOGI("=== Application Main loop started ===");
-    while(m_currentState == AppState::PLAYING && m_window->isOpen())
-    {
-        beginFrame();
-
-        // Toggle debug on F5
-        if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
-            if(m_debug_ui) m_debug_ui->toggleVisible();
-        }
-
-        if(m_debug_ui) m_debug_ui->begin();
-
-        if(m_game)
-        {
-            m_game->onUpdate(m_deltaTime);
-            m_game->onRender();
-        }
-
-        if(m_debug_ui) {
-            m_debug_ui->renderAppInfo();
-            m_game->onRenderDebug(m_debug_ui.get());
-            m_debug_ui->end();
-        }
-
-        endFrame();
-    }
-
-    LOGI("=== Application Main loop ended ===");
 }
 
 void Application::quit()
 {
     LOGI("[Application] QUIT requested");
     m_currentState = AppState::SHUTTING_DOWN;
+}
+
+void Application::returnToMenu()
+{
+    LOGI("[Application] Returning to menu");
+    AudioEngine::Instance().StopMusic();
+    
+    // Only set state here. Destruction happens in run() loop to avoid 
+    // destroying Game while we are inside Game::onUpdate()
+    m_currentState = AppState::MENU;
+    LOGI("[Application] State set to MENU (cleanup deferred)");
 }
 
 Window &Application::getWindow()
