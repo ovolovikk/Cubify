@@ -27,8 +27,8 @@ struct WorldSettings
             return {
                 0.001f,
                 1.2f,
-                glm::vec3(0.45f, 0.55f, 0.65f),
-                glm::vec3(0.5f, 0.6f, 0.7f)
+                glm::vec3(0.55f, 0.35f, 0.45f),
+                glm::vec3(0.6f, 0.4f, 0.5f)
             };
 
         case WorldType::UTOPIA:

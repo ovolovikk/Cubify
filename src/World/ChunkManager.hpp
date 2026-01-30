@@ -42,7 +42,7 @@ private:
     int m_lastPlayerChunkZ = INT_MIN;
     bool m_forceUpdate = true;
 
-    static constexpr int MAX_CHUNKS_PER_FRAME = 8;
+    static constexpr int MAX_CHUNKS_PER_FRAME = 32;
 
     bool addChunk(int x, int z);
     void removeChunk(int x, int z);

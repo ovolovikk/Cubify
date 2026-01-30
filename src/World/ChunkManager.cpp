@@ -85,6 +85,12 @@ bool ChunkManager::addChunk(int x, int z)
     neighbors.front = getChunk(x, z + 1);
 
     ChunkMesher::generateMesh(*chunkPtr, neighbors);
+    
+    if (neighbors.left) neighbors.left->setDirty(true);
+    if (neighbors.right) neighbors.right->setDirty(true);
+    if (neighbors.back) neighbors.back->setDirty(true);
+    if (neighbors.front) neighbors.front->setDirty(true);
+    
     return true;
 }
 
