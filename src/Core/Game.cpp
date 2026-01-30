@@ -18,6 +18,7 @@
 #include "Player/Player.hpp"
 #include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
+#include "Core/BlockType.hpp"
 
 Game::Game(Window& window, Renderer& renderer, IInputController& inputController, WorldType worldType)
     : m_window(window), m_renderer(renderer), m_inputController(inputController), m_worldType(worldType)
@@ -50,6 +51,8 @@ void Game::onUpdate(float deltaTime)
 {
     m_inputController.update();
     handleInput(deltaTime);
+
+    onAtmosphere();
 
     if (!free_cam_mode && world_rendered) {
         player->update(deltaTime);
@@ -140,3 +143,28 @@ void Game::onResize(int width, int height)
     m_renderer.resize(width, height);
     if (camera && height > 0) camera->SetAspect((float)width / (float)height);
 }
+
+void Game::onAtmosphere()
+{
+    glm::vec3 pos = camera->GetPosition();
+    int x = (int)std::floor(pos.x);
+    int y = (int)std::floor(pos.y);
+    int z = (int)std::floor(pos.z);
+    
+    BlockType currentBlock = world->getBlock(x, y, z);
+    
+    WorldSettings settings = WorldSettings::getForWorldType(m_worldType);
+
+    float renderDistance = (float)Config::Get().gConfig.renderDistance;
+    if (renderDistance > 0) {
+            settings.fogDensity *= (32.0f / renderDistance);
+    }
+
+    if (currentBlock == BlockType::WATER || currentBlock == BlockType::EDMUNDS_WATER) {
+        settings.skyColor = glm::vec3(0.0f, 0.1f, 0.4f);
+        settings.fogDensity = 0.15f;
+        settings.fogPower = 2.0f;
+    }
+    m_renderer.setWorldSettings(settings);
+}
+

@@ -8,9 +8,9 @@ flat in float IsWater;
 out vec4 FragColor;
 
 uniform sampler2DArray u_Textures;
+uniform vec3 u_SkyColor;
 
 const vec3 SUN_DIRECTION = normalize(vec3(0.5, 0.8, 0.4)); 
-const vec3 SKY_COLOR = vec3(0.28, 0.66, 1.0);
 const float AMBIENT_INTENSITY = 0.3;
 const float SUN_INTENSITY = 0.6;
 
@@ -37,7 +37,7 @@ void main()
     
     float lighting = wrapDiffuse * SUN_INTENSITY * faceBrightness + AMBIENT_INTENSITY;
     vec3 litColor = lighting * texColor.rgb;
-    vec3 finalColor = mix(SKY_COLOR, litColor, Visibility);
+    vec3 finalColor = mix(u_SkyColor, litColor, Visibility);
 
     float alpha = texColor.a;
     if (IsWater > 0.5) {

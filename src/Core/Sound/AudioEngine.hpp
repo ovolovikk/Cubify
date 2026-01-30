@@ -5,6 +5,7 @@
 
 #include <string>
 
+// SingleTon Audio provider which can be used in any file
 class AudioEngine
 {
 public:

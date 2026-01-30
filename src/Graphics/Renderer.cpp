@@ -88,6 +88,7 @@ void Renderer::beginFrame()
         shader->setInt("u_Textures", 0);
         shader->setFloat("fogDensity", world_settings.fogDensity);
         shader->setFloat("fogPower", world_settings.fogPower);
+        shader->setVec3("u_SkyColor", world_settings.skyColor);
         shader->setFloat("u_Time", static_cast<float>(glfwGetTime()));
     }
     
@@ -101,10 +102,12 @@ void Renderer::beginFrame()
 void Renderer::beginTransparentPass()
 {
     glDepthMask(GL_FALSE);
+    glDisable(GL_CULL_FACE);
 }
 
 void Renderer::endTransparentPass()
 {
+    glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE);
 }
 

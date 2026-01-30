@@ -1,6 +1,7 @@
 #ifndef LOG_HPP
 #define LOG_HPP
 
+// Logging system designed to be simple yet comfortable for usage
 namespace Log
 {
     void init();

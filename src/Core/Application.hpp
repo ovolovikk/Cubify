@@ -25,7 +25,7 @@ struct ApplicationConfig
     bool vsync = false;
 };
 
-// Only one APP => Singleton
+// Singleton for splitting engine and application level
 class Application
 {
 public:

@@ -8,6 +8,7 @@ class IInputController;
 using glm::mat4;
 using glm::vec3;
 
+// Camera uses GLM only
 class Camera
 {
 public:

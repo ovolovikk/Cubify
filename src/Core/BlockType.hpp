@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+// Using scope enum for specifying the type
 enum class BlockType : uint8_t
 {
     AIR = 0,

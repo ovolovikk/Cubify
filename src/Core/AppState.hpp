@@ -1,6 +1,7 @@
 #ifndef APP_STATE_HPP
 #define APP_STATE_HPP
 
+//TODO MAKE USE OF PAUSED & LOADING
 enum class AppState
 {
     UNINITIALIZED,

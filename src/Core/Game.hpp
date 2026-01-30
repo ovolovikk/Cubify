@@ -16,6 +16,8 @@ class Player;
 class Window;
 class DebugUI;
 
+// Engine level
+// Here goes all game-systems logic
 class Game
 {
 public:
@@ -36,6 +38,7 @@ private:
     void init();
     
     void handleInput(float deltaTime);
+    void onAtmosphere();
 
     // Borrowed from APP
     Window& m_window;

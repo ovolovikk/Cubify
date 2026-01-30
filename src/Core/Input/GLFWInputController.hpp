@@ -7,6 +7,7 @@
 
 struct GLFWwindow;
 
+// Using GLFW to manage user input
 class GLFWInputController : public IInputController
 {
 public:

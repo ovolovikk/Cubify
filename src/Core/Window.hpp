@@ -7,6 +7,7 @@
 
 struct GLFWwindow;
 
+// Basic window decorator for an appropriate usage of raw GLFWwindow
 class Window
 {
 public:

@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 
+// Basic Interface for managing user input
 class IInputController
 {
 public:
