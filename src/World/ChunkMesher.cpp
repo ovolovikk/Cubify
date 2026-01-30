@@ -17,16 +17,18 @@ namespace {
         {6.0f, 6.0f, 6.0f},   // WATER
         {7.0f, 7.0f, 7.0f},   // BEDROCK
         {8.0f, 8.0f, 8.0f},   // ICE
-        // Edmund's Planet
-        {9.0f, 10.0f, 11.0f}, // EDMUNDS_GRASS (top, side, bottom=dirt)
-        {11.0f, 11.0f, 11.0f},// EDMUNDS_DIRT
-        {12.0f, 12.0f, 12.0f},// EDMUNDS_STONE
-        {13.0f, 13.0f, 13.0f},// EDMUNDS_SAND
-        {14.0f, 14.0f, 14.0f} // EDMUNDS_WATER
+        {9.0f, 10.0f, 11.0f}, // SECTORR_GRASS
+        {11.0f, 11.0f, 11.0f},// SECTORR_DIRT
+        {12.0f, 12.0f, 12.0f},// SECTORR_STONE
+        {13.0f, 13.0f, 13.0f},// SECTORR_SAND
+        {14.0f, 14.0f, 14.0f},// SECTORR_WATER
+        {15.0f, 15.0f, 15.0f},// UTOPIA_SAND
+        {16.0f, 16.0f, 16.0f},// UTOPIA_SILT
+        {17.0f, 17.0f, 17.0f} // UTOPIA_WATER
     };
     
     bool isTransparentBlock(BlockType type) {
-        return type == BlockType::WATER || type == BlockType::EDMUNDS_WATER;
+        return type == BlockType::WATER || type == BlockType::SECTORR_WATER || type == BlockType::UTOPIA_WATER;
     }
 }
 
@@ -61,10 +63,18 @@ void ChunkMesher::generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors)
                 neighbor = chunk.getBlock(x, y, z);
             }
             
+            // Air neighbor - always render face
             if (neighbor == BlockType::AIR) return true;
-            // Transparent blocks should show faces against other transparent blocks
-            if (isTransparentBlock(currentType) && !isTransparentBlock(neighbor)) return false;
+            
+            // Water next to water - don't render (hide internal faces)
+            if (isTransparentBlock(currentType) && isTransparentBlock(neighbor)) return false;
+            
+            // Solid block next to water - render the solid face
             if (!isTransparentBlock(currentType) && isTransparentBlock(neighbor)) return true;
+            
+            // Water next to solid - render water face
+            if (isTransparentBlock(currentType) && !isTransparentBlock(neighbor)) return true;
+            
             return false;
         };
 

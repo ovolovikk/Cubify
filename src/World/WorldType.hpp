@@ -3,10 +3,9 @@
 
 enum class WorldType
 {
-    MINECRAFT,      // Default Minecraft-style world
-    EDMUNDS,        // Edmund's planet (Interstellar)
-    MANN,           // Dr. Mann's planet (Interstellar) 
-    MILLER          // Miller's planet - the water world (Interstellar)
+    MINECRAFT,
+    SECTORR,
+    UTOPIA
 };
 
 #endif // WORLD_TYPE_HPP

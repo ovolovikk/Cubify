@@ -18,7 +18,7 @@ class TextureArray;
 class Renderer
 {
 public:
-    Renderer(int width, int height);
+    Renderer(int width, int height, bool is_void_mode);
     ~Renderer();
     
     Renderer(const Renderer&) = delete;

@@ -28,6 +28,8 @@ public:
 
     BlockType getBlock(int x, int y, int z) const;
     void setBlock(int x, int y, int z, BlockType type);
+    
+    bool ensureChunkLoaded(int x, int z);
 
     int getRenderDistance() const { return Config::Get().gConfig.renderDistance; }
     WorldType getWorldType() const { return m_worldType; }
@@ -36,15 +38,13 @@ private:
     std::unique_ptr<ITerrainGenerator> terrain_generator;
     WorldType m_worldType;
     
-    // Optimization: track last player chunk to skip unnecessary updates
     int m_lastPlayerChunkX = INT_MIN;
     int m_lastPlayerChunkZ = INT_MIN;
     bool m_forceUpdate = true;
-    
-    // Ленивая загрузка: максимум чанков за кадр (при обычном движении)
+
     static constexpr int MAX_CHUNKS_PER_FRAME = 8;
 
-    bool addChunk(int x, int z);  // true если чанк создан
+    bool addChunk(int x, int z);
     void removeChunk(int x, int z);
     long long getChunkId(int x, int z) const;
 
@@ -52,7 +52,7 @@ private:
     std::string getChunkFileName(int x, int z) const;
     std::string getWorldFolderName() const;
     
-    std::string m_saveFolder;  // путь к папке сохранений этого мира
+    std::string m_saveFolder;
 };
 
 #endif // CHUNK_MANAGER_HPP

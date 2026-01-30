@@ -15,7 +15,6 @@ ChunkManager::ChunkManager(WorldType worldType)
 {
     terrain_generator = TerrainGeneratorFactory::create(worldType);
     
-    // Создаём папку для сохранений этого мира
     m_saveFolder = "saves/" + getWorldFolderName() + "/";
     if (!fs::exists("saves")) {
         fs::create_directory("saves");
@@ -27,7 +26,6 @@ ChunkManager::ChunkManager(WorldType worldType)
 
 ChunkManager::~ChunkManager()
 {
-    // save all chunks which player touched
     for (auto& [id, chunk] : chunks) {
         if (chunk->hasUnsavedChanges()) {
             saveChunk(chunk.get());
@@ -60,7 +58,7 @@ bool ChunkManager::addChunk(int x, int z)
     long long id = getChunkId(x, z);
     if (chunks.find(id) != chunks.end())
     {
-        return false;  // уже есть
+        return false;
     }
     
     auto chunk = std::make_unique<Chunk>(x, z);
@@ -90,6 +88,11 @@ bool ChunkManager::addChunk(int x, int z)
     return true;
 }
 
+bool ChunkManager::ensureChunkLoaded(int x, int z)
+{
+    return addChunk(x, z) || getChunk(x, z) != nullptr;
+}
+
 void ChunkManager::removeChunk(int x, int z)
 {
     long long id = getChunkId(x, z);
@@ -109,9 +112,8 @@ std::string ChunkManager::getChunkFileName(int x, int z) const {
 std::string ChunkManager::getWorldFolderName() const {
     switch (m_worldType) {
         case WorldType::MINECRAFT: return "minecraft";
-        case WorldType::EDMUNDS:   return "edmunds";
-        case WorldType::MANN:      return "mann";
-        case WorldType::MILLER:    return "miller";
+        case WorldType::SECTORR:   return "sectorr";
+        case WorldType::UTOPIA:    return "utopia";
         default:                   return "unknown";
     }
 }
@@ -154,7 +156,6 @@ void ChunkManager::setBlock(int x, int y, int z, BlockType type)
         int lz = z - chunk_z * CHUNK_SIZE;
         chunk->setBlock(lx, y , lz, type);
 
-        // update neighbors if block at the edge
         if (lx == 0) {
             Chunk* left = getChunk(chunk_x - 1, chunk_z);
             if (left) left->setDirty(true);
@@ -188,8 +189,6 @@ void ChunkManager::update(glm::vec3 player_pos)
     
     int renderDist = Config::Get().gConfig.renderDistance;
 
-    // load chunks
-    // При первом запуске (force) грузим всё, потом - лениво по MAX_CHUNKS_PER_FRAME за кадр
     int loaded = 0;
     int limit = wasForceUpdate ? 9999 : MAX_CHUNKS_PER_FRAME;
     
@@ -203,7 +202,6 @@ void ChunkManager::update(glm::vec3 player_pos)
         }
     }
 
-    // unload chunks (только если сменили чанк)
     if (chunkChanged || wasForceUpdate)
     {
         for(auto it = chunks.begin();it != chunks.end();)

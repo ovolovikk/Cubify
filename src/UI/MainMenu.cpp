@@ -20,45 +20,52 @@ MainMenu::MainMenu(GLFWwindow* window, Window& appWindow, IInputController& inpu
 
 MainMenu::~MainMenu()
 {
-    if (m_backgroundTexture != 0)
-    {
-        glDeleteTextures(1, &m_backgroundTexture);
-    }
+    if (m_bgTextureNormal != 0) glDeleteTextures(1, &m_bgTextureNormal);
+    if (m_bgTextureVoid != 0) glDeleteTextures(1, &m_bgTextureVoid);
 
     LOGI("[MainMenu] Destroyed");
 }
 
-void MainMenu::loadBackgroundTexture()
+GLuint MainMenu::loadSingleTexture(const char* path)
 {
-    LOGI("[MainMenu] Loading background texture");
-    int chanells = 0;
+    int channels = 0;
+    int width, height;
     stbi_set_flip_vertically_on_load(false);
-    unsigned char* data = stbi_load("assets/textures/backgrounds/menu_background.png",
-                                     &m_bgWidth,
-                                     &m_bgHeight,
-                                     &chanells,
-                                     4);
+    
+    unsigned char* data = stbi_load(path, &width, &height, &channels, 4);
 
     if (!data)
     {
-        LOGE("[MainMenu] Failed to load background texture");
-        return;
+        LOGE("[MainMenu] Failed to load texture: %s", path);
+        return 0;
     }
 
-    glGenTextures(1, &m_backgroundTexture);
-    glBindTexture(GL_TEXTURE_2D, m_backgroundTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_bgWidth, m_bgHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
     glBindTexture(GL_TEXTURE_2D, 0);
-
     stbi_image_free(data);
 
-    LOGI("[MainMenu] Background texture loaded (%dx%d)", m_bgWidth, m_bgHeight);
+    m_bgWidth = width;
+    m_bgHeight = height;
+
+    LOGI("[MainMenu] Loaded texture: %s (%dx%d)", path, width, height);
+    return textureID;
 }
 
+void MainMenu::loadBackgroundTexture()
+{
+    LOGI("[MainMenu] Loading background textures");
+    m_bgTextureNormal = loadSingleTexture("assets/textures/backgrounds/non_void_menu.png");
+    m_bgTextureVoid = loadSingleTexture("assets/textures/backgrounds/void_menu.png");
+}
 void MainMenu::onUpdate(float deltaTime)
 {
     m_inputController.update();
@@ -93,7 +100,6 @@ void MainMenu::render(int windowWidth, int windowHeight)
 
 void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
 {
-    // Style config
     ImVec2 buttonSize(280, 55);
     float panelPadding = 40.f;
     float panelWidth = buttonSize.x + (panelPadding * 2.0f);
@@ -101,7 +107,7 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     float subtitleHeight = 25.f;
     float separatorHeight = 20.f;
     float spacingTotal = 80.f;
-    float verticalPadding = 50.f;
+    float verticalPadding = 100.f;
     float panelHeight = titleHeight + subtitleHeight + (buttonSize.y * 5) + (separatorHeight * 2) + spacingTotal + verticalPadding;
     float centerX = (windowWidth - panelWidth) * 0.5f;
     float centerY = (windowHeight - panelHeight) * 0.5f;
@@ -130,8 +136,6 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     ImGui::Begin("##MenuButtons", nullptr, flags);
 
     float totalWidth = ImGui::GetWindowSize().x;
-
-    // Title
     float titleWidth = ImGui::CalcTextSize("C U B I F Y").x;
     ImGui::SetCursorPosX((totalWidth - titleWidth) * 0.5f);
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.4f, 0.7f, 1.0f, 1.0f));
@@ -142,27 +146,47 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     ImGui::Separator();
     ImGui::Spacing();
 
-    // Subtitle
     float subtitleWidth = ImGui::CalcTextSize("Select Your World").x;
     ImGui::SetCursorPosX((totalWidth - subtitleWidth) * 0.5f);
     ImGui::Text("Select Your World");
     
     ImGui::Spacing();
 
-    // Worlds buttons
     float buttonOffsetX = (totalWidth - buttonSize.x) * 0.5f;
 
     auto drawWorldButton = [&](const char* label, WorldType type) {
         ImGui::SetCursorPosX(buttonOffsetX);
         if (ImGui::Button(label, buttonSize)) {
-            if (m_onPlay) m_onPlay(type);
+            if (m_onPlay) m_onPlay(type, is_void_mode);
         }
     };
 
     drawWorldButton("Minecraft", WorldType::MINECRAFT);
-    drawWorldButton("Edmund's Planet", WorldType::EDMUNDS);
-    drawWorldButton("Dr. Mann's Planet", WorldType::MANN);
-    drawWorldButton("Miller's Planet", WorldType::MILLER);
+    drawWorldButton("Sector-R", WorldType::SECTORR);
+    drawWorldButton("Utopia", WorldType::UTOPIA);
+
+    ImGui::Spacing();
+
+    ImGui::SetCursorPosX(buttonOffsetX);
+    
+    bool show_void_style = is_void_mode;
+
+    if (show_void_style)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.5f, 0.2f, 0.9f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.6f, 0.3f, 1.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.15f, 0.4f, 0.15f, 1.0f));
+    }
+
+    if (ImGui::Button(is_void_mode ? "Void Mode: [ON]" : "Void Mode: [OFF]", buttonSize))
+    {
+        is_void_mode = !is_void_mode;
+    }
+
+    if (show_void_style)
+    {
+        ImGui::PopStyleColor(3);
+    }
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -185,11 +209,11 @@ void MainMenu::renderMenuButtons(int windowWidth, int windowHeight)
     ImGui::PopStyleVar(5);
 }
 
-
-
 void MainMenu::renderBackground(int windowWidth, int windowHeight)
 {
-    if (m_backgroundTexture == 0) return;
+    GLuint activeTexture = is_void_mode ? m_bgTextureVoid : m_bgTextureNormal;
+    if (activeTexture == 0) activeTexture = m_bgTextureNormal; 
+    if (activeTexture == 0) return;
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2((float)windowWidth, (float)windowHeight));
@@ -204,7 +228,7 @@ void MainMenu::renderBackground(int windowWidth, int windowHeight)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("##Background", nullptr, flags);
     
-    ImGui::Image((ImTextureID)(intptr_t)m_backgroundTexture, ImVec2((float)windowWidth, (float)windowHeight));
+    ImGui::Image((ImTextureID)(intptr_t)activeTexture, ImVec2((float)windowWidth, (float)windowHeight));
     
     ImGui::End();
     ImGui::PopStyleVar();

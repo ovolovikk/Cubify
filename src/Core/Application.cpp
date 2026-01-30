@@ -88,7 +88,6 @@ void Application::run()
     LOGI("=== Application Menu closed ===");
 
     m_main_menu.reset();
-    AudioEngine::Instance().PlayMusic("assets/sounds/main_game_theme.ogg");
     LOGI("=== Application Main loop started ===");
     while(m_currentState == AppState::PLAYING && m_window->isOpen())
     {
@@ -196,9 +195,6 @@ void Application::initSubsystems()
         }
     });
 
-    LOGI("[Subsystem] Initializing Renderer");
-    m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight());
-
     LOGI("[Subsystem] Initializing InputController");
     m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
 
@@ -207,10 +203,14 @@ void Application::initSubsystems()
 
     LOGI("[Subsystem] Initializing MainMenu");
     m_main_menu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
-    m_main_menu->setPlayCallback([this](WorldType worldType) {
+    m_main_menu->setPlayCallback([this](WorldType worldType, bool is_void_mode) {
         m_selectedWorldType = worldType;
         m_currentState = AppState::PLAYING;
         LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
+
+        LOGI("[Subsystem] Initializing Renderer");
+         m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), is_void_mode);
+
         LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
         m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
     });

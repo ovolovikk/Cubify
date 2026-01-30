@@ -1,9 +1,9 @@
-#include "World/Generators/EdmundsTerrainGenerator.hpp"
+#include "World/Generators/SectorRTerrainGenerator.hpp"
 
 #include "Core/BlockType.hpp"
 #include "World/Chunk.hpp"
 
-EdmundsTerrainGenerator::EdmundsTerrainGenerator(int seed) 
+SectorRTerrainGenerator::SectorRTerrainGenerator(int seed) 
     : TerrainGenerator(seed)
 {
     m_noise = fnlCreateState();
@@ -25,7 +25,7 @@ EdmundsTerrainGenerator::EdmundsTerrainGenerator(int seed)
     m_rockNoise.frequency = 0.02f;
 }
 
-void EdmundsTerrainGenerator::generateChunkTerrain(Chunk* chunk)
+void SectorRTerrainGenerator::generateChunkTerrain(Chunk* chunk)
 {
     if (!chunk) return;
 
@@ -58,20 +58,20 @@ void EdmundsTerrainGenerator::generateChunkTerrain(Chunk* chunk)
                     }
                     else if (ly < height - 4)
                     {
-                        type = BlockType::EDMUNDS_STONE;
+                        type = BlockType::SECTORR_STONE;
                     }
                     else if (ly < height)
                     {
-                        if (height <= EDMUNDS_WATER_LEVEL + 2)
-                            type = BlockType::EDMUNDS_SAND;
+                        if (height <= SECTORR_WATER_LEVEL + 2)
+                            type = BlockType::SECTORR_SAND;
                         else
-                            type = BlockType::EDMUNDS_DIRT;
+                            type = BlockType::SECTORR_DIRT;
                     }
                     else
                     {
-                        if (height <= EDMUNDS_WATER_LEVEL + 2)
+                        if (height <= SECTORR_WATER_LEVEL + 2)
                         {
-                            type = BlockType::EDMUNDS_SAND;
+                            type = BlockType::SECTORR_SAND;
                         }
                         else
                         {
@@ -79,15 +79,15 @@ void EdmundsTerrainGenerator::generateChunkTerrain(Chunk* chunk)
                             bool isRocky = rockValue > 0.15f;
                             
                             if (isRocky)
-                                type = BlockType::EDMUNDS_STONE;
+                                type = BlockType::SECTORR_STONE;
                             else
-                                type = BlockType::EDMUNDS_GRASS;
+                                type = BlockType::SECTORR_GRASS;
                         }
                     }
                 }
-                else if (ly <= EDMUNDS_WATER_LEVEL)
+                else if (ly <= SECTORR_WATER_LEVEL)
                 {
-                    type = BlockType::EDMUNDS_WATER;
+                    type = BlockType::SECTORR_WATER;
                 }
 
                 chunk->setBlock(lx, ly, lz, type);

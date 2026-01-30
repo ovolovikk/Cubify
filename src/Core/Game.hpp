@@ -56,9 +56,11 @@ private:
     bool free_cam_mode = false;
     bool cursor_visible = false;
     bool world_rendered = false;
+    bool player_spawned = false;
+    bool music_started = false;
     BlockType selectedBlock = BlockType::GRASS;
 
-    static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 50.0f, 0.0f);
+    static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 200.0f, 0.0f);
 };
 
 #endif // GAME_HPP

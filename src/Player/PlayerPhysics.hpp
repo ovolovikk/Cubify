@@ -14,7 +14,7 @@ public:
     void move(const vec3& direction, float acceleration);
 
     vec3 getPosition() const { return position; }
-    void setPosition(const vec3& pos ) { position = pos; }
+    void setPosition(const vec3& pos ) { position = pos; velocity = vec3(0.f); }
     vec3 getVelocity() const { return velocity; }
     bool isGrounded() const { return collision_system.isGrounded(); }
 

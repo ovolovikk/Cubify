@@ -101,10 +101,11 @@ glm::vec3 World::getSpawnPoint()
     int targetX = 8;
     int targetZ = 8;
 
-    chunk_manager->update(glm::vec3(targetX, 100, targetZ));
-
     int chunkX = targetX / CHUNK_SIZE;
     int chunkZ = targetZ / CHUNK_SIZE;
+    
+    // Force load the spawn chunk immediately
+    chunk_manager->ensureChunkLoaded(chunkX, chunkZ);
     
     Chunk* chunk = chunk_manager->getChunk(chunkX, chunkZ);
     float spawnY = (float)CHUNK_HEIGHT + 2.0f;
@@ -114,7 +115,11 @@ glm::vec3 World::getSpawnPoint()
         int localZ = targetZ % CHUNK_SIZE;
         
         for (int y = CHUNK_HEIGHT - 1; y >= 0; --y) {
-            if (chunk->getBlock(localX, y, localZ) != BlockType::AIR) {
+            BlockType block = chunk->getBlock(localX, y, localZ);
+            if (block != BlockType::AIR && 
+                block != BlockType::WATER && 
+                block != BlockType::SECTORR_WATER &&
+                block != BlockType::UTOPIA_WATER) {
                 spawnY = (float)y + 2.0f;
                 break;
             }
@@ -124,7 +129,6 @@ glm::vec3 World::getSpawnPoint()
     return glm::vec3((float)targetX, spawnY, (float)targetZ);
 }
 
-// TODO SPLIT DEPENDENCIES SO IT DOESN'T KNOWS ABOUT RENDERER
 void World::draw(Renderer& renderer, const Frustum& frustum)
 {
     // First pass: draw all opaque geometry

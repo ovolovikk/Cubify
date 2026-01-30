@@ -8,7 +8,7 @@
 #include "Graphics/TextureArray.hpp"
 #include "Core/Logging/Log.hpp"
 
-Renderer::Renderer(int width, int height)
+Renderer::Renderer(int width, int height, bool is_void_mode)
     : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f),
       world_settings(WorldSettings::getForWorldType(WorldType::MINECRAFT))
 {
@@ -43,13 +43,17 @@ Renderer::Renderer(int width, int height)
         "assets/textures/water.png",
         "assets/textures/bedrock.png",
         "assets/textures/ice.png",
-        "assets/textures/edmunds_grass_top.png",
-        "assets/textures/edmunds_grass_side.png",
-        "assets/textures/edmunds_dirt.png",
-        "assets/textures/edmunds_stone.png",
-        "assets/textures/edmunds_sand.png",
-        "assets/textures/edmunds_water.png"
+        "assets/textures/sectorr_grass_top.png",
+        "assets/textures/sectorr_grass_side.png",
+        "assets/textures/sectorr_dirt.png",
+        "assets/textures/sectorr_stone.png",
+        "assets/textures/sectorr_sand.png",
+        "assets/textures/sectorr_water.png",
+        "assets/textures/utopia_sand.png",
+        "assets/textures/utopia_silt.png",
+        "assets/textures/utopia_water.png"
     };
+    if (is_void_mode) layers.push_back("assets/textures/void.png");
     texture_array = std::make_unique<TextureArray>(layers);
 
     // required dummy vao for core profile

@@ -80,14 +80,15 @@ void main()
     Visibility = exp(-pow((distance * fogDensity), fogPower));
     Visibility = clamp(Visibility, 0.0, 1.0);
 
-    // Water and Edmunds Water
-    IsWater = (layer == 6.0 || layer == 14.0) ? 1.0 : 0.0;
+    // Water types: regular(6), Sector-R(14), Utopia(17)
+    IsWater = (layer == 6.0 || layer == 14.0 || layer == 17.0) ? 1.0 : 0.0;
     
     // simple UV-based animation
     float u_final = u_local;
     float v_final = v_local;
     if (IsWater > 0.5) {
         float speed = 1.5;
+        if (layer == 17.0) speed = 5.5;
         u_final += sin(u_Time * speed + pos.x * 0.5 + pos.z * 0.3) * 0.15;
         v_final += cos(u_Time * speed * 0.7 + pos.z * 0.5) * 0.15;
     }

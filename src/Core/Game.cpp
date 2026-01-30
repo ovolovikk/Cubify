@@ -44,17 +44,28 @@ void Game::init()
     float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>(m_worldType);
-    player = std::make_unique<Player>(*camera, m_inputController, *world, world->getSpawnPoint());
+    player = std::make_unique<Player>(*camera, m_inputController, *world, glm::vec3(0, 200, 0));
 }
 
 void Game::onUpdate(float deltaTime)
 {
+    if (deltaTime > 0.1f) deltaTime = 0.1f;
+    
     m_inputController.update();
     handleInput(deltaTime);
 
     onAtmosphere();
 
     if (!free_cam_mode && world_rendered) {
+        if (!player_spawned) {
+            player->setPosition(world->getSpawnPoint());
+            player_spawned = true;
+            
+            if (!music_started) {
+                AudioEngine::Instance().PlayMusic("assets/sounds/main_game_theme.ogg");
+                music_started = true;
+            }
+        }
         player->update(deltaTime);
     }
 
@@ -160,10 +171,15 @@ void Game::onAtmosphere()
             settings.fogDensity *= (32.0f / renderDistance);
     }
 
-    if (currentBlock == BlockType::WATER || currentBlock == BlockType::EDMUNDS_WATER) {
+    if (currentBlock == BlockType::WATER || currentBlock == BlockType::SECTORR_WATER) {
         settings.skyColor = glm::vec3(0.0f, 0.1f, 0.4f);
         settings.fogDensity = 0.15f;
         settings.fogPower = 2.0f;
+    }
+    else if (currentBlock == BlockType::UTOPIA_WATER) {
+        settings.skyColor = glm::vec3(0.2f, 0.25f, 0.3f);
+        settings.fogDensity = 0.08f;
+        settings.fogPower = 1.5f;
     }
     m_renderer.setWorldSettings(settings);
 }
