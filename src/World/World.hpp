@@ -34,6 +34,7 @@ public:
 
     void update(glm::vec3 player_pos);
     void draw(Renderer& renderer, const Frustum& frustum);
+    void prepareAllChunks(Renderer& renderer);
 
     glm::vec3 getSpawnPoint();
 

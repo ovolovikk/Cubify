@@ -88,7 +88,7 @@ void DebugUI::renderAppInfo()
     ImGui::SetNextWindowSize(ImVec2(300, 100), ImGuiCond_FirstUseEver);
     
     if(ImGui::Begin("Cubify Debug", &m_visible)) {
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Wireframe", &m_wireframe);
         if(ImGui::SliderFloat("Volume:", &m_volume, 0, 100, "%.0f"))
         {

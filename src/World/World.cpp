@@ -198,3 +198,27 @@ void World::update(glm::vec3 player_pos)
 {
     chunk_manager->update(player_pos);
 }
+
+void World::prepareAllChunks(Renderer& renderer)
+{
+    for (auto& [id, chunk] : chunk_manager->getChunks())
+    {
+        if (chunk->isDirty())
+        {
+            int x = chunk->getChunkX();
+            int z = chunk->getChunkZ();
+
+            ChunkNeighbors neighbors;
+            neighbors.left = chunk_manager->getChunk(x - 1, z);
+            neighbors.right = chunk_manager->getChunk(x + 1, z);
+            neighbors.back = chunk_manager->getChunk(x, z - 1);
+            neighbors.front = chunk_manager->getChunk(x, z + 1);
+
+            ChunkMesher::generateMesh(*chunk, neighbors);
+            renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
+            renderer.uploadMesh(chunk->getTransparentMesh(), chunk->getTransparentQuads());
+
+            chunk->setDirty(false);
+        }
+    }
+}

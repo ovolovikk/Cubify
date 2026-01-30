@@ -58,6 +58,7 @@ void Game::onUpdate(float deltaTime)
 
     if (!free_cam_mode && world_rendered) {
         if (!player_spawned) {
+            world->prepareAllChunks(m_renderer);
             player->setPosition(world->getSpawnPoint());
             player_spawned = true;
             
