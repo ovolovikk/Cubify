@@ -7,13 +7,15 @@
 
 #include "World/ChunkMesher.hpp"
 #include "World/Generators/TerrainGeneratorFactory.hpp"
+#include "Utils/Config.hpp"
 
 namespace fs = std::filesystem;
 
 ChunkManager::ChunkManager(WorldType worldType)
     : m_worldType(worldType)
 {
-    terrain_generator = TerrainGeneratorFactory::create(worldType);
+    int seed = Config::Get().worldConfig.seed;
+    terrain_generator = TerrainGeneratorFactory::create(worldType, seed);
     
     m_saveFolder = "saves/" + getWorldFolderName() + "/";
     if (!fs::exists("saves")) {
@@ -21,6 +23,32 @@ ChunkManager::ChunkManager(WorldType worldType)
     }
     if (!fs::exists(m_saveFolder)) {
         fs::create_directory(m_saveFolder);
+    }
+    
+    // Check if seed changed - if so, clear old saves
+    std::string seedFile = m_saveFolder + "seed.txt";
+    int savedSeed = 0;
+    
+    std::ifstream seedIn(seedFile);
+    if (seedIn.is_open()) {
+        seedIn >> savedSeed;
+        seedIn.close();
+    }
+    
+    if (savedSeed != seed) {
+        // Seed changed - clear all chunk files
+        for (const auto& entry : fs::directory_iterator(m_saveFolder)) {
+            if (entry.path().extension() == ".dat") {
+                fs::remove(entry.path());
+            }
+        }
+        
+        // Save new seed
+        std::ofstream seedOut(seedFile);
+        if (seedOut.is_open()) {
+            seedOut << seed;
+            seedOut.close();
+        }
     }
 }
 

@@ -19,5 +19,8 @@
     "cConfig": {
         "fov": 60.0,
         "sensitivity": 0.1
+    },
+    "worldConfig": {
+        "seed": 1488
     }
 }

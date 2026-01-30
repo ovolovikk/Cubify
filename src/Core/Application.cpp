@@ -82,8 +82,6 @@ void Application::run()
                     m_currentState = AppState::SHUTTING_DOWN;
                 });
             }
-            
-            // Clear any stale key states coming from game (prevent immediate quit)
             m_inputController->update();
             
             while(m_currentState == AppState::MENU && m_window->isOpen())
@@ -134,7 +132,6 @@ void Application::run()
                     m_game->onUpdate(m_deltaTime);
                 }
                 
-                // Be careful, game might be destroyed in onUpdate if returnToMenu is called
                 if(m_game)
                 {
                     m_game->onRender();
@@ -150,8 +147,6 @@ void Application::run()
             }
 
             LOGI("=== Application Main loop ended ===");
-            
-            // Safe to destroy game and renderer now that we exited the game loop
             LOGI("[Application] Safe destruction of Game/Renderer starting");
             m_game.reset();
             m_renderer.reset();
@@ -170,9 +165,6 @@ void Application::returnToMenu()
 {
     LOGI("[Application] Returning to menu");
     AudioEngine::Instance().StopMusic();
-    
-    // Only set state here. Destruction happens in run() loop to avoid 
-    // destroying Game while we are inside Game::onUpdate()
     m_currentState = AppState::MENU;
     LOGI("[Application] State set to MENU (cleanup deferred)");
 }

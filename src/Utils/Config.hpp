@@ -30,18 +30,24 @@ struct CameraConfig {
     float sensitivity;
 };
 
+struct WorldConfig {
+    int seed;
+};
+
 struct GameConfig {
     WindowConfig wConfig;
     GraphicsConfig gConfig;
     PlayerConfig pConfig;
     CameraConfig cConfig;
+    WorldConfig worldConfig;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WindowConfig, width, height, vsync)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GraphicsConfig, renderDistance)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PlayerConfig, moveSpeed, sprintMultiplier, jumpForce, freeFallSlowdown, gravity, drag, airDrag)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(CameraConfig, fov, sensitivity)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GameConfig, wConfig, gConfig, pConfig, cConfig)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(WorldConfig, seed)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(GameConfig, wConfig, gConfig, pConfig, cConfig, worldConfig)
 
 class Config
 {

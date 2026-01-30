@@ -73,4 +73,7 @@ void Config::Validate()
     auto& c = m_config.cConfig;
     clamp(c.fov, 30.0f, 120.0f, 60.0f);
     clamp(c.sensitivity, 0.01f, 2.0f, 0.1f);
+
+    auto& world = m_config.worldConfig;
+    clamp(world.seed, 1, 999999999, 1488);
 }
