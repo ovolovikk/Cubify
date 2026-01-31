@@ -1,6 +1,6 @@
 build/
 out/
-bin/
+/bin/
 .vscode/
 .vs/
 .DS_Store
