@@ -19,7 +19,7 @@ Cubify is a high-performance voxel engine built with **C++17** and **OpenGL 4.3*
 
 ## 🌌 Key Features
 
-* **Procedural Worlds**: Advanced terrain generation using the **Factory pattern**. Includes biomes like ** water world and *Mann’s* ammonia ice planet.
+* **Procedural Worlds**: Advanced terrain generation using the **Factory pattern**.
 * **Physics Engine**: Custom-built player physics featuring momentum, AABB collision detection, and a seamless free-cam toggle.
 * **Dynamic Audio**: Implemented via \`miniaudio\`, supporting background music and state-dependent sound effects.
 * **Config System**: Settings management through \`config.json\` with support for custom seeds, render distances, and UI scaling.
