@@ -68,13 +68,15 @@ They all built-in within external folder.
 
 **Requirements**: Visual Studio 2022 with C++ workload, CMake 3.20+
 
-### Option 1: Run the batch file
-```batch
+### Option 1: Run the batch file in cmd
+```cmd
+git clone https://github.com/ovolovikk/Cubify.git
+cd Cubify
 build_release.bat
 ```
 
-### Option 2: Manual build
-```batch
+### Option 2: Manual build in cmd
+```cmd
 git clone https://github.com/ovolovikk/Cubify.git
 cd Cubify
 if not exist build mkdir build
