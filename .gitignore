@@ -8,3 +8,4 @@ out/
 *.o
 *.obj
 .clangd
+glew32.dll

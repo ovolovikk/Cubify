@@ -10,9 +10,36 @@
 #include "Core/Logging/Log.hpp"
 #include "miniaudio.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <chrono>
+#include <cstdint>
 #include <memory>
+#include <thread>
+#include <vector>
+
+namespace
+{
+bool SaveBackbufferToPng(const char* filePath, int width, int height)
+{
+    if (width <= 0 || height <= 0)
+    {
+        return false;
+    }
+
+    std::vector<uint8_t> pixels(static_cast<size_t>(width) * static_cast<size_t>(height) * 4u);
+
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadBuffer(GL_BACK);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    stbi_flip_vertically_on_write(1);
+    return stbi_write_png(filePath, width, height, 4, pixels.data(), width * 4) != 0;
+}
+}
 
 Application* Application::s_instance = nullptr;
 
@@ -54,6 +81,74 @@ void Application::run()
     if(m_currentState == AppState::UNINITIALIZED || !m_window || !m_window->isOpen())
     {
         LOGE("[Application] Can't run, not properly initialized");
+        return;
+    }
+
+    if (m_config.testMode)
+    {
+        static constexpr const char* outputScreenPath = "test_output.png";
+
+        LOGI("[Application][TestMode] Running screenshot capture flow");
+
+        if (!m_renderer)
+        {
+            m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), false);
+        }
+
+        if (!m_game)
+        {
+            m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType, true);
+        }
+
+        bool screenshotCaptured = false;
+
+        while (true)
+        {
+            if (!m_window->isOpen())
+            {
+                break;
+            }
+
+            beginFrame();
+            m_game->onUpdate(m_deltaTime);
+            m_game->onRender();
+
+            if (m_game->isReadyForTest())
+            {
+                endFrame();
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+                beginFrame();
+                m_game->onUpdate(m_deltaTime);
+                m_game->onRender();
+
+                glFinish();
+                screenshotCaptured = SaveBackbufferToPng(outputScreenPath, m_window->getWidth(), m_window->getHeight());
+
+                if (screenshotCaptured)
+                {
+                    LOGI("[Application][TestMode] Saved screenshot: %s", outputScreenPath);
+                }
+                else
+                {
+                    LOGE("[Application][TestMode] Failed to save screenshot: %s", outputScreenPath);
+                }
+
+                endFrame();
+                break;
+            }
+
+            endFrame();
+        }
+
+        if (!screenshotCaptured)
+        {
+            LOGE("[Application][TestMode] Could not capture screenshot before window close");
+            m_currentState = AppState::SHUTTING_DOWN;
+            return;
+        }
+
+        m_currentState = AppState::SHUTTING_DOWN;
         return;
     }
 

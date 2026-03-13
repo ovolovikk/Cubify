@@ -23,6 +23,7 @@ struct ApplicationConfig
     int width = 1920;
     int height = 1080;
     bool vsync = false;
+    bool testMode = false;
 };
 
 // Singleton for splitting engine and application level

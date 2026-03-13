@@ -20,9 +20,9 @@
 #include "World/WorldSettings.hpp"
 
 Game::Game(Window &window, Renderer &renderer,
-           IInputController &inputController, WorldType worldType)
+           IInputController &inputController, WorldType worldType, bool testMode)
     : m_window(window), m_renderer(renderer),
-      m_inputController(inputController), m_worldType(worldType) {
+      m_inputController(inputController), m_worldType(worldType), m_testMode(testMode) {
   LOGI("[Game] Constructing...");
   init();
   LOGI("[Game] Ready");
@@ -50,7 +50,9 @@ void Game::onUpdate(float deltaTime) {
     deltaTime = 0.1f;
 
   m_inputController.update();
-  handleInput(deltaTime);
+  if (!m_testMode) {
+    handleInput(deltaTime);
+  }
 
   onAtmosphere();
 
@@ -65,10 +67,19 @@ void Game::onUpdate(float deltaTime) {
         music_started = true;
       }
     }
-    player->update(deltaTime);
+
+    if (m_testMode) {
+      player->setPosition(world->getSpawnPoint());
+    } else {
+      player->update(deltaTime);
+    }
   }
 
   world->update(camera->GetPosition());
+}
+
+bool Game::isReadyForTest() const {
+  return world_rendered && player_spawned;
 }
 
 void Game::onRender() {

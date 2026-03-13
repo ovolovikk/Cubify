@@ -22,6 +22,12 @@ int main()
     config.width = cfg.wConfig.width;
     config.height = cfg.wConfig.height;
     config.vsync = cfg.wConfig.vsync;
+    config.testMode = cfg.gConfig.testMode;
+    if(config.testMode)
+    {
+        config.width = 800;
+        config.height = 600;
+    }
 
     Application::Create(config);
 

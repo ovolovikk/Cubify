@@ -21,7 +21,7 @@ class DebugUI;
 class Game {
 public:
   Game(Window &window, Renderer &renderer, IInputController &inputController,
-       WorldType worldType);
+       WorldType worldType, bool testMode = false);
   ~Game();
 
   Game(const Game &) = delete;
@@ -33,6 +33,7 @@ public:
   void onRenderDebug(DebugUI *debugUI);
 
   void onResize(int width, int height);
+  bool isReadyForTest() const;
 
   BlockType getSelectedBlock() const { return selectedBlock; }
 
@@ -60,6 +61,7 @@ private:
   bool world_rendered = false;
   bool player_spawned = false;
   bool music_started = false;
+  bool m_testMode = false;
   BlockType selectedBlock = BlockType::GRASS;
 
   static constexpr auto CAMERA_START_POS = glm::vec3(0.0f, 200.0f, 0.0f);
