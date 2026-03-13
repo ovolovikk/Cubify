@@ -12,7 +12,7 @@ THRESHOLD_PERCENT = 1.5
 
 def print_result(status: str, difference: float, threshold: float) -> None:
     print(status)
-    print(f"{difference:.4f} {threshold:.4f}")
+    print(f"Difference: {difference:.4f} Threshold: {threshold:.4f}")
 
 
 def main() -> int:
