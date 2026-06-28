@@ -3,8 +3,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 
-#include <cmath>
-
 #include "Core/BlockType.hpp"
 #include "World/ChunkMesher.hpp"
 #include "Math/Frustum.hpp"

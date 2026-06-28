@@ -2,7 +2,6 @@
 #define GAME_HPP
 
 #include <glm/vec3.hpp>
-#include <memory>
 
 #include "Core/BlockType.hpp"
 #include "World/WorldType.hpp"

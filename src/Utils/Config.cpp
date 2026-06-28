@@ -1,7 +1,6 @@
 #include "Utils/Config.hpp"
 
 #include "Core/Logging/Log.hpp"
-#include <fstream>
 
 Config& Config::Instance()
 {

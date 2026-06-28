@@ -5,9 +5,6 @@
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 
-#include <memory>
-#include <vector>
-
 #include "Graphics/Mesh.hpp"
 #include "Graphics/Quad.hpp"
 #include "World/WorldSettings.hpp"

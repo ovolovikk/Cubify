@@ -3,8 +3,6 @@
 
 #include <json.hpp>
 
-#include <string>
-
 struct WindowConfig {
     int width;
     int height;

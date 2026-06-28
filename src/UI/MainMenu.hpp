@@ -3,8 +3,6 @@
 
 #include <GL/glew.h>
 
-#include <functional>
-
 #include "World/WorldType.hpp"
 
 struct GLFWwindow;

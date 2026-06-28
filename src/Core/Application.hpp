@@ -5,10 +5,6 @@
 #include "UI/DebugUI.hpp"
 #include "World/WorldType.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <functional>
 
 class Window;
 class Renderer;

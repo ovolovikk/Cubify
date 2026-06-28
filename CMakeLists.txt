@@ -29,8 +29,7 @@ set_target_properties(glfw PROPERTIES
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE "${GLM_ROOT}")
 
-
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS 
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "src/*.cpp" 
     "src/*.c"
 )
@@ -50,6 +49,8 @@ if(WIN32)
 endif()
 
 add_executable(Cubify WIN32 ${SOURCES} ${IMGUI_SOURCES} ${WIN_RESOURCES})
+
+target_precompile_headers(Cubify PRIVATE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
 
 target_include_directories(Cubify PRIVATE 
     "${CMAKE_SOURCE_DIR}/src"

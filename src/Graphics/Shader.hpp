@@ -4,8 +4,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-#include <string>
-
 using std::string;
 
 class Shader

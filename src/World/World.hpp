@@ -1,7 +1,6 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-#include <memory>
 #include <glm/glm.hpp>
 
 #include "Graphics/Renderer.hpp"
