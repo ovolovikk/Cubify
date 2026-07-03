@@ -1,5 +1,7 @@
 #include "World/World.hpp"
 
+#include "PrecompilerHeader.hpp"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 
@@ -127,7 +129,7 @@ glm::vec3 World::getSpawnPoint()
     return glm::vec3((float)targetX, spawnY, (float)targetZ);
 }
 
-void World::draw(Renderer& renderer, const Frustum& frustum)
+void World::draw(IRendererBackend& renderer, const Frustum& frustum)
 {
     // First pass: draw all opaque geometry
     for (auto& [id, chunk] : chunk_manager->getChunks())
@@ -197,7 +199,7 @@ void World::update(glm::vec3 player_pos)
     chunk_manager->update(player_pos);
 }
 
-void World::prepareAllChunks(Renderer& renderer)
+void World::prepareAllChunks(IRendererBackend& renderer)
 {
     for (auto& [id, chunk] : chunk_manager->getChunks())
     {

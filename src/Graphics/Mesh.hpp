@@ -1,10 +1,8 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-#include <GL/glew.h>
-
 struct Mesh {
-    GLuint SSBO = 0;
+    uint32_t handle = 0;
     size_t quadCount = 0;
 };
 

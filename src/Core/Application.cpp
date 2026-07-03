@@ -5,13 +5,16 @@
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Core/Sound/AudioEngine.hpp"
-#include "Graphics/Renderer.hpp"
+#include "Graphics/OpenGLBackend/GLRenderer.hpp"
 #include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
+#include "Utils/Config.hpp"
 #include "miniaudio.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+
+#include "PrecompilerHeader.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -87,7 +90,7 @@ void Application::run()
 
         if (!m_renderer)
         {
-            m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), false);
+            m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
         }
 
         if (!m_game)
@@ -163,7 +166,7 @@ void Application::run()
                     LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
 
                     LOGI("[Subsystem] Initializing Renderer");
-                    m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), is_void_mode);
+                    m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), is_void_mode);
 
                     LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
                     m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
@@ -268,7 +271,7 @@ Window &Application::getWindow()
     return *m_window;
 }
 
-Renderer &Application::getRenderer()
+IRendererBackend &Application::getRenderer()
 {
     if (m_renderer == nullptr)
     {
@@ -344,7 +347,7 @@ void Application::initSubsystems()
         LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
 
         LOGI("[Subsystem] Initializing Renderer");
-         m_renderer = std::make_unique<Renderer>(m_window->getWidth(), m_window->getHeight(), is_void_mode);
+        m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), is_void_mode);
 
         LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
         m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
@@ -357,6 +360,17 @@ void Application::initSubsystems()
     m_lastFrameTime = getTime();
 
     LOGI("=== All Subsystems initialized ===");
+}
+
+std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int height, bool isVoidMode)
+{
+    const std::string& backend = Config::Get().gConfig.rendererBackend;
+    if (backend == "directx12")
+    {
+        LOGW("[Subsystem] DirectX12 backend is not implemented yet, falling back to OpenGL");
+    }
+
+    return std::make_unique<GLRenderer>(width, height, isVoidMode);
 }
 
 void Application::shutdownSubsystems()

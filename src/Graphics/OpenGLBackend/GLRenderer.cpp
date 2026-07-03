@@ -1,14 +1,14 @@
-#include "Graphics/Renderer.hpp"
+#include "Graphics/OpenGLBackend/GLRenderer.hpp"
 
 #include <GLFW/glfw3.h>
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Graphics/Shader.hpp"
+#include "Graphics/OpenGLBackend/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
 #include "Core/Logging/Log.hpp"
 
-Renderer::Renderer(int width, int height, bool is_void_mode)
+GLRenderer::GLRenderer(int width, int height, bool is_void_mode)
     : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f),
       world_settings(WorldSettings::getForWorldType(WorldType::MINECRAFT))
 {
@@ -60,28 +60,28 @@ Renderer::Renderer(int width, int height, bool is_void_mode)
     glGenVertexArrays(1, &vao);
 }
 
-Renderer::~Renderer()
+GLRenderer::~GLRenderer()
 {
     glDeleteVertexArrays(1, &vao);
 }
 
-void Renderer::resize(int width, int height)
+void GLRenderer::resize(int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void Renderer::onResize(int width, int height)
+void GLRenderer::onResize(int width, int height)
 {
     resize(width, height);
 }
 
-void Renderer::setWorldSettings(const WorldSettings& settings)
+void GLRenderer::setWorldSettings(const WorldSettings& settings)
 {
     world_settings = settings;
     glClearColor(world_settings.skyColor.r, world_settings.skyColor.g, world_settings.skyColor.b, 1.0f);
 }
 
-void Renderer::beginFrame()
+void GLRenderer::beginFrame()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -103,44 +103,49 @@ void Renderer::beginFrame()
     glBindVertexArray(vao);
 }
 
-void Renderer::beginTransparentPass()
+void GLRenderer::endFrame()
+{
+    // TODO: Figure out what should be there
+}
+
+void GLRenderer::beginTransparentPass()
 {
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
 }
 
-void Renderer::endTransparentPass()
+void GLRenderer::endTransparentPass()
 {
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE);
 }
 
-void Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection)
+void GLRenderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection)
 {
     view_matrix = view;
     projection_matrix = projection;
 }
 
-void Renderer::uploadMesh(Mesh& mesh, const std::vector<Quad>& quads)
+void GLRenderer::uploadMesh(Mesh& mesh, const std::vector<Quad>& quads)
 {
     if (quads.empty()) {
         mesh.quadCount = 0;
         return;
     }
 
-    if (mesh.SSBO == 0) {
-        glGenBuffers(1, &mesh.SSBO);
+    if (mesh.handle == 0) {
+        glGenBuffers(1, &mesh.handle);
     }
 
     mesh.quadCount = quads.size();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh.SSBO);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh.handle);
     glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
 }
 
-void Renderer::draw(const Mesh& mesh, const glm::mat4& model)
+void GLRenderer::draw(const Mesh& mesh, const glm::mat4& model)
 {
-    if (mesh.quadCount == 0 || mesh.SSBO == 0) {
+    if (mesh.quadCount == 0 || mesh.handle == 0) {
         return;
     }
     
@@ -149,6 +154,6 @@ void Renderer::draw(const Mesh& mesh, const glm::mat4& model)
     }
     
     glBindVertexArray(vao);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mesh.SSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mesh.handle);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(mesh.quadCount));
 }

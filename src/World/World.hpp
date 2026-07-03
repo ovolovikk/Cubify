@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Graphics/Renderer.hpp"
+#include "Graphics/IRendererBackend.hpp"
 #include "World/ChunkManager.hpp"
 #include "World/WorldType.hpp"
 
@@ -32,8 +32,8 @@ public:
     void rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_distance, BlockType type);
 
     void update(glm::vec3 player_pos);
-    void draw(Renderer& renderer, const Frustum& frustum);
-    void prepareAllChunks(Renderer& renderer);
+    void draw(IRendererBackend& renderer, const Frustum& frustum);
+    void prepareAllChunks(IRendererBackend& renderer);
 
     glm::vec3 getSpawnPoint();
 

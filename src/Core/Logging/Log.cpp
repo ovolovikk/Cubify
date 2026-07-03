@@ -1,4 +1,7 @@
 #include "Core/Logging/Log.hpp"
+
+#include "PrecompilerHeader.hpp"
+
 #include <cstdarg>
 #include <stdio.h>
 #include <ctime>

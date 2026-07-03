@@ -1,5 +1,7 @@
 #include "Utils/Config.hpp"
 
+#include "PrecompilerHeader.hpp"
+
 #include "Core/Logging/Log.hpp"
 
 Config& Config::Instance()
@@ -59,6 +61,10 @@ void Config::Validate()
 
     auto& g = m_config.gConfig;
     clamp(g.renderDistance, (uint8_t)2, (uint8_t)128, (uint8_t)12);
+    if (g.rendererBackend != "opengl" && g.rendererBackend != "directx12")
+    {
+        g.rendererBackend = "opengl";
+    }
 
     auto& p = m_config.pConfig;
     clamp(p.moveSpeed, 1.0f, 200.0f, 45.0f);

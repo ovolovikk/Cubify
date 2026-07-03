@@ -1,4 +1,6 @@
-#include "Graphics/Shader.hpp"
+#include "Graphics/OpenGLBackend/Shader.hpp"
+
+#include "PrecompilerHeader.hpp"
 
 #include "Core/Logging/Log.hpp"
 

@@ -1,5 +1,7 @@
 #include "Player/PlayerCollision.hpp"
 
+#include "PrecompilerHeader.hpp"
+
 #include "World/World.hpp"
 #include "Core/BlockType.hpp"
 

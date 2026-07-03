@@ -1,5 +1,7 @@
 #include "ChunkManager.hpp"
 
+#include "PrecompilerHeader.hpp"
+
 #include "World/ChunkMesher.hpp"
 #include "World/Generators/TerrainGeneratorFactory.hpp"
 #include "Utils/Config.hpp"
