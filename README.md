@@ -66,7 +66,7 @@ They all built-in within external folder.
 
 ## Build
 
-**Requirements**: Visual Studio 2022 with C++ workload, CMake 3.20+
+**Requirements**: Visual Studio 2026 with C++ workload, CMake 3.20+
 
 ### Option 1: Run the batch file in cmd
 ```cmd
@@ -80,7 +80,7 @@ build_release.bat
 git clone https://github.com/ovolovikk/Cubify.git
 cd Cubify
 if not exist build mkdir build
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 cmake --build build --config Release
 ```
 

@@ -11,20 +11,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Python deps for graphics test
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install opencv-python
+      - name: Install Python dependencies for graphics test
+        run: python -m pip install --upgrade pip opencv-python
 
       - name: Install software OpenGL driver
         run: winget install --accept-source-agreements --accept-package-agreements -e Microsoft.OpenCLGLVulkanCompatibilityPack
 
+      - name: Configure CMake
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 
-      - name: Build Debug (.bat)
-        run: cmd /c "call build_debug.bat < nul"
+      - name: Build Debug
+        run: cmake --build build --config Debug
 
-      - name: Build Release (.bat)
-        run: cmd /c "call build_release.bat < nul"
+      - name: Build Release
+        run: cmake --build build --config Release
 
       - name: Run graphics auto-test (Debug)
         id: test_debug
@@ -39,15 +39,7 @@ jobs:
         run: python tests/test.py Cubify.exe
 
       - name: Prepare release package
-        run: |
-          New-Item -ItemType Directory -Force -Path artifact-release | Out-Null
-          Copy-Item build/Release/Cubify.exe artifact-release/
-          Copy-Item build/Release/glew32.dll artifact-release/
-          Copy-Item build/Release/config.json artifact-release/
-          Copy-Item -Recurse build/Release/assets artifact-release/assets
-          Copy-Item -Recurse build/Release/shaders artifact-release/shaders
-          Copy-Item -Recurse build/Release/tests artifact-release/tests
-          Compress-Archive -Path artifact-release/* -DestinationPath Cubify-release.zip -Force
+        run: Compress-Archive -Path build/Release/* -DestinationPath Cubify-release.zip -Force
 
       - name: Upload release build artifact
         uses: actions/upload-artifact@v4
@@ -62,12 +54,9 @@ jobs:
         with:
           name: graphics-autotest-images
           path: |
-            build/Debug/tests/test_output.png
-            build/Debug/tests/test_diff.png
-            build/Debug/tests/test_result.txt
-            build/Release/tests/test_output.png
-            build/Release/tests/test_diff.png
-            build/Release/tests/test_result.txt
+            build/*/tests/test_output.png
+            build/*/tests/test_diff.png
+            build/*/tests/test_result.txt
           retention-days: 1
           if-no-files-found: warn
 
@@ -76,5 +65,4 @@ jobs:
         run: |
           if ("${{ steps.test_debug.outcome }}" -ne "success" -or "${{ steps.test_release.outcome }}" -ne "success") {
             Write-Error "Graphics auto-test failed (Debug or Release)."
-            exit 1
           }
