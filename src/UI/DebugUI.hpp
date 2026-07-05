@@ -1,5 +1,4 @@
-#ifndef DEBUG_UI_HPP
-#define DEBUG_UI_HPP
+#pragma once
 
 #include "Core/BlockType.hpp"
 
@@ -31,5 +30,3 @@ private:
   bool m_visible = false;
   bool m_wireframe = false;
 };
-
-#endif // DEBUG_UI_HPP

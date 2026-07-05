@@ -1,5 +1,4 @@
-#ifndef WORLD_TYPE_HPP
-#define WORLD_TYPE_HPP
+#pragma once
 
 enum class WorldType
 {
@@ -7,5 +6,3 @@ enum class WorldType
     SECTORR,
     UTOPIA
 };
-
-#endif // WORLD_TYPE_HPP

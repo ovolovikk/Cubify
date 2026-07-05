@@ -1,5 +1,4 @@
-#ifndef GLFW_INPUT_CONTROLLER_HPP
-#define GLFW_INPUT_CONTROLLER_HPP
+#pragma once
 
 #include "Core/Input/IInputController.hpp"
 
@@ -48,5 +47,3 @@ private:
   std::unordered_map<int, bool> m_prevMouseState;
   std::unordered_map<int, bool> m_currMouseState;
 };
-
-#endif // GLFW_INPUT_CONTROLLER

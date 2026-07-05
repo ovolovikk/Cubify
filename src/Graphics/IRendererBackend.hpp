@@ -1,5 +1,4 @@
-#ifndef I_RENDERER_BACKEND_HPP
-#define I_RENDERER_BACKEND_HPP
+#pragma once
 
 #include <glm/mat4x4.hpp>
 
@@ -29,5 +28,3 @@ public:
 private:
 
 };
-
-#endif // I_RENDERER_BACKEND_HPP

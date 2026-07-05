@@ -1,5 +1,4 @@
-#ifndef APPLICATION_HPP
-#define APPLICATION_HPP
+#pragma once
 
 #include "Core/AppState.hpp"
 #include "UI/DebugUI.hpp"
@@ -85,5 +84,3 @@ private:
 };
 
 #define APP Application::Get()
-
-#endif // APPLICATION_HPP

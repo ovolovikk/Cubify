@@ -1,5 +1,4 @@
-#ifndef WORLD_SETTINGS_HPP
-#define WORLD_SETTINGS_HPP
+#pragma once
 
 #include <glm/vec3.hpp>
 #include "World/WorldType.hpp"
@@ -44,5 +43,3 @@ struct WorldSettings
         }
     }
 };
-
-#endif // WORLD_SETTINGS_HPP

@@ -1,5 +1,4 @@
-#ifndef BLOCK_TYPE_HPP
-#define BLOCK_TYPE_HPP
+#pragma once
 
 // Using scope enum for specifying the type
 enum class BlockType : uint8_t
@@ -22,5 +21,3 @@ enum class BlockType : uint8_t
     UTOPIA_SILT,
     UTOPIA_WATER
 };
-
-#endif // BLOCK_TYPE_HPP

@@ -1,5 +1,4 @@
-#ifndef SECTORR_TERRAIN_GENERATOR_HPP
-#define SECTORR_TERRAIN_GENERATOR_HPP
+#pragma once
 
 #include "World/Generators/TerrainGenerator.hpp"
 #include "FastNoiseLite.h"
@@ -26,5 +25,3 @@ private:
     static constexpr float LACUNARITY = 2.0f;
     static constexpr float GAIN = 0.4f;
 };
-
-#endif // SECTORR_TERRAIN_GENERATOR_HPP

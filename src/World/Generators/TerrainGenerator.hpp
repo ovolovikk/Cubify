@@ -1,5 +1,4 @@
-#ifndef TERRAIN_GENERATOR_HPP
-#define TERRAIN_GENERATOR_HPP
+#pragma once
 
 #include "World/Generators/ITerrainGenerator.hpp"
 #include "Utils/NoiseGenerator.hpp"
@@ -19,5 +18,3 @@ protected:
     
     static constexpr int WATER_LEVEL = 40;
 };
-
-#endif // TERRAIN_GENERATOR_HPP

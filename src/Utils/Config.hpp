@@ -1,5 +1,4 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#pragma once
 
 #include <json.hpp>
 
@@ -68,5 +67,3 @@ private:
 
     static Config& Instance();
 };
-
-#endif // CONFIG_HPP

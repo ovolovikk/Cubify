@@ -1,5 +1,4 @@
-#ifndef LOG_HPP
-#define LOG_HPP
+#pragma once
 
 // Logging system designed to be simple yet comfortable for usage
 namespace Log
@@ -15,5 +14,3 @@ namespace Log
 #define LOGI(...) Log::info(__VA_ARGS__)
 #define LOGW(...) Log::warn(__VA_ARGS__)
 #define LOGE(...) Log::error(__VA_ARGS__)
-
-#endif // LOG_HPP

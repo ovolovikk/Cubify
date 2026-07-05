@@ -1,5 +1,4 @@
-#ifndef FRUSTUM_HPP
-#define FRUSTUM_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_access.hpp>
@@ -74,5 +73,3 @@ public:
 		return true;
 	}
 };
-
-#endif // FRUSTUM_HPP

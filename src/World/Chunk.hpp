@@ -1,5 +1,4 @@
-#ifndef CHUNK_HPP
-#define CHUNK_HPP
+#pragma once
 
 #include "Core/BlockType.hpp"
 #include "Graphics/Quad.hpp"
@@ -55,5 +54,3 @@ private:
     bool unsaved_changes = false;
     int chunkX, chunkZ;
 };
-
-#endif // CHUNK_HPP

@@ -1,5 +1,4 @@
-#ifndef GL_RENDERER_HPP
-#define GL_RENDERER_HPP
+#pragma once
 
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
@@ -46,5 +45,3 @@ private:
     glm::mat4 projection_matrix;
     WorldSettings world_settings;
 };
-
-#endif // GL_RENDERER_HPP

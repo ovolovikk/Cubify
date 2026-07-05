@@ -1,5 +1,4 @@
-#ifndef UTOPIA_TERRAIN_GENERATOR_HPP
-#define UTOPIA_TERRAIN_GENERATOR_HPP
+#pragma once
 
 #include "World/Generators/TerrainGenerator.hpp"
 #include "FastNoiseLite.h"
@@ -25,5 +24,3 @@ private:
     static constexpr float SEABED_FREQUENCY = 0.008f;
     static constexpr float RIPPLE_FREQUENCY = 0.05f;
 };
-
-#endif // UTOPIA_TERRAIN_GENERATOR_HPP

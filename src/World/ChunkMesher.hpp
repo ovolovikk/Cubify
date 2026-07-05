@@ -1,5 +1,4 @@
-#ifndef CHUNK_MESHER_HPP
-#define CHUNK_MESHER_HPP
+#pragma once
 
 #include "World/Chunk.hpp"
 
@@ -26,5 +25,3 @@ private:
         bool back_face,
         bool transparent = false);
 };
-
-#endif // !CHUNK_MESHER_HPP

@@ -1,5 +1,4 @@
-#ifndef MAIN_MENU_HPP
-#define MAIN_MENU_HPP
+#pragma once
 
 #include <GL/glew.h>
 
@@ -50,5 +49,3 @@ private:
     PlayCallback m_onPlay;
     QuitCallback m_onQuit;
 };
-
-#endif // MAIN_MENU_HPP
