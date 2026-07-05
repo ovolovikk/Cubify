@@ -1,10 +1,8 @@
-#include "Graphics/Shader.hpp"
+#include "Graphics/OpenGLBackend/Shader.hpp"
+
+#include "PrecompilerHeader.hpp"
 
 #include "Core/Logging/Log.hpp"
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <vector>
 
 Shader::Shader() : vertex_shader_ID(0), fragment_shader_ID(0), program_ID(0)
 {

@@ -1,8 +1,6 @@
 #ifndef BLOCK_TYPE_HPP
 #define BLOCK_TYPE_HPP
 
-#include <cstdint>
-
 // Using scope enum for specifying the type
 enum class BlockType : uint8_t
 {

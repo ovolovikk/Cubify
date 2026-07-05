@@ -1,7 +1,6 @@
 #ifndef TERRAIN_GENERATOR_FACTORY_HPP
 #define TERRAIN_GENERATOR_FACTORY_HPP
 
-#include <memory>
 #include "World/Generators/ITerrainGenerator.hpp"
 #include "World/WorldType.hpp"
 

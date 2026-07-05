@@ -19,6 +19,7 @@ jobs:
       - name: Install software OpenGL driver
         run: winget install --accept-source-agreements --accept-package-agreements -e Microsoft.OpenCLGLVulkanCompatibilityPack
 
+
       - name: Build Debug (.bat)
         run: cmd /c "call build_debug.bat < nul"
 

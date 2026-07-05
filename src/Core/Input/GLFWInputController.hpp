@@ -3,8 +3,6 @@
 
 #include "Core/Input/IInputController.hpp"
 
-#include <unordered_map>
-
 struct GLFWwindow;
 
 // Using GLFW to manage user input

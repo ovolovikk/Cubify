@@ -1,8 +1,9 @@
 #include "Game.hpp"
 
+#include "PrecompilerHeader.hpp"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <memory>
 
 #include "Core/Application.hpp"
 #include "Core/BlockType.hpp"
@@ -11,7 +12,7 @@
 #include "Core/Logging/Log.hpp"
 #include "Core/Sound/AudioEngine.hpp"
 #include "Core/Window.hpp"
-#include "Graphics/Renderer.hpp"
+#include "Graphics/IRendererBackend.hpp"
 #include "Math/Frustum.hpp"
 #include "Player/Player.hpp"
 #include "UI/DebugUI.hpp"
@@ -19,7 +20,7 @@
 #include "World/World.hpp"
 #include "World/WorldSettings.hpp"
 
-Game::Game(Window &window, Renderer &renderer,
+Game::Game(Window &window, IRendererBackend &renderer,
            IInputController &inputController, WorldType worldType, bool testMode)
     : m_window(window), m_renderer(renderer),
       m_inputController(inputController), m_worldType(worldType), m_testMode(testMode) {

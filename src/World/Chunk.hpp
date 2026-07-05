@@ -1,8 +1,6 @@
 #ifndef CHUNK_HPP
 #define CHUNK_HPP
 
-#include <vector>
-
 #include "Core/BlockType.hpp"
 #include "Graphics/Quad.hpp"
 #include "Graphics/Mesh.hpp"

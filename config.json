@@ -6,7 +6,8 @@
     },
     "gConfig": {
         "renderDistance": 32,
-        "testMode": false
+        "testMode": false,
+        "rendererBackend": "opengl"
     },
     "pConfig": {
         "moveSpeed": 45.0,

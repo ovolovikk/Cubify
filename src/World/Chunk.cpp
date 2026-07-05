@@ -1,20 +1,22 @@
 #include "World/Chunk.hpp"
 
+#include <GL/glew.h>
+
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {
     for (int i = 0; i < CHUNK_SIZE; ++i)
         for (int j = 0; j < CHUNK_HEIGHT; ++j)
-            for (int k = 0; k < CHUNK_SIZE; ++k) 
+            for (int k = 0; k < CHUNK_SIZE; ++k)
                 blocks[i][j][k] = BlockType::AIR;
 }
 
 Chunk::~Chunk()
 {
-    if(mesh.SSBO != 0) {
-        glDeleteBuffers(1, &mesh.SSBO);
+    if(mesh.handle != 0) {
+        glDeleteBuffers(1, &mesh.handle);
     }
-    if(transparentMesh.SSBO != 0) {
-        glDeleteBuffers(1, &transparentMesh.SSBO);
+    if(transparentMesh.handle != 0) {
+        glDeleteBuffers(1, &transparentMesh.handle);
     }
 }
 

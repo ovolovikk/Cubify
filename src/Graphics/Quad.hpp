@@ -1,7 +1,7 @@
 #ifndef QUAD_HPP
 #define QUAD_HPP
 
-#include <cstdint>
+#include "PrecompilerHeader.hpp"
 
 struct Quad
 {

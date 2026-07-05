@@ -1,11 +1,11 @@
 #include "Core/Logging/Log.hpp"
-#include <fstream>
+
+#include "PrecompilerHeader.hpp"
+
 #include <cstdarg>
 #include <stdio.h>
 #include <ctime>
-#include <sstream>
 #include <iomanip>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 

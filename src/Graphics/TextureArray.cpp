@@ -1,6 +1,5 @@
 #include "Graphics/TextureArray.hpp"
 
-#include "Graphics/Renderer.hpp"
 #include "Core/Logging/Log.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION

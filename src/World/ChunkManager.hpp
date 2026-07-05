@@ -1,9 +1,6 @@
 #ifndef CHUNK_MANAGER_HPP
 #define CHUNK_MANAGER_HPP
 
-#include <unordered_map>
-#include <memory>
-#include <string>
 #include <glm/vec3.hpp>
 
 #include "World/Chunk.hpp"

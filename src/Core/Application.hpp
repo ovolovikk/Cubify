@@ -5,13 +5,9 @@
 #include "UI/DebugUI.hpp"
 #include "World/WorldType.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <functional>
 
 class Window;
-class Renderer;
+class IRendererBackend;
 class Game;
 class MainMenu;
 class IInputController;
@@ -48,7 +44,7 @@ public:
     void returnToMenu();
 
     Window& getWindow();
-    Renderer& getRenderer();
+    IRendererBackend& getRenderer();
     DebugUI& getDebugUI() { return *m_debug_ui; }
     bool is_running() const;
     float getDeltaTime() const;
@@ -63,6 +59,8 @@ private:
     void initSubsystems();
     void shutdownSubsystems();
 
+    std::unique_ptr<IRendererBackend> createRenderer(int width, int height, bool isVoidMode);
+
     void beginFrame();
     void endFrame();
 
@@ -76,7 +74,7 @@ private:
     double m_lastFrameTime = 0.0;
 
     std::unique_ptr<Window> m_window;
-    std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<IRendererBackend> m_renderer;
     std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
     std::unique_ptr<MainMenu> m_main_menu;

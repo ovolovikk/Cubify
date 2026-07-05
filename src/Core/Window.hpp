@@ -1,10 +1,6 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
-#include <string>
-#include <memory>
-#include <functional>
-
 struct GLFWwindow;
 
 // Basic window decorator for an appropriate usage of raw GLFWwindow

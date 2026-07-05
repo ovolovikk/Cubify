@@ -2,14 +2,13 @@
 #define GAME_HPP
 
 #include <glm/vec3.hpp>
-#include <memory>
 
 #include "Core/BlockType.hpp"
 #include "World/WorldType.hpp"
 
 struct GLFWwindow;
 class IInputController;
-class Renderer;
+class IRendererBackend;
 class Camera;
 class World;
 class Player;
@@ -20,7 +19,7 @@ class DebugUI;
 // Here goes all game-systems logic
 class Game {
 public:
-  Game(Window &window, Renderer &renderer, IInputController &inputController,
+  Game(Window &window, IRendererBackend &renderer, IInputController &inputController,
        WorldType worldType, bool testMode = false);
   ~Game();
 
@@ -45,7 +44,7 @@ private:
 
   // Borrowed from APP
   Window &m_window;
-  Renderer &m_renderer;
+  IRendererBackend &m_renderer;
   IInputController &m_inputController;
   WorldType m_worldType;
 

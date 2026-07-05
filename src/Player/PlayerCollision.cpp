@@ -1,6 +1,6 @@
 #include "Player/PlayerCollision.hpp"
 
-#include <cmath>
+#include "PrecompilerHeader.hpp"
 
 #include "World/World.hpp"
 #include "Core/BlockType.hpp"
