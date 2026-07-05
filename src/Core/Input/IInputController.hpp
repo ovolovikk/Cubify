@@ -1,5 +1,4 @@
-#ifndef I_INPUT_CONTROLLER_HPP
-#define I_INPUT_CONTROLLER_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -35,5 +34,3 @@ public:
 
   virtual void update() = 0;
 };
-
-#endif // I_INPUT_CONTROLLER_HPP

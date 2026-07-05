@@ -1,5 +1,4 @@
-#ifndef PLAYER_PHYSICS_HPP
-#define PLAYER_PHYSICS_HPP
+#pragma once
 
 #include "Player/ICollision.hpp"
 
@@ -28,5 +27,3 @@ private:
 
     AABB boundingBox;
 };
-
-#endif // PLAYER_PHYSICS_HPP

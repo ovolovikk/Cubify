@@ -1,5 +1,4 @@
-#ifndef NOISE_GENERATOR_HPP
-#define NOISE_GENERATOR_HPP
+#pragma once
 
 #include "FastNoiseLite.h"
 
@@ -27,5 +26,3 @@ private:
     static constexpr auto LACUNARITY = 2.0f;
     static constexpr auto GAIN = 0.5f;
 };
-
-#endif // NOISE_GENERATOR_HPP

@@ -1,5 +1,4 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#pragma once
 
 #include <glm/vec3.hpp>
 
@@ -78,5 +77,3 @@ private:
       sizeof(PLACEABLE_BLOCKS) / sizeof(PLACEABLE_BLOCKS[0]);
   int selectedBlockIndex = 2;
 };
-
-#endif // GAME_HPP

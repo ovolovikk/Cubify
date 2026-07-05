@@ -1,5 +1,4 @@
-#ifndef TEXTURE_ARRAY_HPP
-#define TEXTURE_ARRAY_HPP
+#pragma once
 
 #include <GL/glew.h>
 
@@ -23,5 +22,3 @@ private:
     int p_x, p_y, layers_count;
     static constexpr GLfloat ANISO = 1.f;
 };
-
-#endif // TEXTURE_ARRAY_HPP

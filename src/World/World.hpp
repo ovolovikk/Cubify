@@ -1,5 +1,4 @@
-#ifndef WORLD_HPP
-#define WORLD_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -44,5 +43,3 @@ private:
 
     static constexpr auto RAYCAST_STEP = 0.05f;
 };
-
-#endif // WORLD_HPP

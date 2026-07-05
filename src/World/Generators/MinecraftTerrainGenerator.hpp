@@ -1,5 +1,4 @@
-#ifndef MINECRAFT_TERRAIN_GENERATOR_HPP
-#define MINECRAFT_TERRAIN_GENERATOR_HPP
+#pragma once
 
 #include "World/Generators/TerrainGenerator.hpp"
 
@@ -16,5 +15,3 @@ public:
 private:
     static constexpr int MINECRAFT_WATER_LEVEL = 40;
 };
-
-#endif // MINECRAFT_TERRAIN_GENERATOR_HPP

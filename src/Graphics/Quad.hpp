@@ -1,5 +1,4 @@
-#ifndef QUAD_HPP
-#define QUAD_HPP
+#pragma once
 
 #include "PrecompilerHeader.hpp"
 
@@ -8,5 +7,3 @@ struct Quad
     uint32_t packed_position; // x(10) | y(10) | z(10)
     uint32_t packed_data;     // layer(10) | normal_index(3)
 };
-
-#endif // QUAD_HPP

@@ -1,5 +1,4 @@
-#ifndef CHUNK_MANAGER_HPP
-#define CHUNK_MANAGER_HPP
+#pragma once
 
 #include <glm/vec3.hpp>
 
@@ -51,5 +50,3 @@ private:
     
     std::string m_saveFolder;
 };
-
-#endif // CHUNK_MANAGER_HPP

@@ -1,5 +1,4 @@
-#ifndef WINDOW_HPP
-#define WINDOW_HPP
+#pragma once
 
 struct GLFWwindow;
 
@@ -44,5 +43,3 @@ private:
     int m_windowedWidth = 1920;
     int m_windowedHeight = 1080;
 };
-
-#endif // WINDOW_HPP

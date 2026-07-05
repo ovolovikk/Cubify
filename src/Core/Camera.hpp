@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -47,5 +46,3 @@ private:
     
     void updateCameraVectors();
 };
-
-#endif // CAMERA_HPP

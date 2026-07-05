@@ -1,5 +1,4 @@
-#ifndef ITERRAIN_GENERATOR_HPP
-#define ITERRAIN_GENERATOR_HPP
+#pragma once
 
 class Chunk;
 
@@ -13,5 +12,3 @@ public:
 protected:
     ITerrainGenerator() = default;
 };
-
-#endif // ITERRAIN_GENERATOR_HPP

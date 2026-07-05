@@ -1,5 +1,4 @@
-#ifndef TERRAIN_GENERATOR_FACTORY_HPP
-#define TERRAIN_GENERATOR_FACTORY_HPP
+#pragma once
 
 #include "World/Generators/ITerrainGenerator.hpp"
 #include "World/WorldType.hpp"
@@ -11,5 +10,3 @@ public:
     
     TerrainGeneratorFactory() = delete;
 };
-
-#endif // TERRAIN_GENERATOR_FACTORY_HPP

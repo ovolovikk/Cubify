@@ -1,5 +1,4 @@
-#ifndef PRECOMPILER_HEADER_HPP
-#define PRECOMPILER_HEADER_HPP
+#pragma once
 
 #include <chrono>
 #include <cmath>
@@ -15,5 +14,3 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
-
-#endif // PRECOMPILER_HEADER_HPP

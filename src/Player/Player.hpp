@@ -1,5 +1,4 @@
-#ifndef PLAYER_HPP
-#define PLAYER_HPP
+#pragma once
 
 #include <glm/vec3.hpp>
 
@@ -31,5 +30,3 @@ private:
     PlayerCollision collision;
     PlayerPhysics physics;
 };
-
-#endif // PLAYER_HPP

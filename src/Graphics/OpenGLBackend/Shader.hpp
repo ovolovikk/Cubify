@@ -1,5 +1,4 @@
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#pragma once
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -29,5 +28,3 @@ private:
     GLuint fragment_shader_ID;
     GLuint program_ID; 
 };
-
-#endif // SHADER_HPP

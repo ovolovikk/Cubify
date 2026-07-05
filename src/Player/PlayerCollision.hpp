@@ -1,5 +1,4 @@
-#ifndef PLAYER_COLLISION_HPP
-#define PLAYER_COLLISION_HPP
+#pragma once
 
 #include "Player/ICollision.hpp"
 
@@ -19,5 +18,3 @@ private:
     World& world;
     bool grounded;
 };
-
-#endif // PLAYER_COLLISION_HPP

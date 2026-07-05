@@ -1,5 +1,4 @@
-#ifndef AUDIO_ENGINE_HPP
-#define AUDIO_ENGINE_HPP
+#pragma once
 
 #include "miniaudio.h"
 
@@ -27,5 +26,3 @@ private:
     AudioEngine();
     ~AudioEngine();
 };
-
-#endif // AUDIO_ENGINE_HPP
