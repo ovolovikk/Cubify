@@ -1,5 +1,5 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#ifndef GL_RENDERER_HPP
+#define GL_RENDERER_HPP
 
 #include <GL/glew.h>
 #include <glm/mat4x4.hpp>
@@ -47,4 +47,4 @@ private:
     WorldSettings world_settings;
 };
 
-#endif // RENDERER_HPP
+#endif // GL_RENDERER_HPP
