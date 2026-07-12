@@ -1,13 +1,15 @@
 #pragma once
 
+#include "Graphics/GraphicsApi.hpp"
+
 struct GLFWwindow;
 
-// Basic window decorator for an appropriate usage of raw GLFWwindow
+// Window class for managing window for the application.
 class Window
 {
 public:
     using ResizeCallbackFn = std::function<void(int, int)>;
-    Window(const std::string& title, int width_ = 1920, int height_ = 1080);
+    Window(const std::string& title, GraphicsApi api, int width_ = 1920, int height_ = 1080);
     ~Window();
 
     Window(const Window&) = delete;
@@ -18,6 +20,7 @@ public:
     void pollEvents();
 
     GLFWwindow* GetGLFWWindow() const { return window.get(); }
+    void* nativeWindowHandle() const;
     int getWidth() const{ return width; }
     int getHeight() const { return height; }
 
@@ -31,6 +34,7 @@ public:
     bool isFullscreen() const { return m_isFullscreen; }
 
 private:
+    GraphicsApi m_api = GraphicsApi::OpenGL;
     std::shared_ptr<GLFWwindow> window = nullptr;
     int width = 1920;
     int height = 1080;

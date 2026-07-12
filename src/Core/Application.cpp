@@ -5,6 +5,7 @@
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Core/Sound/AudioEngine.hpp"
+#include "Graphics/GraphicsApi.hpp"
 #include "Graphics/OpenGLBackend/GLRenderer.hpp"
 #include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
@@ -316,7 +317,12 @@ Application::~Application()
 void Application::initSubsystems()
 {
     LOGI("[Subsystem] Initializing Window");
-    m_window = std::make_unique<Window>(m_config.title, m_config.width, m_config.height);
+    GraphicsApi api = graphicsApiFromString(Config::Get().gConfig.rendererBackend);
+    if (api == GraphicsApi::DirectX12) 
+    {
+        api = GraphicsApi::OpenGL;
+    }
+    m_window = std::make_unique<Window>(m_config.title, api, m_config.width, m_config.height);
     if(!m_window->isOpen())
     {
         LOGE("[Subsystem] Failed to create Window. Aborting");
