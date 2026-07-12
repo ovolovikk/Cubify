@@ -5,7 +5,9 @@
 #include <glm/vec3.hpp>
 
 #include "Graphics/IRendererBackend.hpp"
-#include "Graphics/Mesh.hpp"
+#include "Graphics/MeshHandle.hpp"
+#include "Graphics/MeshId.hpp"
+#include "Graphics/OpenGLBackend/GpuResourceManager.hpp"
 #include "Graphics/Quad.hpp"
 #include "World/WorldSettings.hpp"
 
@@ -32,10 +34,12 @@ public:
     void setViewProjection(const glm::mat4& view, const glm::mat4& projection) override;
     void setWorldSettings(const WorldSettings& settings) override;
 
-    void uploadMesh(Mesh& mesh, const std::vector<Quad>& quads) override;
-    void draw(const Mesh& mesh, const glm::mat4& model) override;
+    void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) override;
+    void draw(MeshId mesh, const glm::mat4& model) override;
 
 private:
+    std::shared_ptr<GpuResourceManager> resources;
+
     std::unique_ptr<Shader> shader;
     std::unique_ptr<TextureArray> texture_array;
     GLuint sampler;

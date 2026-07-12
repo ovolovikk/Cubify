@@ -10,6 +10,7 @@ class IInputController;
 class IRendererBackend;
 class Camera;
 class World;
+class WorldRenderer;
 class Player;
 class Window;
 class DebugUI;
@@ -50,6 +51,7 @@ private:
   // Owned by a Game
   std::unique_ptr<Camera> camera;
   std::unique_ptr<World> world;
+  std::unique_ptr<WorldRenderer> worldRenderer;
   std::unique_ptr<Player> player;
 
 private:

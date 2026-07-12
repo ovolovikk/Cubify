@@ -9,7 +9,8 @@
 #include "Core/Logging/Log.hpp"
 
 GLRenderer::GLRenderer(int width, int height, bool is_void_mode)
-    : sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f),
+    : resources(std::make_shared<GpuResourceManager>()),
+      sampler(0), vao(0), view_matrix(1.0f), projection_matrix(1.0f),
       world_settings(WorldSettings::getForWorldType(WorldType::MINECRAFT))
 {
     glViewport(0, 0, width, height);
@@ -83,6 +84,8 @@ void GLRenderer::setWorldSettings(const WorldSettings& settings)
 
 void GLRenderer::beginFrame()
 {
+    resources->processPendingDeletions();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     if (shader) {
@@ -126,34 +129,30 @@ void GLRenderer::setViewProjection(const glm::mat4& view, const glm::mat4& proje
     projection_matrix = projection;
 }
 
-void GLRenderer::uploadMesh(Mesh& mesh, const std::vector<Quad>& quads)
+void GLRenderer::uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads)
 {
-    if (quads.empty()) {
-        mesh.quadCount = 0;
-        return;
+    if (!mesh.isValid()) {
+        if (quads.empty()) {
+            return;
+        }
+        mesh = MeshHandle(resources->create(), resources);
     }
 
-    if (mesh.handle == 0) {
-        glGenBuffers(1, &mesh.handle);
-    }
-
-    mesh.quadCount = quads.size();
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, mesh.handle);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, quads.size() * sizeof(Quad), quads.data(), GL_STATIC_DRAW);
+    resources->upload(mesh.id(), quads);
 }
 
-void GLRenderer::draw(const Mesh& mesh, const glm::mat4& model)
+void GLRenderer::draw(MeshId mesh, const glm::mat4& model)
 {
-    if (mesh.quadCount == 0 || mesh.handle == 0) {
+    const GpuResourceManager::GpuMesh* gpu = resources->find(mesh);
+    if (gpu == nullptr || gpu->quadCount == 0 || gpu->handle == 0) {
         return;
     }
-    
+
     if (shader) {
         shader->setMat4("model", model);
     }
-    
+
     glBindVertexArray(vao);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mesh.handle);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(mesh.quadCount));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, gpu->handle);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(gpu->quadCount));
 }

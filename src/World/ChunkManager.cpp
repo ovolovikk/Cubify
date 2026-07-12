@@ -244,6 +244,7 @@ void ChunkManager::update(glm::vec3 player_pos)
 
             if(abs(x - playerChunkX) > renderDist || abs(z - playerChunkZ) > renderDist)
             {
+                // Chunk destruction hands its GPU meshes to the renderer's queue.
                 it = chunks.erase(it);
             } else ++it;
         }

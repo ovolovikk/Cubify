@@ -1,8 +1,11 @@
 #pragma once
 
+#include <vector>
+
 #include <glm/mat4x4.hpp>
 
-#include "Graphics/Mesh.hpp"
+#include "Graphics/MeshHandle.hpp"
+#include "Graphics/MeshId.hpp"
 #include "Graphics/Quad.hpp"
 #include "World/WorldSettings.hpp"
 
@@ -13,7 +16,7 @@ public:
 
     virtual void resize(int width, int height) = 0;
     virtual void onResize(int width, int height) = 0;
-    
+
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;
     virtual void beginTransparentPass() = 0;
@@ -22,9 +25,6 @@ public:
     virtual void setViewProjection(const glm::mat4& view, const glm::mat4& projection) = 0;
     virtual void setWorldSettings(const WorldSettings& settings) = 0;
 
-    virtual void uploadMesh(Mesh& mesh, const std::vector<Quad>& quads) = 0;
-    virtual void draw(const Mesh& mesh, const glm::mat4& model) = 0;
-
-private:
-
+    virtual void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) = 0;
+    virtual void draw(MeshId mesh, const glm::mat4& model) = 0;
 };

@@ -2,12 +2,9 @@
 
 #include "PrecompilerHeader.hpp"
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/vec3.hpp>
 
 #include "Core/BlockType.hpp"
-#include "World/ChunkMesher.hpp"
-#include "Math/Frustum.hpp"
 
 World::World(WorldType worldType)
 {
@@ -129,96 +126,7 @@ glm::vec3 World::getSpawnPoint()
     return glm::vec3((float)targetX, spawnY, (float)targetZ);
 }
 
-void World::draw(IRendererBackend& renderer, const Frustum& frustum)
-{
-    // First pass: draw all opaque geometry
-    for (auto& [id, chunk] : chunk_manager->getChunks())
-    {
-        if (!frustum.intersectsChunk(*chunk))
-        {
-            continue;
-        }
-
-        if (chunk->isDirty())
-        {
-            int x = chunk->getChunkX();
-            int z = chunk->getChunkZ();
-
-            ChunkNeighbors neighbors;
-            neighbors.left = chunk_manager->getChunk(x - 1, z);
-            neighbors.right = chunk_manager->getChunk(x + 1, z);
-            neighbors.back = chunk_manager->getChunk(x, z - 1);
-            neighbors.front = chunk_manager->getChunk(x, z + 1);
-
-            ChunkMesher::generateMesh(*chunk, neighbors);
-            renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
-            renderer.uploadMesh(chunk->getTransparentMesh(), chunk->getTransparentQuads());
-
-            chunk->setDirty(false);
-        }
-
-        if (chunk->getMesh().quadCount > 0)
-        {
-            glm::vec3 worldPos(
-                chunk->getChunkX() * CHUNK_SIZE,
-                0.f,
-                chunk->getChunkZ() * CHUNK_SIZE
-            );
-
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), worldPos);
-            renderer.draw(chunk->getMesh(), model);
-        }
-    }
-    
-    // Second pass: draw transparent geometry (water) with depth write disabled
-    renderer.beginTransparentPass();
-    for (auto& [id, chunk] : chunk_manager->getChunks())
-    {
-        if (!frustum.intersectsChunk(*chunk))
-        {
-            continue;
-        }
-
-        if (chunk->getTransparentMesh().quadCount > 0)
-        {
-            glm::vec3 worldPos(
-                chunk->getChunkX() * CHUNK_SIZE,
-                0.f,
-                chunk->getChunkZ() * CHUNK_SIZE
-            );
-
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), worldPos);
-            renderer.draw(chunk->getTransparentMesh(), model);
-        }
-    }
-    renderer.endTransparentPass();
-}
-
 void World::update(glm::vec3 player_pos)
 {
     chunk_manager->update(player_pos);
-}
-
-void World::prepareAllChunks(IRendererBackend& renderer)
-{
-    for (auto& [id, chunk] : chunk_manager->getChunks())
-    {
-        if (chunk->isDirty())
-        {
-            int x = chunk->getChunkX();
-            int z = chunk->getChunkZ();
-
-            ChunkNeighbors neighbors;
-            neighbors.left = chunk_manager->getChunk(x - 1, z);
-            neighbors.right = chunk_manager->getChunk(x + 1, z);
-            neighbors.back = chunk_manager->getChunk(x, z - 1);
-            neighbors.front = chunk_manager->getChunk(x, z + 1);
-
-            ChunkMesher::generateMesh(*chunk, neighbors);
-            renderer.uploadMesh(chunk->getMesh(), chunk->getQuads());
-            renderer.uploadMesh(chunk->getTransparentMesh(), chunk->getTransparentQuads());
-
-            chunk->setDirty(false);
-        }
-    }
 }

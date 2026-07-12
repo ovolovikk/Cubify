@@ -2,7 +2,7 @@
 
 #include "Core/BlockType.hpp"
 #include "Graphics/Quad.hpp"
-#include "Graphics/Mesh.hpp"
+#include "Graphics/MeshHandle.hpp"
 #include "Math/AABB.hpp"
 
 constexpr auto CHUNK_SIZE = 16;
@@ -35,17 +35,19 @@ public:
     int getChunkZ() const { return chunkZ; }
     
 
-    Mesh& getMesh() { return mesh; }
-    Mesh& getTransparentMesh() { return transparentMesh; }
-    
+    MeshHandle& getMeshHandle() { return mesh; }
+    MeshHandle& getTransparentMeshHandle() { return transparentMesh; }
+    MeshId getMeshId() const { return mesh.id(); }
+    MeshId getTransparentMeshId() const { return transparentMesh.id(); }
+
     AABB getAABB() const;
 
     friend class ChunkManager;
 private:
     bool isValidCoordinates(int x, int y, int z) const;
 
-    Mesh mesh;
-    Mesh transparentMesh;
+    MeshHandle mesh;
+    MeshHandle transparentMesh;
     BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE];
     std::vector<Quad> quads;
     std::vector<Quad> transparentQuads;
