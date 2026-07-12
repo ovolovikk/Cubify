@@ -18,6 +18,7 @@
 #include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
 #include "World/World.hpp"
+#include "World/WorldRenderer.hpp"
 #include "World/WorldSettings.hpp"
 
 Game::Game(Window &window, IRendererBackend &renderer,
@@ -42,6 +43,7 @@ void Game::init() {
   float aspect = (float)m_window.getWidth() / (float)m_window.getHeight();
   camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
   world = std::make_unique<World>(m_worldType);
+  worldRenderer = std::make_unique<WorldRenderer>(m_renderer);
   player = std::make_unique<Player>(*camera, m_inputController, *world,
                                     glm::vec3(0, 200, 0));
 }
@@ -59,7 +61,7 @@ void Game::onUpdate(float deltaTime) {
 
   if (!free_cam_mode && world_rendered) {
     if (!player_spawned) {
-      world->prepareAllChunks(m_renderer);
+      worldRenderer->prepareAllChunks(*world);
       player->setPosition(world->getSpawnPoint());
       player_spawned = true;
 
@@ -96,7 +98,7 @@ void Game::onRender() {
   float maxDistance = (float)(world->GetRenderDistance() * CHUNK_SIZE);
   Frustum frustum(viewProj);
 
-  world->draw(m_renderer, frustum);
+  worldRenderer->draw(*world, frustum);
   world_rendered = true;
 }
 

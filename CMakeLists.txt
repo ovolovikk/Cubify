@@ -65,6 +65,7 @@ target_link_libraries(Cubify PRIVATE
     glm
     opengl32
 )
+
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${GLEW_ROOT}/bin/Release/x64/glew32.dll"

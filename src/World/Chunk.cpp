@@ -1,7 +1,5 @@
 #include "World/Chunk.hpp"
 
-#include <GL/glew.h>
-
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {
     for (int i = 0; i < CHUNK_SIZE; ++i)
@@ -10,15 +8,9 @@ Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
                 blocks[i][j][k] = BlockType::AIR;
 }
 
-Chunk::~Chunk()
-{
-    if(mesh.handle != 0) {
-        glDeleteBuffers(1, &mesh.handle);
-    }
-    if(transparentMesh.handle != 0) {
-        glDeleteBuffers(1, &transparentMesh.handle);
-    }
-}
+// two MeshHandle members return their GPU buffers to the renderer's
+// deletion queue as they are destroyed here
+Chunk::~Chunk() = default;
 
 void Chunk::setBlock(int x, int y, int z, BlockType type)
 {
