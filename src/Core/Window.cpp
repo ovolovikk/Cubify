@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+
 #include "Core/Logging/Log.hpp"
 #include "Utils/Config.hpp"
 
@@ -10,10 +13,9 @@
 
 #include "stb_image.h"
 
-Window::Window(const std::string& title, int width_, int height_)
-    : width(width_), height(height_), window(nullptr)
+Window::Window(const std::string& title, GraphicsApi api, int width_, int height_)
+    : m_api(api), window(nullptr), width(width_), height(height_)
 {
-    glewExperimental = true;
     if(!glfwInit())
     {
         LOGE("[Window][GLFW] Initialization failed");
@@ -21,10 +23,17 @@ Window::Window(const std::string& title, int width_, int height_)
     }
 
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    if (m_api == GraphicsApi::OpenGL)
+    {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    }
+    else
+    {
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    }
 
     GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(raw_window == nullptr)
@@ -35,7 +44,7 @@ Window::Window(const std::string& title, int width_, int height_)
     window.reset(raw_window, glfwDestroyWindow);
     LOGI("[Window] Title: %s", title.c_str());
     LOGI("[Window] Size: %dx%d", width, height);
-    
+
     GLFWimage icon;
     icon.pixels = stbi_load("assets/textures/icon/icon.png", &icon.width, &icon.height, nullptr, 4);
     if (icon.pixels) {
@@ -46,18 +55,22 @@ Window::Window(const std::string& title, int width_, int height_)
         LOGW("[Window] Failed to load icon.png");
     }
 
-    glfwMakeContextCurrent(window.get());
-    glfwSwapInterval(Config::Get().wConfig.vsync ? 1 : 0);
+    if (m_api == GraphicsApi::OpenGL)
+    {
+        glfwMakeContextCurrent(window.get());
+        glfwSwapInterval(Config::Get().wConfig.vsync ? 1 : 0);
 
-    if (glewInit() != GLEW_OK) { 
-        LOGE("[Window][GLEW] Initialization failed");
-        return;
+        glewExperimental = true;
+        if (glewInit() != GLEW_OK) {
+            LOGE("[Window][GLEW] Initialization failed");
+            return;
+        }
+        LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));
+        LOGI("[OpenGL] Renderer: %s", glGetString(GL_RENDERER));
+        LOGI("[OpenGL] Version : %s", glGetString(GL_VERSION));
     }
-    LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));
-    LOGI("[OpenGL] Renderer: %s", glGetString(GL_RENDERER));
-    LOGI("[OpenGL] Version : %s", glGetString(GL_VERSION));
 
-    glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window.get(), this);
     glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback);
@@ -75,7 +88,15 @@ bool Window::isOpen() const
 
 void Window::swapBuffers()
 {
-    glfwSwapBuffers(window.get());
+    if (m_api == GraphicsApi::OpenGL)
+    {
+        glfwSwapBuffers(window.get());
+    }
+}
+
+void* Window::nativeWindowHandle() const
+{
+    return static_cast<void*>(glfwGetWin32Window(window.get()));
 }
 
 void Window::pollEvents()
@@ -87,7 +108,6 @@ void Window::onFramebufferResize(int fbWidth, int fbHeight)
 {
     width = fbWidth;
     height = fbHeight;
-    glViewport(0, 0, width, height);
     if (m_resizeCallBack) m_resizeCallBack(width, height);
 }
 
