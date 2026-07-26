@@ -154,12 +154,16 @@ void Application::run()
 
     if (graphicsApiFromString(Config::Get().gConfig.rendererBackend) == GraphicsApi::DirectX12)
     {
-        LOGI("[Application][DX12] Bring-up loop: clearing the swap chain each frame");
-        while (m_window->isOpen() && m_currentState != AppState::SHUTTING_DOWN)
+        LOGI("[Application][DX12] Running game loop, menu and debug UI are skipped");
+        while (m_window->isOpen() && m_currentState == AppState::PLAYING)
         {
-            m_renderer->beginFrame();
+            beginFrame();
+
+            m_game->onUpdate(m_deltaTime);
+            m_game->onRender();
+
             m_renderer->endFrame();
-            m_window->pollEvents();
+            endFrame();
         }
         m_currentState = AppState::SHUTTING_DOWN;
         return;
@@ -356,6 +360,10 @@ void Application::initSubsystems()
     {
         LOGI("[Subsystem] Initializing DirectX12 Renderer");
         m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
+
+        LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(m_selectedWorldType));
+        m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType);
+
         m_currentState = AppState::PLAYING;
         m_lastFrameTime = getTime();
         LOGI("=== Subsystems initialized (DX12 bring-up) ===");
