@@ -12,9 +12,6 @@ namespace Cubify::DX12
 {
     using Microsoft::WRL::ComPtr;
 
-    // DirectX 12 implementation of IRendererBackend. Raw DX12 lives here, behind
-    // the single interface — no extra abstraction layer. Everything is stubbed
-    // for now; fill the pipeline in one method at a time.
     class DX12Renderer : public IRendererBackend
     {
     public:
@@ -40,7 +37,6 @@ namespace Cubify::DX12
         void draw(MeshId mesh, const glm::mat4& model) override;
 
     private:
-        // ---- one-time init: device -> queue -> swapchain -> targets -> sync ----
         void CreateDebugController();
         void CreateFactory();
         void SelectAdapter();
@@ -49,16 +45,19 @@ namespace Cubify::DX12
         void CreateSwapChain(void* windowHandle, int width, int height);
         void CreateRtvHeap();
         void CreateRenderTargets();
+        void CreateDsvHeap();
+        void CreateDepthStencil();
         void CreateCommandObjects();
         void CreateFence();
         void CreateRootSignature();
         void CreatePipelineState();
 
-        // ---- per-frame CPU<->GPU synchronization ----
+        // per-frame CPU<->GPU synchronization
         void WaitForGpu();
         void MoveToNextFrame();
 
         static constexpr UINT FRAME_COUNT = 2;
+        static constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
 
         ComPtr<IDXGIFactory7> m_factory;
 		ComPtr<IDXGIAdapter4> m_adapter;
@@ -68,6 +67,8 @@ namespace Cubify::DX12
         ComPtr<IDXGISwapChain3> m_swapChain;
         ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
         ComPtr<ID3D12Resource> m_renderTargets[FRAME_COUNT];
+        ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
+        ComPtr<ID3D12Resource> m_depthStencil;
         ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
 

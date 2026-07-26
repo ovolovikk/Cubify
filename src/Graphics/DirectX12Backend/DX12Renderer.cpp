@@ -93,6 +93,8 @@ namespace Cubify::DX12
         CreateSwapChain(windowHandle, width, height);
         CreateRtvHeap();
         CreateRenderTargets();
+        CreateDsvHeap();
+        CreateDepthStencil();
         CreateCommandObjects();
         CreateFence();
         CreateRootSignature();
@@ -146,6 +148,9 @@ namespace Cubify::DX12
 
         // RTVs need to be recreated
         CreateRenderTargets();
+
+        m_depthStencil.Reset();
+        CreateDepthStencil();
     }
 
     void DX12Renderer::onResize(int width, int height)
@@ -167,10 +172,12 @@ namespace Cubify::DX12
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(
             m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-        m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         const float clearColor[4] = { 0.1f, 0.2f, 0.4f, 1.0f };
         m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+        m_commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
         CD3DX12_RECT scissor(0, 0, m_width, m_height);
@@ -371,6 +378,59 @@ namespace Cubify::DX12
         LOGI("[DX12Renderer] Render targets created successfully");
     }
 
+    void DX12Renderer::CreateDsvHeap()
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc{
+            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+            .NumDescriptors = 1,
+            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
+        };
+
+        HRESULT hr = m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_dsvHeap));
+        if (FAILED(hr))
+        {
+            LOGE("[DX12Renderer] Failed to create DSV descriptor heap");
+            return;
+        }
+        LOGI("[DX12Renderer] DSV descriptor heap created successfully");
+    }
+
+    void DX12Renderer::CreateDepthStencil()
+    {
+        CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+        CD3DX12_RESOURCE_DESC depthDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+            DEPTH_FORMAT,
+            static_cast<UINT64>(m_width),
+            static_cast<UINT>(m_height),
+            1, 1);
+        depthDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+        CD3DX12_CLEAR_VALUE clearValue(DEPTH_FORMAT, 1.0f, 0);
+
+        HRESULT hr = m_device->CreateCommittedResource(
+            &heapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &depthDesc,
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+            &clearValue,
+            IID_PPV_ARGS(&m_depthStencil));
+        if (FAILED(hr))
+        {
+            LOGE("[DX12Renderer] Failed to create depth stencil buffer");
+            return;
+        }
+
+        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{
+            .Format = DEPTH_FORMAT,
+            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
+            .Flags = D3D12_DSV_FLAG_NONE
+        };
+
+        m_device->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        LOGI("[DX12Renderer] Depth stencil buffer created successfully");
+    }
+
     void DX12Renderer::CreateCommandObjects()
     {
 
@@ -476,6 +536,7 @@ namespace Cubify::DX12
         stream.DepthStencilState = depthStencil;
         stream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         stream.RTVFormats = rtvFormats;
+        stream.DSVFormat = DEPTH_FORMAT;
         stream.SampleDesc = DXGI_SAMPLE_DESC{ .Count = 1, .Quality = 0 };
 
         D3D12_PIPELINE_STATE_STREAM_DESC streamDesc{
