@@ -184,10 +184,16 @@ namespace Cubify::DX12
         m_commandList->RSSetViewports(1, &viewport);
         m_commandList->RSSetScissorRects(1, &scissor);
 
-        // temp just draw triangle
         if (m_rootSignature && m_pipelineState)
         {
             m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+            m_commandList->SetGraphicsRoot32BitConstants(
+                ROOT_PARAM_VIEW_PROJ, MATRIX_CONSTANT_COUNT, &m_viewProj, 0);
+
+            const glm::mat4 model(1.0f);
+            m_commandList->SetGraphicsRoot32BitConstants(
+                ROOT_PARAM_MODEL, MATRIX_CONSTANT_COUNT, &model, 0);
+
             m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             m_commandList->DrawInstanced(3, 1, 0, 0);
         }
@@ -214,7 +220,16 @@ namespace Cubify::DX12
     void DX12Renderer::beginTransparentPass() {}
     void DX12Renderer::endTransparentPass() {}
 
-    void DX12Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection) {}
+    void DX12Renderer::setViewProjection(const glm::mat4& view, const glm::mat4& projection)
+    {
+        // This remapping is neede because OpenGL uses [-1, 1] for depth,
+        // while DX12 uses [0, 1].
+        glm::mat4 depthZeroToOne(1.0f);
+        depthZeroToOne[2][2] = 0.5f;
+        depthZeroToOne[3][2] = 0.5f;
+
+        m_viewProj = depthZeroToOne * projection * view;
+    }
     void DX12Renderer::setWorldSettings(const WorldSettings& settings) {}
 
     void DX12Renderer::uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) {}
@@ -482,10 +497,13 @@ namespace Cubify::DX12
 
     void DX12Renderer::CreateRootSignature()
     {
-        // For now root signature is empty
-        // because i've made resources stored in shader
+        // 32/64 DWORD space used
+        CD3DX12_ROOT_PARAMETER1 params[2]{};
+        params[ROOT_PARAM_VIEW_PROJ].InitAsConstants(MATRIX_CONSTANT_COUNT, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+        params[ROOT_PARAM_MODEL].InitAsConstants(MATRIX_CONSTANT_COUNT, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-		desc.Init_1_1(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+		desc.Init_1_1(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
 		ComPtr<ID3DBlob> serialized;
         ComPtr<ID3DBlob> errors;

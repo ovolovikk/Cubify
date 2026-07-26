@@ -58,6 +58,11 @@ namespace Cubify::DX12
 
         static constexpr UINT FRAME_COUNT = 2;
         static constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+        static constexpr UINT ROOT_PARAM_VIEW_PROJ = 0;
+        static constexpr UINT ROOT_PARAM_MODEL = 1;
+        static constexpr UINT MATRIX_CONSTANT_COUNT = 16;
+
+        glm::mat4 m_viewProj{ 1.0f };
 
         ComPtr<IDXGIFactory7> m_factory;
 		ComPtr<IDXGIAdapter4> m_adapter;
