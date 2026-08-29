@@ -158,7 +158,8 @@ void Application::run()
         while (m_window->isOpen() && m_currentState == AppState::PLAYING)
         {
             beginFrame();
-
+            
+            m_renderer->beginFrame();
             m_game->onUpdate(m_deltaTime);
             m_game->onRender();
 

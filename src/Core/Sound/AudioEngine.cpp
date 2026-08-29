@@ -27,6 +27,7 @@ AudioEngine::AudioEngine()
         m_initialized = false;
     } else {
         m_initialized = true;
+        changeVolume();
     }
 }
 

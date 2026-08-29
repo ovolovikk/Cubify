@@ -5,7 +5,7 @@
         "vsync": false
     },
     "gConfig": {
-        "renderDistance": 32,
+        "renderDistance": 16,
         "testMode": false,
         "rendererBackend": "directx12"
     },
