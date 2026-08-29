@@ -7,6 +7,7 @@
 #include "Graphics/OpenGLBackend/Shader.hpp"
 #include "Graphics/TextureArray.hpp"
 #include "Core/Logging/Log.hpp"
+#include "stb_image_write.h"
 
 GLRenderer::GLRenderer(int width, int height, bool is_void_mode)
     : resources(std::make_shared<GpuResourceManager>()),
@@ -155,4 +156,10 @@ void GLRenderer::draw(MeshId mesh, const glm::mat4& model)
     glBindVertexArray(vao);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, gpu->handle);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, static_cast<GLuint>(gpu->quadCount));
+}
+
+bool GLRenderer::captureBackbuffer(const char* filePath)
+{
+    // WILL REMOVE THAT
+    return false;
 }

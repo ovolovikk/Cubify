@@ -21,26 +21,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-namespace
-{
-bool SaveBackbufferToPng(const char* filePath, int width, int height)
-{
-    if (width <= 0 || height <= 0)
-    {
-        return false;
-    }
-
-    std::vector<uint8_t> pixels(static_cast<size_t>(width) * static_cast<size_t>(height) * 4u);
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glReadBuffer(GL_BACK);
-    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-
-    stbi_flip_vertically_on_write(1);
-    return stbi_write_png(filePath, width, height, 4, pixels.data(), width * 4) != 0;
-}
-}
-
 Application* Application::s_instance = nullptr;
 
 Application &Application::Get()
@@ -110,20 +90,25 @@ void Application::run()
             }
 
             beginFrame();
+            // Opened before the update so chunk uploads land in this frame's
+            // command list, same as the normal loop does
+            m_renderer->beginFrame();
             m_game->onUpdate(m_deltaTime);
             m_game->onRender();
 
             if (m_game->isReadyForTest())
             {
+                m_renderer->endFrame();
                 endFrame();
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
                 beginFrame();
+                m_renderer->beginFrame();
                 m_game->onUpdate(m_deltaTime);
                 m_game->onRender();
 
-                glFinish();
-                screenshotCaptured = SaveBackbufferToPng(outputScreenPath, m_window->getWidth(), m_window->getHeight());
+                // Has to happen while the frame is still recording
+                screenshotCaptured = m_renderer->captureBackbuffer(outputScreenPath);
 
                 if (screenshotCaptured)
                 {
@@ -134,10 +119,12 @@ void Application::run()
                     LOGE("[Application][TestMode] Failed to save screenshot: %s", outputScreenPath);
                 }
 
+                m_renderer->endFrame();
                 endFrame();
                 break;
             }
 
+            m_renderer->endFrame();
             endFrame();
         }
 

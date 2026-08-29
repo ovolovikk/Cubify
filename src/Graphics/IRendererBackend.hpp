@@ -27,4 +27,6 @@ public:
 
     virtual void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) = 0;
     virtual void draw(MeshId mesh, const glm::mat4& model) = 0;
+
+    virtual bool captureBackbuffer(const char* filePath) = 0;
 };

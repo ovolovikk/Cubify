@@ -4,6 +4,7 @@
 #include <dxcapi.h>
 #include "Core/Logging/Log.hpp"
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 #define HR_CHECK(expr, ...)                                 \
     {                                                       \
@@ -288,6 +289,85 @@ namespace Cubify::DX12
             m_commandList->SetGraphicsRoot32BitConstants(ROOT_PARAM_VIEW_PROJ, MATRIX_CONSTANT_COUNT, &m_viewProj, 0);
         }
     }
+
+    // Test mode only
+    bool DX12Renderer::captureBackbuffer(const char* filePath)
+    {
+        if (!m_commandListOpen || !m_device)
+        {
+            LOGE("[DX12Renderer] captureBackbuffer called outside of a frame");
+            return false;
+        }
+
+        ID3D12Resource* backBuffer = m_renderTargets[m_currentFrame].Get();
+        D3D12_RESOURCE_DESC backBufferDesc = backBuffer->GetDesc();
+
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+        UINT rowCount = 0;
+        UINT64 rowSizeInBytes = 0;
+        UINT64 totalBytes = 0;
+        m_device->GetCopyableFootprints(&backBufferDesc, 0, 1, 0,
+            &footprint, &rowCount, &rowSizeInBytes, &totalBytes);
+
+        // READBACK is the mirror image of UPLOAD: GPU writes, CPU reads
+        CD3DX12_HEAP_PROPERTIES readbackHeap(D3D12_HEAP_TYPE_READBACK);
+        CD3DX12_RESOURCE_DESC readbackDesc = CD3DX12_RESOURCE_DESC::Buffer(totalBytes);
+
+        ComPtr<ID3D12Resource> readback;
+        HR_FALLBACK(m_device->CreateCommittedResource(
+            &readbackHeap,
+            D3D12_HEAP_FLAG_NONE,
+            &readbackDesc,
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            nullptr,
+            IID_PPV_ARGS(&readback)),
+            false, "[DX12Renderer] Failed to create readback buffer");
+
+        CD3DX12_RESOURCE_BARRIER toCopySource = CD3DX12_RESOURCE_BARRIER::Transition(
+            backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
+        m_commandList->ResourceBarrier(1, &toCopySource);
+
+        CD3DX12_TEXTURE_COPY_LOCATION destination(readback.Get(), footprint);
+        CD3DX12_TEXTURE_COPY_LOCATION source(backBuffer, 0);
+        m_commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
+
+        CD3DX12_RESOURCE_BARRIER backToRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
+            backBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        m_commandList->ResourceBarrier(1, &backToRenderTarget);
+
+        m_commandList->Close();
+        ID3D12CommandList* commandLists[] = { m_commandList.Get() };
+        m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+        WaitForGpu();
+
+        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), m_pipelineState.Get());
+
+        void* mapped = nullptr;
+        CD3DX12_RANGE readRange(0, static_cast<SIZE_T>(totalBytes));
+        HR_FALLBACK(readback->Map(0, &readRange, &mapped), false,
+            "[DX12Renderer] Failed to map readback buffer");
+
+        const size_t rowBytes = static_cast<size_t>(rowSizeInBytes);
+        std::vector<uint8_t> pixels(rowBytes * rowCount);
+        for (UINT row = 0; row < rowCount; ++row)
+        {
+            memcpy(pixels.data() + rowBytes * row,
+                static_cast<const uint8_t*>(mapped) + static_cast<size_t>(footprint.Footprint.RowPitch) * row,
+                rowBytes);
+        }
+
+        CD3DX12_RANGE writtenRange(0, 0);
+        readback->Unmap(0, &writtenRange);
+
+        // D3D and PNG both start at the top left, so unlike the OpenGL path
+        // there is no flip here.
+        stbi_flip_vertically_on_write(0);
+        return stbi_write_png(filePath,
+            static_cast<int>(backBufferDesc.Width),
+            static_cast<int>(backBufferDesc.Height),
+            4, pixels.data(), static_cast<int>(rowBytes)) != 0;
+    }
+
     void DX12Renderer::setWorldSettings(const WorldSettings& settings) {}
 
     void DX12Renderer::uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads)
@@ -409,8 +489,19 @@ namespace Cubify::DX12
                 return;
             }
         }
+        // CI runners have no GPU at all. WARP is the software adapter that ships
+        // with Windows and supports feature level 12_1, but it's slow
+        LOGW("[DX12Renderer] No hardware adapter found, falling back to WARP");
+        if (SUCCEEDED(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&m_adapter))))
+        {
+            if (SUCCEEDED(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_0, __uuidof(ID3D12Device), nullptr)))
+            {
+                LOGI("[DX12Renderer] Selected adapter: WARP software renderer");
+                return;
+            }
+        }
+
         LOGE("[DX12Renderer] Failed to find a suitable adapter");
-        return;
     }
 
     void DX12Renderer::CreateDevice()

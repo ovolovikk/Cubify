@@ -39,6 +39,8 @@ namespace Cubify::DX12
         void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) override;
         void draw(MeshId mesh, const glm::mat4& model) override;
 
+        bool captureBackbuffer(const char* filePath) override;
+
     private:
         void CreateDebugController();
         void CreateFactory();
