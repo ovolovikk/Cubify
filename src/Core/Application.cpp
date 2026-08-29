@@ -7,6 +7,7 @@
 #include "Core/Sound/AudioEngine.hpp"
 #include "Graphics/GraphicsApi.hpp"
 #include "Graphics/OpenGLBackend/GLRenderer.hpp"
+#include "Graphics/DirectX12Backend/DX12Renderer.hpp"
 #include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
 #include "Utils/Config.hpp"
@@ -147,6 +148,24 @@ void Application::run()
             return;
         }
 
+        m_currentState = AppState::SHUTTING_DOWN;
+        return;
+    }
+
+    if (graphicsApiFromString(Config::Get().gConfig.rendererBackend) == GraphicsApi::DirectX12)
+    {
+        LOGI("[Application][DX12] Running game loop, menu and debug UI are skipped");
+        while (m_window->isOpen() && m_currentState == AppState::PLAYING)
+        {
+            beginFrame();
+            
+            m_renderer->beginFrame();
+            m_game->onUpdate(m_deltaTime);
+            m_game->onRender();
+
+            m_renderer->endFrame();
+            endFrame();
+        }
         m_currentState = AppState::SHUTTING_DOWN;
         return;
     }
@@ -318,10 +337,6 @@ void Application::initSubsystems()
 {
     LOGI("[Subsystem] Initializing Window");
     GraphicsApi api = graphicsApiFromString(Config::Get().gConfig.rendererBackend);
-    if (api == GraphicsApi::DirectX12) 
-    {
-        api = GraphicsApi::OpenGL;
-    }
     m_window = std::make_unique<Window>(m_config.title, api, m_config.width, m_config.height);
     if(!m_window->isOpen())
     {
@@ -341,6 +356,20 @@ void Application::initSubsystems()
 
     LOGI("[Subsystem] Initializing InputController");
     m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
+
+    if (api == GraphicsApi::DirectX12)
+    {
+        LOGI("[Subsystem] Initializing DirectX12 Renderer");
+        m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
+
+        LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(m_selectedWorldType));
+        m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType);
+
+        m_currentState = AppState::PLAYING;
+        m_lastFrameTime = getTime();
+        LOGI("=== Subsystems initialized (DX12 bring-up) ===");
+        return;
+    }
 
     LOGI("[Subsystem] Initializing DebugUI");
     m_debug_ui = std::make_unique<DebugUI>(m_window->GetGLFWWindow());
@@ -373,10 +402,12 @@ std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int hei
     const std::string& backend = Config::Get().gConfig.rendererBackend;
     if (backend == "directx12")
     {
-        LOGW("[Subsystem] DirectX12 backend is not implemented yet, falling back to OpenGL");
+        return std::make_unique<Cubify::DX12::DX12Renderer>(m_window->nativeWindowHandle(), width, height);
     }
-
-    return std::make_unique<GLRenderer>(width, height, isVoidMode);
+    else
+    {
+        return std::make_unique<GLRenderer>(width, height, isVoidMode);
+    }
 }
 
 void Application::shutdownSubsystems()

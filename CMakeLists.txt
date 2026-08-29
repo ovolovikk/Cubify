@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -66,11 +66,26 @@ target_link_libraries(Cubify PRIVATE
     opengl32
 )
 
+if(WIN32)
+    target_link_libraries(Cubify PRIVATE d3d12 dxgi dxguid d3dcompiler dxcompiler)
+    file(GLOB WINDOWS_SDK_BIN_DIRS "C:/Program Files (x86)/Windows Kits/10/bin/*/x64")
+    find_file(DXC_COMPILER_DLL NAMES dxcompiler.dll PATHS ${WINDOWS_SDK_BIN_DIRS} NO_DEFAULT_PATH)
+    find_file(DXC_DXIL_DLL NAMES dxil.dll PATHS ${WINDOWS_SDK_BIN_DIRS} NO_DEFAULT_PATH)
+endif()
+
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
     "$<TARGET_FILE_DIR:Cubify>"
 )
+
+if(WIN32 AND DXC_COMPILER_DLL AND DXC_DXIL_DLL)
+    add_custom_command(TARGET Cubify POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${DXC_COMPILER_DLL}" "${DXC_DXIL_DLL}"
+        "$<TARGET_FILE_DIR:Cubify>"
+    )
+endif()
 
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

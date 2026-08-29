@@ -8,6 +8,8 @@ struct Quad
 {
     uint packed_position;
     uint packed_data;
+    uint padding1;
+    uint padding2;
 };
 
 layout (std430, binding = 0) buffer QuadBuffer
