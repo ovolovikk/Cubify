@@ -62,13 +62,13 @@ They all built-in within external folder.
 
 ## Build
 
-**Requirements**: Visual Studio 2026 with C++ workload, CMake 3.20+
+**Requirements**: Visual Studio 2022 with C++ workload, CMake 3.21+
 
-### Option 1: Run the batch file in cmd
-```cmd
+### Option 1: Run the build script in PowerShell
+```powershell
 git clone https://github.com/ovolovikk/Cubify.git
 cd Cubify
-build_release.bat
+scripts\build.ps1 Release
 ```
 
 ### Option 2: Manual build in cmd
@@ -76,7 +76,7 @@ build_release.bat
 git clone https://github.com/ovolovikk/Cubify.git
 cd Cubify
 if not exist build mkdir build
-cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+cmake -S . -B build -G "Visual Studio 17 2022"
 cmake --build build --config Release
 ```
 

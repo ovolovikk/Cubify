@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(CUBIFY_STRICT_WARNINGS "Enable a strict warning set" OFF)
+
 set(GLFW_ROOT "${CMAKE_SOURCE_DIR}/external/glfw")
 set(GLM_ROOT  "${CMAKE_SOURCE_DIR}/external/glm")
 
@@ -40,6 +42,18 @@ target_include_directories(Cubify PRIVATE
     "${CMAKE_SOURCE_DIR}/src"
     "${CMAKE_SOURCE_DIR}/external"
 )
+
+if(CUBIFY_STRICT_WARNINGS AND MSVC)
+    target_compile_options(Cubify PRIVATE
+        /W4
+        /permissive-
+        /Zc:__cplusplus
+
+        # these ignored because not i've written them
+        /external:W0
+        "/external:I${CMAKE_SOURCE_DIR}/external"
+    )
+endif()
 
 target_link_libraries(Cubify PRIVATE
     glfw
