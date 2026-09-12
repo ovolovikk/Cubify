@@ -13,7 +13,6 @@ class World;
 class WorldRenderer;
 class Player;
 class Window;
-class DebugUI;
 
 // Engine level
 // Here goes all game-systems logic
@@ -29,7 +28,6 @@ public:
   // Called each frame by APP
   void onUpdate(float DeltaTime);
   void onRender();
-  void onRenderDebug(DebugUI *debugUI);
 
   void onResize(int width, int height);
   bool isReadyForTest() const;

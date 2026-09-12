@@ -2,7 +2,6 @@
 
 #include "PrecompilerHeader.hpp"
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Core/Application.hpp"
@@ -15,7 +14,6 @@
 #include "Graphics/IRendererBackend.hpp"
 #include "Math/Frustum.hpp"
 #include "Player/Player.hpp"
-#include "UI/DebugUI.hpp"
 #include "Utils/Config.hpp"
 #include "World/World.hpp"
 #include "World/WorldRenderer.hpp"
@@ -100,16 +98,6 @@ void Game::onRender() {
 
   worldRenderer->draw(*world, frustum);
   world_rendered = true;
-}
-
-void Game::onRenderDebug(DebugUI *debugUI) {
-  if (debugUI != nullptr) {
-    debugUI->renderBlockSelector(selectedBlock);
-
-    if (debugUI->isVisible()) {
-      debugUI->renderGameInfo(*camera.get(), *world.get());
-    }
-  }
 }
 
 void Game::handleInput(float deltaTime) {

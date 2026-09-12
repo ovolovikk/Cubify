@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Graphics/GraphicsApi.hpp"
 
 struct GLFWwindow;
 
@@ -9,14 +8,13 @@ class Window
 {
 public:
     using ResizeCallbackFn = std::function<void(int, int)>;
-    Window(const std::string& title, GraphicsApi api, int width_ = 1920, int height_ = 1080);
+    Window(const std::string& title, int width_ = 1920, int height_ = 1080);
     ~Window();
 
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
     bool isOpen() const;
-    void swapBuffers();
     void pollEvents();
 
     GLFWwindow* GetGLFWWindow() const { return window.get(); }
@@ -34,7 +32,6 @@ public:
     bool isFullscreen() const { return m_isFullscreen; }
 
 private:
-    GraphicsApi m_api = GraphicsApi::OpenGL;
     std::shared_ptr<GLFWwindow> window = nullptr;
     int width = 1920;
     int height = 1080;

@@ -7,18 +7,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(GLEW_ROOT "${CMAKE_SOURCE_DIR}/external/glew")
 set(GLFW_ROOT "${CMAKE_SOURCE_DIR}/external/glfw")
 set(GLM_ROOT  "${CMAKE_SOURCE_DIR}/external/glm")
 
-list(APPEND CMAKE_PREFIX_PATH "${GLEW_ROOT}" "${GLFW_ROOT}" "${GLM_ROOT}")
-
-add_library(glew SHARED IMPORTED)
-set_target_properties(glew PROPERTIES
-    IMPORTED_IMPLIB "${GLEW_ROOT}/lib/Release/x64/glew32.lib"
-    IMPORTED_LOCATION "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
-    INTERFACE_INCLUDE_DIRECTORIES "${GLEW_ROOT}/include"
-)
+list(APPEND CMAKE_PREFIX_PATH "${GLFW_ROOT}" "${GLM_ROOT}")
 
 add_library(glfw STATIC IMPORTED)
 set_target_properties(glfw PROPERTIES
@@ -34,49 +26,49 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "src/*.c"
 )
 
-set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/external/imgui")
-set(IMGUI_SOURCES
-    "${IMGUI_DIR}/imgui.cpp"
-    "${IMGUI_DIR}/imgui_draw.cpp"
-    "${IMGUI_DIR}/imgui_tables.cpp"
-    "${IMGUI_DIR}/imgui_widgets.cpp"
-    "${IMGUI_DIR}/imgui_impl_glfw.cpp"
-    "${IMGUI_DIR}/imgui_impl_opengl3.cpp"
-)
+#TODO: Return imgui
 
 if(WIN32)
     set(WIN_RESOURCES "${CMAKE_SOURCE_DIR}/resources.rc")
 endif()
 
-add_executable(Cubify WIN32 ${SOURCES} ${IMGUI_SOURCES} ${WIN_RESOURCES})
+add_executable(Cubify WIN32 ${SOURCES} ${WIN_RESOURCES})
 
 target_precompile_headers(Cubify PRIVATE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
 
 target_include_directories(Cubify PRIVATE 
     "${CMAKE_SOURCE_DIR}/src"
     "${CMAKE_SOURCE_DIR}/external"
-    "${CMAKE_SOURCE_DIR}/external/imgui"
-    "${CMAKE_SOURCE_DIR}/external/imgui/backends"
 )
 
 target_link_libraries(Cubify PRIVATE
-    glew
     glfw
     glm
-    opengl32
 )
 
 if(WIN32)
     target_link_libraries(Cubify PRIVATE d3d12 dxgi dxguid d3dcompiler dxcompiler)
-    file(GLOB WINDOWS_SDK_BIN_DIRS "C:/Program Files (x86)/Windows Kits/10/bin/*/x64")
-    find_file(DXC_COMPILER_DLL NAMES dxcompiler.dll PATHS ${WINDOWS_SDK_BIN_DIRS} NO_DEFAULT_PATH)
-    find_file(DXC_DXIL_DLL NAMES dxil.dll PATHS ${WINDOWS_SDK_BIN_DIRS} NO_DEFAULT_PATH)
+    file(TO_CMAKE_PATH "$ENV{ProgramFiles\(x86\)}" PROGRAM_FILES_X86)
+    set(WINDOWS_KIT_BIN "${PROGRAM_FILES_X86}/Windows Kits/10/bin")
+
+    if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+        set(DXC_SEARCH_PATHS "${WINDOWS_KIT_BIN}/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/x64")
+    else()
+        file(GLOB DXC_SEARCH_PATHS "${WINDOWS_KIT_BIN}/*/x64") # Used in non MSVC builds
+    endif()
+
+    find_file(DXC_COMPILER_DLL NAMES dxcompiler.dll PATHS ${DXC_SEARCH_PATHS} NO_DEFAULT_PATH)
+    find_file(DXC_DXIL_DLL NAMES dxil.dll PATHS ${DXC_SEARCH_PATHS} NO_DEFAULT_PATH)
+
+    if(NOT DXC_COMPILER_DLL OR NOT DXC_DXIL_DLL)
+        message(WARNING
+            "dxcompiler.dll / dxil.dll not found under ${WINDOWS_KIT_BIN}. "
+            "Shaders will fail to compile at runtime.")
+    endif()
 endif()
 
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${GLEW_ROOT}/bin/Release/x64/glew32.dll"
-    "$<TARGET_FILE_DIR:Cubify>"
+set_target_properties(Cubify PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Cubify>"
 )
 
 if(WIN32 AND DXC_COMPILER_DLL AND DXC_DXIL_DLL)
