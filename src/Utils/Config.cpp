@@ -61,8 +61,9 @@ void Config::Validate()
 
     auto& g = m_config.gConfig;
     clamp(g.renderDistance, (uint8_t)2, (uint8_t)128, (uint8_t)12);
-    if (g.rendererBackend != "opengl" && g.rendererBackend != "directx12")
+    if (g.rendererBackend != "directx12")
     {
+        LOGW("[Config] Unsupported rendererBackend \"%s\", using directx12", g.rendererBackend.c_str());
         g.rendererBackend = "directx12";
     }
 
