@@ -1,16 +1,13 @@
 #pragma once
 
 #include "Core/AppState.hpp"
-#include "UI/DebugUI.hpp"
 #include "World/WorldType.hpp"
 
 
 class Window;
 class IRendererBackend;
 class Game;
-class MainMenu;
 class IInputController;
-class DebugUI;
 
 struct ApplicationConfig
 {
@@ -44,7 +41,6 @@ public:
 
     Window& getWindow();
     IRendererBackend& getRenderer();
-    DebugUI& getDebugUI() { return *m_debug_ui; }
     bool is_running() const;
     float getDeltaTime() const;
     double getTime() const;
@@ -76,8 +72,6 @@ private:
     std::unique_ptr<IRendererBackend> m_renderer;
     std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
-    std::unique_ptr<MainMenu> m_main_menu;
-    std::unique_ptr<DebugUI> m_debug_ui;
 
     // delete in order which is reversed to initialization
     std::vector<ShutdownCallback> m_shutdownCallbacks;

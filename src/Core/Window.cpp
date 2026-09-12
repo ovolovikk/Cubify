@@ -1,6 +1,5 @@
 #include "Core/Window.hpp"
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -9,12 +8,10 @@
 #include "Core/Logging/Log.hpp"
 #include "Utils/Config.hpp"
 
-#include <gl/gl.h>
-
 #include "stb_image.h"
 
-Window::Window(const std::string& title, GraphicsApi api, int width_, int height_)
-    : m_api(api), window(nullptr), width(width_), height(height_)
+Window::Window(const std::string& title, int width_, int height_)
+    : window(nullptr), width(width_), height(height_)
 {
     if(!glfwInit())
     {
@@ -23,17 +20,7 @@ Window::Window(const std::string& title, GraphicsApi api, int width_, int height
     }
 
     glfwWindowHint(GLFW_SAMPLES, 4);
-    if (m_api == GraphicsApi::OpenGL)
-    {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
-    else
-    {
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    }
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     GLFWwindow* raw_window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
     if(raw_window == nullptr)
@@ -55,21 +42,6 @@ Window::Window(const std::string& title, GraphicsApi api, int width_, int height
         LOGW("[Window] Failed to load icon.png");
     }
 
-    if (m_api == GraphicsApi::OpenGL)
-    {
-        glfwMakeContextCurrent(window.get());
-        glfwSwapInterval(Config::Get().wConfig.vsync ? 1 : 0);
-
-        glewExperimental = true;
-        if (glewInit() != GLEW_OK) {
-            LOGE("[Window][GLEW] Initialization failed");
-            return;
-        }
-        LOGI("[OpenGL] Vendor  : %s", glGetString(GL_VENDOR));
-        LOGI("[OpenGL] Renderer: %s", glGetString(GL_RENDERER));
-        LOGI("[OpenGL] Version : %s", glGetString(GL_VERSION));
-    }
-
     glfwSetInputMode(window.get(), GLFW_STICKY_KEYS, GLFW_TRUE);
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window.get(), this);
@@ -84,14 +56,6 @@ Window::~Window()
 bool Window::isOpen() const
 {
     return !glfwWindowShouldClose(window.get());
-}
-
-void Window::swapBuffers()
-{
-    if (m_api == GraphicsApi::OpenGL)
-    {
-        glfwSwapBuffers(window.get());
-    }
 }
 
 void* Window::nativeWindowHandle() const

@@ -5,20 +5,15 @@
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Core/Sound/AudioEngine.hpp"
-#include "Graphics/GraphicsApi.hpp"
-#include "Graphics/OpenGLBackend/GLRenderer.hpp"
 #include "Graphics/DirectX12Backend/DX12Renderer.hpp"
-#include "UI/MainMenu.hpp"
 #include "Core/Logging/Log.hpp"
 #include "Utils/Config.hpp"
 #include "miniaudio.h"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
 #include "PrecompilerHeader.hpp"
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 Application* Application::s_instance = nullptr;
@@ -139,120 +134,24 @@ void Application::run()
         return;
     }
 
-    if (graphicsApiFromString(Config::Get().gConfig.rendererBackend) == GraphicsApi::DirectX12)
+    // TODO: Add a proper DX12 menu rendering flow
+    LOGI("=== Application Main loop started ===");
+    while (m_window->isOpen() && m_currentState == AppState::PLAYING)
     {
-        LOGI("[Application][DX12] Running game loop, menu and debug UI are skipped");
-        while (m_window->isOpen() && m_currentState == AppState::PLAYING)
-        {
-            beginFrame();
-            
-            m_renderer->beginFrame();
-            m_game->onUpdate(m_deltaTime);
-            m_game->onRender();
+        beginFrame();
 
-            m_renderer->endFrame();
-            endFrame();
-        }
-        m_currentState = AppState::SHUTTING_DOWN;
-        return;
+        m_renderer->beginFrame();
+        m_game->onUpdate(m_deltaTime);
+        m_game->onRender();
+        m_renderer->endFrame();
+
+        endFrame();
     }
+    LOGI("=== Application Main loop ended ===");
 
-    while(m_currentState != AppState::SHUTTING_DOWN && m_window->isOpen())
-    {
-        if(m_currentState == AppState::MENU)
-        {
-            LOGI("=== Application Menu started ===");
-            AudioEngine::Instance().PlayMusic("assets/sounds/main_menu_theme.ogg");
-            
-            if(!m_main_menu)
-            {
-                m_main_menu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
-                m_main_menu->setPlayCallback([this](WorldType worldType, bool is_void_mode) {
-                    m_selectedWorldType = worldType;
-                    m_currentState = AppState::PLAYING;
-                    LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
-
-                    LOGI("[Subsystem] Initializing Renderer");
-                    m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), is_void_mode);
-
-                    LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
-                    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
-                });
-                m_main_menu->setQuitCallback([this]() {
-                    m_currentState = AppState::SHUTTING_DOWN;
-                });
-            }
-            m_inputController->update();
-            
-            while(m_currentState == AppState::MENU && m_window->isOpen())
-            {
-                beginFrame();
-
-                if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
-                    if(m_debug_ui) m_debug_ui->toggleVisible();
-                }
-
-                if(m_debug_ui) m_debug_ui->begin();
-                    
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                
-                if(m_main_menu)
-                {
-                    m_main_menu->onUpdate(m_deltaTime);
-                    m_main_menu->render(m_window->getWidth(), m_window->getHeight());
-                }
-
-                if(m_debug_ui) {
-                    m_debug_ui->renderAppInfo();
-                    m_debug_ui->end();
-                }
-
-                endFrame();
-            }
-            LOGI("=== Application Menu closed ===");
-        }
-        
-        if(m_currentState == AppState::PLAYING)
-        {
-            m_main_menu.reset();
-            LOGI("=== Application Main loop started ===");
-            
-            while(m_currentState == AppState::PLAYING && m_window->isOpen())
-            {
-                beginFrame();
-
-                if(m_inputController && m_inputController->wasKeyJustPressed(GLFW_KEY_F5)) {
-                    if(m_debug_ui) m_debug_ui->toggleVisible();
-                }
-
-                if(m_debug_ui) m_debug_ui->begin();
-
-                if(m_game)
-                {
-                    m_game->onUpdate(m_deltaTime);
-                }
-                
-                if(m_game)
-                {
-                    m_game->onRender();
-                }
-
-                if(m_debug_ui) {
-                    m_debug_ui->renderAppInfo();
-                    if(m_game) m_game->onRenderDebug(m_debug_ui.get());
-                    m_debug_ui->end();
-                }
-
-                endFrame();
-            }
-
-            LOGI("=== Application Main loop ended ===");
-            LOGI("[Application] Safe destruction of Game/Renderer starting");
-            m_game.reset();
-            m_renderer.reset();
-            LOGI("[Application] Safe destruction complete");
-        }
-    }
+    m_game.reset();
+    m_renderer.reset();
+    m_currentState = AppState::SHUTTING_DOWN;
 }
 
 void Application::quit()
@@ -265,8 +164,8 @@ void Application::returnToMenu()
 {
     LOGI("[Application] Returning to menu");
     AudioEngine::Instance().StopMusic();
-    m_currentState = AppState::MENU;
-    LOGI("[Application] State set to MENU (cleanup deferred)");
+    m_currentState = AppState::SHUTTING_DOWN;
+    LOGI("[Application] No menu to return to yet, shutting down");
 }
 
 Window &Application::getWindow()
@@ -323,8 +222,7 @@ Application::~Application()
 void Application::initSubsystems()
 {
     LOGI("[Subsystem] Initializing Window");
-    GraphicsApi api = graphicsApiFromString(Config::Get().gConfig.rendererBackend);
-    m_window = std::make_unique<Window>(m_config.title, api, m_config.width, m_config.height);
+    m_window = std::make_unique<Window>(m_config.title, m_config.width, m_config.height);
     if(!m_window->isOpen())
     {
         LOGE("[Subsystem] Failed to create Window. Aborting");
@@ -344,57 +242,22 @@ void Application::initSubsystems()
     LOGI("[Subsystem] Initializing InputController");
     m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
 
-    if (api == GraphicsApi::DirectX12)
-    {
-        LOGI("[Subsystem] Initializing DirectX12 Renderer");
-        m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
+    LOGI("[Subsystem] Initializing DirectX12 Renderer");
+    m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
 
-        LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(m_selectedWorldType));
-        m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType);
+    LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(m_selectedWorldType));
+    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType);
 
-        m_currentState = AppState::PLAYING;
-        m_lastFrameTime = getTime();
-        LOGI("=== Subsystems initialized (DX12 bring-up) ===");
-        return;
-    }
-
-    LOGI("[Subsystem] Initializing DebugUI");
-    m_debug_ui = std::make_unique<DebugUI>(m_window->GetGLFWWindow());
-
-    LOGI("[Subsystem] Initializing MainMenu");
-    m_main_menu = std::make_unique<MainMenu>(m_window->GetGLFWWindow(), *m_window, *m_inputController);
-    m_main_menu->setPlayCallback([this](WorldType worldType, bool is_void_mode) {
-        m_selectedWorldType = worldType;
-        m_currentState = AppState::PLAYING;
-        LOGI("[Application] Selected world type: %d", static_cast<int>(worldType));
-
-        LOGI("[Subsystem] Initializing Renderer");
-        m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), is_void_mode);
-
-        LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(worldType));
-        m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, worldType);
-    });
-    m_main_menu->setQuitCallback([this]() {
-        m_currentState = AppState::SHUTTING_DOWN;
-    });
-
-    m_currentState = AppState::MENU;
+    m_currentState = AppState::PLAYING;
     m_lastFrameTime = getTime();
 
     LOGI("=== All Subsystems initialized ===");
 }
 
+// TODO: Remove isVoidMode or make it real option in DX12
 std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int height, bool isVoidMode)
 {
-    const std::string& backend = Config::Get().gConfig.rendererBackend;
-    if (backend == "directx12")
-    {
-        return std::make_unique<Cubify::DX12::DX12Renderer>(m_window->nativeWindowHandle(), width, height);
-    }
-    else
-    {
-        return std::make_unique<GLRenderer>(width, height, isVoidMode);
-    }
+    return std::make_unique<Cubify::DX12::DX12Renderer>(m_window->nativeWindowHandle(), width, height);
 }
 
 void Application::shutdownSubsystems()
@@ -431,6 +294,5 @@ void Application::beginFrame()
 
 void Application::endFrame()
 {
-    m_window->swapBuffers();
     m_window->pollEvents();
 }

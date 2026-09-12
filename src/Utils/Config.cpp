@@ -63,7 +63,7 @@ void Config::Validate()
     clamp(g.renderDistance, (uint8_t)2, (uint8_t)128, (uint8_t)12);
     if (g.rendererBackend != "opengl" && g.rendererBackend != "directx12")
     {
-        g.rendererBackend = "opengl";
+        g.rendererBackend = "directx12";
     }
 
     auto& p = m_config.pConfig;
