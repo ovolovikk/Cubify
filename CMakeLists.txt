@@ -23,10 +23,13 @@ set_target_properties(glfw PROPERTIES
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE "${GLM_ROOT}")
 
+add_subdirectory(src/Logging)
+
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "src/*.cpp" 
     "src/*.c"
 )
+list(FILTER SOURCES EXCLUDE REGEX "/src/Logging/")
 
 #TODO: Return imgui
 
@@ -58,6 +61,7 @@ endif()
 target_link_libraries(Cubify PRIVATE
     glfw
     glm
+    Cubify::Logging
 )
 
 if(WIN32)
