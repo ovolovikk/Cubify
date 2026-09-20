@@ -1,6 +1,6 @@
-#include "Logging/LogScope.hpp"
+#include "LogScope.hpp"
 
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 
 LogScope::LogScope()
 {
