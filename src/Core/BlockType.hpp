@@ -21,3 +21,13 @@ enum class BlockType : uint8_t
     UTOPIA_SILT,
     UTOPIA_WATER
 };
+
+constexpr bool isWater(BlockType type)
+{
+    return type == BlockType::WATER || type == BlockType::SECTORR_WATER || type == BlockType::UTOPIA_WATER;
+}
+
+constexpr bool isSolid(BlockType type)
+{
+    return type != BlockType::AIR && !isWater(type);
+}

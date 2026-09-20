@@ -46,7 +46,7 @@ void Game::init()
     camera = std::make_unique<Camera>(CAMERA_START_POS, cfg.cConfig.fov, aspect);
     world = std::make_unique<World>(m_worldType);
     worldRenderer = std::make_unique<WorldRenderer>(m_renderer);
-    player = std::make_unique<Player>(*camera, m_inputController, *world, glm::vec3(0, 200, 0));
+    player = std::make_unique<Player>(*camera, m_inputController, *world, world->getSpawnPoint());
 }
 
 void Game::onUpdate(float deltaTime)
@@ -62,37 +62,24 @@ void Game::onUpdate(float deltaTime)
 
     onAtmosphere();
 
-    if (!free_cam_mode && world_rendered)
+    if (!free_cam_mode && !m_testMode)
     {
-        if (!player_spawned)
-        {
-            worldRenderer->prepareAllChunks(*world);
-            player->setPosition(world->getSpawnPoint());
-            player_spawned = true;
-
-            if (!music_started)
-            {
-                AudioEngine::Instance().PlayMusic("assets/sounds/main_game_theme.ogg");
-                music_started = true;
-            }
-        }
-
-        if (m_testMode)
-        {
-            player->setPosition(world->getSpawnPoint());
-        }
-        else
-        {
-            player->update(deltaTime);
-        }
+        player->update(deltaTime);
     }
 
     world->update(camera->GetPosition());
+
+    if (!world_prepared)
+    {
+        worldRenderer->prepareAllChunks(*world);
+        world_prepared = true;
+        AudioEngine::Instance().PlayMusic("assets/sounds/main_game_theme.ogg");
+    }
 }
 
 bool Game::isReadyForTest() const
 {
-    return world_rendered && player_spawned;
+    return world_prepared && world_rendered;
 }
 
 void Game::onRender()

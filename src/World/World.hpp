@@ -35,6 +35,8 @@ public:
     ChunkManager& GetChunkManager() const { return *chunk_manager; }
 
 private:
+    std::optional<int> findTopSolidY(int x, int z) const;
+
     std::unique_ptr<ChunkManager> chunk_manager;
 
     static constexpr auto RAYCAST_STEP = 0.05f;

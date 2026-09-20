@@ -241,7 +241,7 @@ void Application::initSubsystems()
     m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
 
     LOGI("[Subsystem] Initializing Game with world type: %d", static_cast<int>(m_selectedWorldType));
-    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType);
+    m_game = std::make_unique<Game>(*m_window, *m_renderer, *m_inputController, m_selectedWorldType, m_config.testMode);
 
     m_currentState = AppState::PLAYING;
     m_lastFrameTime = getTime();

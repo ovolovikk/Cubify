@@ -19,8 +19,8 @@ public:
     static void generateMesh(Chunk& chunk, const ChunkNeighbors& neighbors);
 
 private:
-    static void addQuad(Chunk& chunk, float x, float y, float z,
-        float layer,
+    static void addQuad(Chunk& chunk, uint32_t x, uint32_t y, uint32_t z,
+        uint32_t layer,
         int perpendicular_axis,
         bool back_face,
         bool transparent = false);

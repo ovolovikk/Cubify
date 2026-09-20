@@ -2,10 +2,7 @@
 
 Chunk::Chunk(int x,int z) :chunkX(x), chunkZ(z)
 {
-    for (int i = 0; i < CHUNK_SIZE; ++i)
-        for (int j = 0; j < CHUNK_HEIGHT; ++j)
-            for (int k = 0; k < CHUNK_SIZE; ++k)
-                blocks[i][j][k] = BlockType::AIR;
+    std::fill_n(&blocks[0][0][0], CHUNK_SIZE * CHUNK_HEIGHT * CHUNK_SIZE, BlockType::AIR);
 }
 
 // two MeshHandle members return their GPU buffers to the renderer's

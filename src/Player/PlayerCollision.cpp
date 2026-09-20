@@ -24,11 +24,7 @@ bool PlayerCollision::checkCollision(const AABB& box, const vec3& pos)
     for(int x = min_x; x <= max_x;++x) 
         for(int y = min_y; y <= max_y;++y)
             for(int z = min_z; z <= max_z;++z) {
-                BlockType block = world.getBlock(x, y, z);
-                if (block != BlockType::AIR && 
-                    block != BlockType::WATER && 
-                    block != BlockType::SECTORR_WATER &&
-                    block != BlockType::UTOPIA_WATER) return true;
+                if (isSolid(world.getBlock(x, y, z))) return true;
             }
 
     return false;
