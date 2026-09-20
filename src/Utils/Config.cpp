@@ -2,7 +2,7 @@
 
 #include "PrecompilerHeader.hpp"
 
-#include "Core/Logging/Log.hpp"
+#include "Logging/Log.hpp"
 
 Config& Config::Instance()
 {

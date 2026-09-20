@@ -1,4 +1,4 @@
-#include "Core/Logging/Log.hpp"
+#include "Logging/Log.hpp"
 
 #include "PrecompilerHeader.hpp"
 

@@ -8,4 +8,5 @@ out/
 *.o
 *.obj
 .clangd
+.cache
 ARCHITECTURE.md

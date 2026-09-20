@@ -8,6 +8,8 @@ class Window
 {
 public:
     using ResizeCallbackFn = std::function<void(int, int)>;
+    using ScrollCallbackFn = std::function<void(double, double)>;
+
     Window(const std::string& title, int width_ = 1920, int height_ = 1080);
     ~Window();
 
@@ -22,11 +24,13 @@ public:
     int getWidth() const{ return width; }
     int getHeight() const { return height; }
 
-    void setSize(int w, int h) { width = w; height = h; }
-
     void onFramebufferResize(int fbWidth, int fbHeight);
     void setResizeCallback(const ResizeCallbackFn& callback);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+    void onScroll(double xOffset, double yOffset);
+    void setScrollCallback(const ScrollCallbackFn& callback);
+    static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
     void toggleFullscreen();
     bool isFullscreen() const { return m_isFullscreen; }
@@ -36,6 +40,7 @@ private:
     int width = 1920;
     int height = 1080;
     ResizeCallbackFn m_resizeCallBack;
+    ScrollCallbackFn m_scrollCallBack;
 
     // Fullscreen state
     bool m_isFullscreen = false;

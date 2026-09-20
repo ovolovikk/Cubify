@@ -26,7 +26,6 @@ namespace Cubify::DX12
 
         // ---- IRendererBackend ----
         void resize(int width, int height) override;
-        void onResize(int width, int height) override;
 
         void beginFrame() override;
         void endFrame() override;
@@ -87,7 +86,7 @@ namespace Cubify::DX12
         glm::mat4 m_viewProj{ 1.0f };
 
         ComPtr<IDXGIFactory7> m_factory;
-		ComPtr<IDXGIAdapter4> m_adapter;
+        ComPtr<IDXGIAdapter4> m_adapter;
         ComPtr<ID3D12Debug> m_debugController;
         ComPtr<ID3D12Device2> m_device;
         ComPtr<ID3D12CommandQueue> m_commandQueue;

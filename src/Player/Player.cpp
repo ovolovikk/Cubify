@@ -4,11 +4,10 @@
 
 #include "Core/Camera.hpp"
 #include "Core/Input/IInputController.hpp"
-#include "Core/Logging/Log.hpp"
-#include "Core/Sound/AudioEngine.hpp"
-#include "Core/Logging/Log.hpp"
-#include "World/World.hpp"
+#include "Logging/Log.hpp"
+#include "Sound/AudioEngine.hpp"
 #include "Utils/Config.hpp"
+#include "World/World.hpp"
 
 Player::Player(Camera& camera_, IInputController& input_, World& world_, const vec3& initial_pos)
     : camera(camera_), input(input_), collision(world_), physics(collision)

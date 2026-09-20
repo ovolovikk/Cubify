@@ -22,8 +22,6 @@ struct ApplicationConfig
 class Application
 {
 public:
-    using ShutdownCallback = std::function<void()>;
-
     static Application &Get();
     static bool Exists();
     static Application& Create(const ApplicationConfig& config);
@@ -44,8 +42,6 @@ public:
     bool is_running() const;
     float getDeltaTime() const;
     double getTime() const;
-
-    void registerShutdownCallBack(ShutdownCallback callback);
 
 private:
     explicit Application(const ApplicationConfig& config);
@@ -72,9 +68,6 @@ private:
     std::unique_ptr<IRendererBackend> m_renderer;
     std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
-
-    // delete in order which is reversed to initialization
-    std::vector<ShutdownCallback> m_shutdownCallbacks;
 };
 
 #define APP Application::Get()

@@ -4,9 +4,9 @@
 #include "Core/Window.hpp"
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
-#include "Core/Sound/AudioEngine.hpp"
+#include "Sound/AudioEngine.hpp"
 #include "Graphics/DirectX12Backend/DX12Renderer.hpp"
-#include "Core/Logging/Log.hpp"
+#include "Logging/Log.hpp"
 #include "Utils/Config.hpp"
 #include "miniaudio.h"
 
@@ -201,11 +201,6 @@ double Application::getTime() const
     return glfwGetTime();
 }
 
-void Application::registerShutdownCallBack(ShutdownCallback callback)
-{
-    m_shutdownCallbacks.push_back(std::move(callback));
-}
-
 Application::Application(const ApplicationConfig& config)
     : m_config(config)
 {
@@ -231,7 +226,7 @@ void Application::initSubsystems()
     m_window->setResizeCallback([this](int w, int h) {
         if(m_renderer)
         {
-            m_renderer->onResize(w, h);
+            m_renderer->resize(w, h);
         }
         if(m_game)
         {
@@ -240,7 +235,7 @@ void Application::initSubsystems()
     });
 
     LOGI("[Subsystem] Initializing InputController");
-    m_inputController = std::make_unique<GLFWInputController>(m_window->GetGLFWWindow());
+    m_inputController = std::make_unique<GLFWInputController>(*m_window);
 
     LOGI("[Subsystem] Initializing DirectX12 Renderer");
     m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
@@ -262,21 +257,12 @@ std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int hei
 
 void Application::shutdownSubsystems()
 {
-    // Shutting down in reverse order: Renderer->Game->Window
-
-    // Call registered shutdown callbacks in reverse order
-    LOGI("[Shutdown] Executing %zu shutdown callbacks...", m_shutdownCallbacks.size());
-    for (auto it = m_shutdownCallbacks.rbegin(); it != m_shutdownCallbacks.rend(); ++it)
-    {
-        (*it)();
-    }
-    m_shutdownCallbacks.clear();
+    // Reverse of initSubsystems: Game -> Renderer -> InputController -> Window.
+    LOGI("[Subsystem] Shutting down Game");
+    m_game.reset();
 
     LOGI("[Subsystem] Shutting down Renderer");
     m_renderer.reset();
-
-    LOGI("[Subsystem] Shutting down Game");
-    m_game.reset();
 
     LOGI("[Subsystem] Shutting down InputController");
     m_inputController.reset();

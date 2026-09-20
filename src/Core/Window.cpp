@@ -5,7 +5,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "Core/Logging/Log.hpp"
+#include "Logging/Log.hpp"
 #include "Utils/Config.hpp"
 
 #include "stb_image.h"
@@ -46,10 +46,14 @@ Window::Window(const std::string& title, int width_, int height_)
     glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(window.get(), this);
     glfwSetFramebufferSizeCallback(window.get(), framebuffer_size_callback);
+    glfwSetScrollCallback(window.get(), scroll_callback);
 }
 
 Window::~Window()
 {
+    // The shared_ptr deleter is glfwDestroyWindow, so the window has to be gone
+    // before the library that owns it is torn down
+    window.reset();
     glfwTerminate();
 }
 
@@ -86,6 +90,25 @@ void Window::framebuffer_size_callback(GLFWwindow *window, int width, int height
     if (win)
     {
         win->onFramebufferResize(width, height);
+    }
+}
+
+void Window::onScroll(double xOffset, double yOffset)
+{
+    if (m_scrollCallBack) m_scrollCallBack(xOffset, yOffset);
+}
+
+void Window::setScrollCallback(const ScrollCallbackFn& callback)
+{
+    m_scrollCallBack = callback;
+}
+
+void Window::scroll_callback(GLFWwindow *window, double xOffset, double yOffset)
+{
+    Window* win = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    if (win)
+    {
+        win->onScroll(xOffset, yOffset);
     }
 }
 

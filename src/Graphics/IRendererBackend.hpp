@@ -15,7 +15,6 @@ public:
     virtual ~IRendererBackend() = default;
 
     virtual void resize(int width, int height) = 0;
-    virtual void onResize(int width, int height) = 0;
 
     virtual void beginFrame() = 0;
     virtual void endFrame() = 0;

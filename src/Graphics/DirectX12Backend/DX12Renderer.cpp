@@ -2,7 +2,7 @@
 
 #include "d3dx12.h"
 #include <dxcapi.h>
-#include "Core/Logging/Log.hpp"
+#include "Logging/Log.hpp"
 #include "stb_image.h"
 #include "stb_image_write.h"
 
@@ -38,30 +38,30 @@ namespace Cubify::DX12
         
         if(!utils)
         {
-			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
-			DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
-			utils->CreateDefaultIncludeHandler(&includeHandler);
+            DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
+            DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
+            utils->CreateDefaultIncludeHandler(&includeHandler);
         }
 
         ComPtr<IDxcBlobEncoding> sourceBlob;
-		HR_FALLBACK(utils->LoadFile(path, nullptr, &sourceBlob), nullptr,
-			"[DX12Renderer] Failed to load shader file: %ls", path);
+        HR_FALLBACK(utils->LoadFile(path, nullptr, &sourceBlob), nullptr,
+            "[DX12Renderer] Failed to load shader file: %ls", path);
 
-		std::vector<LPCWSTR> arguments = {
+        std::vector<LPCWSTR> arguments = {
             path,
-			L"-E", entry,
-			L"-T", target,
-			// Lets the stage files pull in common.hlsli by bare name
-			L"-I", L"shaders/dx12",
-		};
+            L"-E", entry,
+            L"-T", target,
+            // Lets the stage files pull in common.hlsli by bare name
+            L"-I", L"shaders/dx12",
+        };
 
 #if defined (_DEBUG)
-		arguments.push_back(L"-Zi");
-		arguments.push_back(L"-Qembed_debug");
+        arguments.push_back(L"-Zi");
+        arguments.push_back(L"-Qembed_debug");
         arguments.push_back(L"-Od");
 #else
-		arguments.push_back(L"-Qstrip_reflect");
-		arguments.push_back(L"-O3");
+        arguments.push_back(L"-Qstrip_reflect");
+        arguments.push_back(L"-O3");
 #endif
         DxcBuffer sourceBuffer{
             .Ptr = sourceBlob->GetBufferPointer(),
@@ -172,11 +172,6 @@ namespace Cubify::DX12
         CreateDepthStencil();
     }
 
-    void DX12Renderer::onResize(int width, int height)
-    {
-        resize(width, height);
-    }
-
     void DX12Renderer::beginFrame()
     {
         if (m_commandListOpen)
@@ -185,7 +180,7 @@ namespace Cubify::DX12
         }
 
         m_commandAllocators[m_currentFrame].Get()->Reset();
-		m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), m_pipelineState.Get());
+        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), m_pipelineState.Get());
         m_commandListOpen = true;
 
         // MoveToNextFrame already waited on this slot, so whatever the GPU was
@@ -194,20 +189,20 @@ namespace Cubify::DX12
         ProcessMeshDeletions();
 
         // Update the back buffer state to be writable before rendering
-		CD3DX12_RESOURCE_BARRIER toRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
+        CD3DX12_RESOURCE_BARRIER toRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
             m_renderTargets[m_currentFrame].Get(),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET
         );
-		m_commandList->ResourceBarrier(1, &toRenderTarget);
+        m_commandList->ResourceBarrier(1, &toRenderTarget);
 
         CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_currentFrame, m_rtvDescriptorSize);
-		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-		m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+        CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-		const float clearColor[4] = { 0.1f, 0.2f, 0.4f, 1.0f };
-		m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-		m_commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        const float clearColor[4] = { 0.1f, 0.2f, 0.4f, 1.0f };
+        m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+        m_commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
         CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
         CD3DX12_RECT scissor(0, 0, m_width, m_height);
@@ -241,8 +236,8 @@ namespace Cubify::DX12
         m_commandList->ResourceBarrier(1, &toPresent);
         m_commandList->Close();
         m_commandListOpen = false;
-		ID3D12CommandList* commandLists[] = { m_commandList.Get() };
-		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+        ID3D12CommandList* commandLists[] = { m_commandList.Get() };
+        m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
         UINT presentFlags = (m_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)
             ? DXGI_PRESENT_ALLOW_TEARING
@@ -709,14 +704,14 @@ namespace Cubify::DX12
         sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
         CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-		desc.Init_1_1(_countof(params), params, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+        desc.Init_1_1(_countof(params), params, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
-		ComPtr<ID3DBlob> serialized;
+        ComPtr<ID3DBlob> serialized;
         ComPtr<ID3DBlob> errors;
         HRESULT hr = D3DX12SerializeVersionedRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1_1, &serialized, &errors);
         if (FAILED(hr) && errors)
         {
-			LOGE("[DX12Renderer] Root signature error: %s", static_cast<const char*>(errors->GetBufferPointer()));
+            LOGE("[DX12Renderer] Root signature error: %s", static_cast<const char*>(errors->GetBufferPointer()));
         }
         HR_CHECK(hr, "[DX12Renderer] Failed to initialize Root Signature");
 
@@ -724,26 +719,26 @@ namespace Cubify::DX12
             0, serialized->GetBufferPointer(), serialized->GetBufferSize(),
             IID_PPV_ARGS(&m_rootSignature)),
             "[DX12Renderer] Failed to create root signature");
-		SetDebugName(m_rootSignature.Get(), L"Main Root Signature");
-		LOGI("[DX12Renderer] Root signature created successfully");
+        SetDebugName(m_rootSignature.Get(), L"Main Root Signature");
+        LOGI("[DX12Renderer] Root signature created successfully");
     }
 
     void DX12Renderer::CreatePipelineState()
     {
         ComPtr<IDxcBlob> vs = CompileShader(L"shaders/dx12/vertex_shader.hlsl", L"VSMain", L"vs_6_0");
-		ComPtr<IDxcBlob> ps = CompileShader(L"shaders/dx12/pixel_shader.hlsl", L"PSMain", L"ps_6_0");
-		if (!vs || !ps)
-		{
-			LOGE("[DX12Renderer] Skipping PSO creation: shader compilation failed");
-			return;
-		}
+        ComPtr<IDxcBlob> ps = CompileShader(L"shaders/dx12/pixel_shader.hlsl", L"PSMain", L"ps_6_0");
+        if (!vs || !ps)
+        {
+            LOGE("[DX12Renderer] Skipping PSO creation: shader compilation failed");
+            return;
+        }
 
-		CD3DX12_RASTERIZER_DESC rasterizer(D3D12_DEFAULT);
+        CD3DX12_RASTERIZER_DESC rasterizer(D3D12_DEFAULT);
         rasterizer.FrontCounterClockwise = TRUE;
         rasterizer.CullMode = D3D12_CULL_MODE_BACK;
 
-		CD3DX12_DEPTH_STENCIL_DESC1 depthStencil(D3D12_DEFAULT);
-		depthStencil.DepthEnable = TRUE;
+        CD3DX12_DEPTH_STENCIL_DESC1 depthStencil(D3D12_DEFAULT);
+        depthStencil.DepthEnable = TRUE;
 
         D3D12_RT_FORMAT_ARRAY rtvFormats{
             .RTFormats = { DXGI_FORMAT_R8G8B8A8_UNORM },

@@ -20,8 +20,8 @@ public:
 private:
     ma_engine m_engine;
     ma_sound m_musicSound;
-    bool m_has_music;
-    bool m_initialized;
+    bool m_has_music = false;
+    bool m_initialized = false;
 
     AudioEngine();
     ~AudioEngine();
