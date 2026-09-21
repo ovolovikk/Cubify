@@ -9,6 +9,7 @@
 #include <wrl/client.h>
 
 #include "Graphics/DirectX12Backend/DX12DeletionQueue.hpp"
+#include "Graphics/DirectX12Backend/DX12Device.hpp"
 #include "Graphics/IRendererBackend.hpp"
 
 namespace Cubify::DX12
@@ -18,7 +19,7 @@ namespace Cubify::DX12
     class DX12Renderer : public IRendererBackend
     {
     public:
-        DX12Renderer(void* windowHandle, int width, int height);
+        DX12Renderer(DX12Device& device, void* windowHandle, int width, int height);
         ~DX12Renderer() override;
 
         DX12Renderer(const DX12Renderer&) = delete;
@@ -41,11 +42,6 @@ namespace Cubify::DX12
         bool captureBackbuffer(const char* filePath) override;
 
     private:
-        void CreateDebugController();
-        void CreateFactory();
-        void SelectAdapter();
-        void CreateDevice();
-        void CreateCommandQueue();
         void CreateSwapChain(void* windowHandle, int width, int height);
         void CreateRtvHeap();
         void CreateRenderTargets();
@@ -61,8 +57,6 @@ namespace Cubify::DX12
         ComPtr<ID3D12Resource> CreateGpuBuffer(const void* data, UINT64 size,
             D3D12_RESOURCE_STATES finalState, ComPtr<ID3D12Resource>& outUploadBuffer);
         void ProcessMeshDeletions();
-
-        void SetDebugName(ID3D12Object* object, const wchar_t* name);
 
         // per-frame CPU<->GPU synchronization
         void WaitForGpu();
@@ -85,9 +79,8 @@ namespace Cubify::DX12
 
         glm::mat4 m_viewProj{ 1.0f };
 
+        // Shared with DX12Device
         ComPtr<IDXGIFactory7> m_factory;
-        ComPtr<IDXGIAdapter4> m_adapter;
-        ComPtr<ID3D12Debug> m_debugController;
         ComPtr<ID3D12Device2> m_device;
         ComPtr<ID3D12CommandQueue> m_commandQueue;
         ComPtr<IDXGISwapChain3> m_swapChain;

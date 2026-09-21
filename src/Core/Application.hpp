@@ -5,6 +5,7 @@
 
 
 class Window;
+class IGraphicsDevice;
 class IRendererBackend;
 class Game;
 class IInputController;
@@ -65,6 +66,7 @@ private:
     double m_lastFrameTime = 0.0;
 
     std::unique_ptr<Window> m_window;
+    std::unique_ptr<IGraphicsDevice> m_graphicsDevice;
     std::unique_ptr<IRendererBackend> m_renderer;
     std::unique_ptr<IInputController> m_inputController;
     std::unique_ptr<Game> m_game;
