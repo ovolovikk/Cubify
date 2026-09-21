@@ -5,7 +5,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 #include "Utils/Config.hpp"
 
 #include "stb_image.h"

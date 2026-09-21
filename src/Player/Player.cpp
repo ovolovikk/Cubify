@@ -4,7 +4,7 @@
 
 #include "Core/Camera.hpp"
 #include "Core/Input/IInputController.hpp"
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 #include "Sound/AudioEngine.hpp"
 #include "Utils/Config.hpp"
 #include "World/World.hpp"

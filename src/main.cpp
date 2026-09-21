@@ -1,6 +1,6 @@
 #include "Core/Application.hpp"
-#include "Logging/LogScope.hpp"
-#include "Logging/Log.hpp"
+#include "LogScope.hpp"
+#include "Log.hpp"
 #include "Utils/Config.hpp"
 
 #ifdef _WIN32

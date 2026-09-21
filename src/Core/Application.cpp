@@ -6,7 +6,7 @@
 #include "Core/Input/GLFWInputController.hpp"
 #include "Sound/AudioEngine.hpp"
 #include "Graphics/DirectX12Backend/DX12Renderer.hpp"
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 #include "Utils/Config.hpp"
 #include "miniaudio.h"
 

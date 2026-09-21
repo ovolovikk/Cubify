@@ -8,7 +8,7 @@
 #include "Core/BlockType.hpp"
 #include "Core/Camera.hpp"
 #include "Core/Input/IInputController.hpp"
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 #include "Sound/AudioEngine.hpp"
 #include "Core/Window.hpp"
 #include "Graphics/IRendererBackend.hpp"

@@ -1,5 +1,5 @@
 
-add_library(CubifyLogging STATIC 
+add_library(CubifyLogging STATIC
             src/Log.cpp
             include/Log.hpp
             src/LogScope.cpp
@@ -9,4 +9,4 @@ add_library(Cubify::Logging ALIAS CubifyLogging)
 
 target_include_directories(CubifyLogging PUBLIC include)
 
-target_compile_features(CubifyLogging PUBLIC cxx_std_17)
+target_link_libraries(CubifyLogging PRIVATE PrecompiledHeader)

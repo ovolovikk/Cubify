@@ -9,6 +9,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(CUBIFY_STRICT_WARNINGS "Enable a strict warning set" OFF)
 
+add_library(PrecompiledHeader INTERFACE)
+target_include_directories(PrecompiledHeader INTERFACE "${CMAKE_SOURCE_DIR}/src")
+target_precompile_headers(PrecompiledHeader INTERFACE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
+
 set(GLFW_ROOT "${CMAKE_SOURCE_DIR}/external/glfw")
 set(GLM_ROOT  "${CMAKE_SOURCE_DIR}/external/glm")
 
@@ -26,10 +30,15 @@ target_include_directories(glm INTERFACE "${GLM_ROOT}")
 add_subdirectory(src/Logging)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    "src/*.cpp" 
-    "src/*.c"
+    "src/Core/*.cpp"
+    "src/Graphics/*.cpp"
+    "src/Math/*.cpp"
+    "src/Player/*.cpp"
+    "src/Sound/*.cpp"
+    "src/Utils/*.cpp"
+    "src/World/*.cpp"
 )
-list(FILTER SOURCES EXCLUDE REGEX "/src/Logging/")
+list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 #TODO: Return imgui
 
@@ -38,8 +47,6 @@ if(WIN32)
 endif()
 
 add_executable(Cubify WIN32 ${SOURCES} ${WIN_RESOURCES})
-
-target_precompile_headers(Cubify PRIVATE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
 
 target_include_directories(Cubify PRIVATE 
     "${CMAKE_SOURCE_DIR}/src"
@@ -59,6 +66,7 @@ if(CUBIFY_STRICT_WARNINGS AND MSVC)
 endif()
 
 target_link_libraries(Cubify PRIVATE
+    PrecompiledHeader
     glfw
     glm
     Cubify::Logging

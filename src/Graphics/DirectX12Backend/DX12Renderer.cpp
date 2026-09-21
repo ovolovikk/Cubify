@@ -2,7 +2,7 @@
 
 #include "d3dx12.h"
 #include <dxcapi.h>
-#include "Logging/Log.hpp"
+#include "Log.hpp"
 #include "stb_image.h"
 #include "stb_image_write.h"
 
