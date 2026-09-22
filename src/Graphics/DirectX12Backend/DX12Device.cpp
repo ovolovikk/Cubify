@@ -1,6 +1,7 @@
 #include "DX12Device.hpp"
 
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
+#include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
 
 namespace Cubify::DX12
 {
@@ -11,6 +12,17 @@ namespace Cubify::DX12
         SelectAdapter();
         CreateDevice();
         CreateCommandQueue();
+        m_rootSignature = DX12Pipeline::CreateRootSignature(m_device.Get());
+    }
+
+    std::unique_ptr<IPipeline> DX12Device::createPipeline(const PipelineDesc& desc)
+    {
+        auto pipeline = std::make_unique<DX12Pipeline>(m_device.Get(), m_rootSignature.Get(), desc);
+        if (!pipeline->pipelineState())
+        {
+            return nullptr;
+        }
+        return pipeline;
     }
 
     void DX12Device::CreateDebugController()

@@ -1,87 +1,24 @@
 #include "DX12Renderer.hpp"
 
 #include "d3dx12.h"
-#include <dxcapi.h>
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
+#include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
 #include "Logging/Log.hpp"
 #include "stb_image.h"
 #include "stb_image_write.h"
 
 namespace Cubify::DX12
 {
-    static ComPtr<IDxcBlob> CompileShader(const wchar_t* path, const wchar_t* entry, const wchar_t* target)
+    static ID3D12PipelineState* ToPipelineState(const IPipeline* pipeline)
     {
-        static ComPtr<IDxcUtils> utils;
-        static ComPtr<IDxcCompiler3> compiler;
-        static ComPtr<IDxcIncludeHandler> includeHandler;
-        
-        if(!utils)
-        {
-            DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
-            DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
-            utils->CreateDefaultIncludeHandler(&includeHandler);
-        }
-
-        ComPtr<IDxcBlobEncoding> sourceBlob;
-        HR_FALLBACK(utils->LoadFile(path, nullptr, &sourceBlob), nullptr,
-            "[DX12Renderer] Failed to load shader file: %ls", path);
-
-        std::vector<LPCWSTR> arguments = {
-            path,
-            L"-E", entry,
-            L"-T", target,
-            // Lets the stage files pull in common.hlsli by bare name
-            L"-I", L"shaders/dx12",
-        };
-
-#if defined (_DEBUG)
-        arguments.push_back(L"-Zi");
-        arguments.push_back(L"-Qembed_debug");
-        arguments.push_back(L"-Od");
-#else
-        arguments.push_back(L"-Qstrip_reflect");
-        arguments.push_back(L"-O3");
-#endif
-        DxcBuffer sourceBuffer{
-            .Ptr = sourceBlob->GetBufferPointer(),
-            .Size = sourceBlob->GetBufferSize(),
-            .Encoding = DXC_CP_ACP
-        };
-
-        ComPtr<IDxcResult> result;
-        HR_FALLBACK(compiler->Compile(
-            &sourceBuffer,
-            arguments.data(),
-            static_cast<UINT32>(arguments.size()),
-            includeHandler.Get(),
-            IID_PPV_ARGS(&result)
-        ), nullptr, "[DX12Renderer] Internal DXC compiler error.");
-
-        ComPtr<IDxcBlobUtf8> errors;
-        result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
-
-        if (errors != nullptr && errors->GetStringLength() > 0)
-        {
-            LOGE("Shader compile log (%ls):\n%s\n", entry, errors->GetStringPointer());
-        }
-
-        HRESULT status;
-        result->GetStatus(&status);
-        if (FAILED(status))
-        {
-            return nullptr;
-        }
-
-        ComPtr<IDxcBlob> shader;
-        result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr);
-
-        return shader;
+        return pipeline ? static_cast<const DX12Pipeline*>(pipeline)->pipelineState() : nullptr;
     }
 
     DX12Renderer::DX12Renderer(DX12Device& device, void* windowHandle, int width, int height)
         : m_factory(device.factory())
         , m_device(device.device())
         , m_commandQueue(device.commandQueue())
+        , m_rootSignature(device.rootSignature())
         , m_deletionQueue(std::make_shared<DX12DeletionQueue>()), m_width(width), m_height(height)
     {
         CreateSwapChain(windowHandle, width, height);
@@ -91,8 +28,19 @@ namespace Cubify::DX12
         CreateDepthStencil();
         CreateCommandObjects();
         CreateFence();
-        CreateRootSignature();
-        CreatePipelineState();
+        m_solidPipeline = device.createPipeline({
+            .debugName = "Solid",
+            .vertexShader = { "vertex_shader", "VSMain" },
+            .fragmentShader = { "pixel_shader", "PSMain" },
+        });
+        m_transparentPipeline = device.createPipeline({
+            .debugName = "Transparent",
+            .vertexShader = { "vertex_shader", "VSMain" },
+            .fragmentShader = { "pixel_shader", "PSMain" },
+            .blend = BlendMode::AlphaBlend,
+            .cull = CullMode::None,
+            .depthWrite = false,
+        });
         CreateSrvHeap();
         CreateTextureArray();
     }
@@ -135,7 +83,7 @@ namespace Cubify::DX12
             FRAME_COUNT,
             static_cast<UINT>(width),
             static_cast<UINT>(height),
-            DXGI_FORMAT_R8G8B8A8_UNORM,
+            BACK_BUFFER_FORMAT,
             m_swapChainFlags);
 
         m_currentFrame = m_swapChain->GetCurrentBackBufferIndex();
@@ -157,7 +105,7 @@ namespace Cubify::DX12
         }
 
         m_commandAllocators[m_currentFrame].Get()->Reset();
-        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), m_pipelineState.Get());
+        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), ToPipelineState(m_solidPipeline.get()));
         m_commandListOpen = true;
 
         // MoveToNextFrame already waited on this slot, so whatever the GPU was
@@ -197,7 +145,7 @@ namespace Cubify::DX12
                 ID3D12DescriptorHeap* heaps[] = { m_srvHeap.Get() };
                 m_commandList->SetDescriptorHeaps(_countof(heaps), heaps);
                 m_commandList->SetGraphicsRootDescriptorTable(
-                    ROOT_PARAM_TEXTURES, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
+                    DX12Pipeline::ROOT_PARAM_TEXTURES, m_srvHeap->GetGPUDescriptorHandleForHeapStart());
             }
         }
     }
@@ -232,17 +180,17 @@ namespace Cubify::DX12
 
     void DX12Renderer::beginTransparentPass()
     {
-        if (m_transparentPipelineState)
+        if (m_transparentPipeline)
         {
-            m_commandList->SetPipelineState(m_transparentPipelineState.Get());
+            m_commandList->SetPipelineState(ToPipelineState(m_transparentPipeline.get()));
         }
     }
 
     void DX12Renderer::endTransparentPass()
     {
-        if (m_pipelineState)
+        if (m_solidPipeline)
         {
-            m_commandList->SetPipelineState(m_pipelineState.Get());
+            m_commandList->SetPipelineState(ToPipelineState(m_solidPipeline.get()));
         }
     }
 
@@ -258,7 +206,8 @@ namespace Cubify::DX12
 
         if (m_commandListOpen && m_rootSignature)
         {
-            m_commandList->SetGraphicsRoot32BitConstants(ROOT_PARAM_VIEW_PROJ, MATRIX_CONSTANT_COUNT, &m_viewProj, 0);
+            m_commandList->SetGraphicsRoot32BitConstants(
+                DX12Pipeline::ROOT_PARAM_VIEW_PROJ, DX12Pipeline::MATRIX_CONSTANT_COUNT, &m_viewProj, 0);
         }
     }
 
@@ -312,7 +261,7 @@ namespace Cubify::DX12
         m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
         WaitForGpu();
 
-        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), m_pipelineState.Get());
+        m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), ToPipelineState(m_solidPipeline.get()));
 
         void* mapped = nullptr;
         CD3DX12_RANGE readRange(0, static_cast<SIZE_T>(totalBytes));
@@ -406,9 +355,9 @@ namespace Cubify::DX12
         }
 
         m_commandList->SetGraphicsRoot32BitConstants(
-            ROOT_PARAM_MODEL, MATRIX_CONSTANT_COUNT, &model, 0);
+            DX12Pipeline::ROOT_PARAM_MODEL, DX12Pipeline::MATRIX_CONSTANT_COUNT, &model, 0);
         m_commandList->SetGraphicsRootShaderResourceView(
-            ROOT_PARAM_QUADS, it->second.buffer->GetGPUVirtualAddress());
+            DX12Pipeline::ROOT_PARAM_QUADS, it->second.buffer->GetGPUVirtualAddress());
 
         // One instance per quad, the shader builds its six corners
         m_commandList->DrawInstanced(VERTICES_PER_QUAD, it->second.quadCount, 0, 0);
@@ -427,7 +376,7 @@ namespace Cubify::DX12
         DXGI_SWAP_CHAIN_DESC1 desc{
             .Width = static_cast<UINT>(width),
             .Height = static_cast<UINT>(height),
-            .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
+            .Format = BACK_BUFFER_FORMAT,
             .SampleDesc = {.Count = 1, .Quality = 0 },
             .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
             .BufferCount = FRAME_COUNT,
@@ -570,120 +519,6 @@ namespace Cubify::DX12
         }
         SetDebugName(m_fence.Get(), L"Frame Fence");
         LOGI("[DX12Renderer] Fence created successfully");
-    }
-
-    void DX12Renderer::CreateRootSignature()
-    {
-        // 35/64 DWORD space used, a root SRV costs 2 and a table costs 1
-        CD3DX12_ROOT_PARAMETER1 params[4]{};
-        params[ROOT_PARAM_VIEW_PROJ].InitAsConstants(MATRIX_CONSTANT_COUNT, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        params[ROOT_PARAM_MODEL].InitAsConstants(MATRIX_CONSTANT_COUNT, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-        // Root descriptor takes a GPU address directly, so no descriptor heap is
-        // needed for the geometry buffer
-        params[ROOT_PARAM_QUADS].InitAsShaderResourceView(
-            0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
-
-        CD3DX12_DESCRIPTOR_RANGE1 textureRange;
-        textureRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
-        params[ROOT_PARAM_TEXTURES].InitAsDescriptorTable(
-            1, &textureRange, D3D12_SHADER_VISIBILITY_PIXEL);
-
-        CD3DX12_STATIC_SAMPLER_DESC sampler(
-            0,
-            D3D12_FILTER_MIN_MAG_MIP_POINT,
-            D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
-            D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
-            D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
-        sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC desc;
-        desc.Init_1_1(_countof(params), params, 1, &sampler, D3D12_ROOT_SIGNATURE_FLAG_NONE);
-
-        ComPtr<ID3DBlob> serialized;
-        ComPtr<ID3DBlob> errors;
-        HRESULT hr = D3DX12SerializeVersionedRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1_1, &serialized, &errors);
-        if (FAILED(hr) && errors)
-        {
-            LOGE("[DX12Renderer] Root signature error: %s", static_cast<const char*>(errors->GetBufferPointer()));
-        }
-        HR_CHECK(hr, "[DX12Renderer] Failed to initialize Root Signature");
-
-        HR_CHECK(m_device->CreateRootSignature(
-            0, serialized->GetBufferPointer(), serialized->GetBufferSize(),
-            IID_PPV_ARGS(&m_rootSignature)),
-            "[DX12Renderer] Failed to create root signature");
-        SetDebugName(m_rootSignature.Get(), L"Main Root Signature");
-        LOGI("[DX12Renderer] Root signature created successfully");
-    }
-
-    void DX12Renderer::CreatePipelineState()
-    {
-        ComPtr<IDxcBlob> vs = CompileShader(L"shaders/dx12/vertex_shader.hlsl", L"VSMain", L"vs_6_0");
-        ComPtr<IDxcBlob> ps = CompileShader(L"shaders/dx12/pixel_shader.hlsl", L"PSMain", L"ps_6_0");
-        if (!vs || !ps)
-        {
-            LOGE("[DX12Renderer] Skipping PSO creation: shader compilation failed");
-            return;
-        }
-
-        CD3DX12_RASTERIZER_DESC rasterizer(D3D12_DEFAULT);
-        rasterizer.FrontCounterClockwise = TRUE;
-        rasterizer.CullMode = D3D12_CULL_MODE_BACK;
-
-        CD3DX12_DEPTH_STENCIL_DESC1 depthStencil(D3D12_DEFAULT);
-        depthStencil.DepthEnable = TRUE;
-
-        D3D12_RT_FORMAT_ARRAY rtvFormats{
-            .RTFormats = { DXGI_FORMAT_R8G8B8A8_UNORM },
-            .NumRenderTargets = 1
-        };
-
-        CD3DX12_PIPELINE_STATE_STREAM1 stream;
-        stream.pRootSignature = m_rootSignature.Get();
-        stream.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
-        stream.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-        stream.RasterizerState = rasterizer;
-        stream.DepthStencilState = depthStencil;
-        stream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-        stream.RTVFormats = rtvFormats;
-        stream.DSVFormat = DEPTH_FORMAT;
-        stream.SampleDesc = DXGI_SAMPLE_DESC{ .Count = 1, .Quality = 0 };
-
-        D3D12_PIPELINE_STATE_STREAM_DESC streamDesc{
-            .SizeInBytes = sizeof(stream),
-            .pPipelineStateSubobjectStream = &stream
-        };
-
-        HR_CHECK(m_device->CreatePipelineState(&streamDesc, IID_PPV_ARGS(&m_pipelineState)),
-            "[DX12Renderer] Failed to create pipeline state");
-        SetDebugName(m_pipelineState.Get(), L"Solid PSO");
-        LOGI("[DX12Renderer] Pipeline state created successfully");
-
-        // Transparent variant. Luna chapter 9, 10 to experiment
-        CD3DX12_BLEND_DESC blend(D3D12_DEFAULT);
-        blend.RenderTarget[0].BlendEnable = TRUE;
-        blend.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-        blend.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-        blend.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-        blend.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
-        blend.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
-        blend.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
-
-        CD3DX12_DEPTH_STENCIL_DESC1 transparentDepth(D3D12_DEFAULT);
-        transparentDepth.DepthEnable = TRUE;
-        transparentDepth.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-
-        CD3DX12_RASTERIZER_DESC transparentRasterizer(rasterizer);
-        transparentRasterizer.CullMode = D3D12_CULL_MODE_NONE;
-
-        stream.BlendState = blend;
-        stream.DepthStencilState = transparentDepth;
-        stream.RasterizerState = transparentRasterizer;
-
-        HR_CHECK(m_device->CreatePipelineState(&streamDesc, IID_PPV_ARGS(&m_transparentPipelineState)),
-            "[DX12Renderer] Failed to create transparent pipeline state");
-        SetDebugName(m_transparentPipelineState.Get(), L"Transparent Water PSO");
-        LOGI("[DX12Renderer] Transparent pipeline state created successfully");
     }
 
     ComPtr<ID3D12Resource> DX12Renderer::CreateGpuBuffer(const void* data, UINT64 size,

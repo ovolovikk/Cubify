@@ -28,6 +28,9 @@
 
 namespace Cubify::DX12
 {
+    inline constexpr DXGI_FORMAT BACK_BUFFER_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+    inline constexpr DXGI_FORMAT DEPTH_FORMAT = DXGI_FORMAT_D32_FLOAT;
+
     inline void SetDebugName(ID3D12Object* object, const wchar_t* name)
     {
         if (object)
