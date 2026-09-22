@@ -3,6 +3,7 @@
 #include "d3dx12.h"
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
+#include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
 #include "Logging/Log.hpp"
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -15,17 +16,13 @@ namespace Cubify::DX12
     }
 
     DX12Renderer::DX12Renderer(DX12Device& device, void* windowHandle, int width, int height)
-        : m_factory(device.factory())
-        , m_device(device.device())
+        : m_device(device.device())
         , m_commandQueue(device.commandQueue())
         , m_rootSignature(device.rootSignature())
-        , m_deletionQueue(std::make_shared<DX12DeletionQueue>()), m_width(width), m_height(height)
+        , m_deletionQueue(std::make_shared<DX12DeletionQueue>())
     {
-        CreateSwapChain(windowHandle, width, height);
-        CreateRtvHeap();
-        CreateRenderTargets();
-        CreateDsvHeap();
-        CreateDepthStencil();
+        m_swapChain = std::make_unique<DX12SwapChain>(device, windowHandle, width, height);
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
         CreateCommandObjects();
         CreateFence();
         m_solidPipeline = device.createPipeline({
@@ -65,7 +62,7 @@ namespace Cubify::DX12
         {
             return;
         }
-        if (width == m_width && height == m_height)
+        if (width == m_swapChain->width() && height == m_swapChain->height())
         {
             return;
         }
@@ -75,26 +72,11 @@ namespace Cubify::DX12
 
         for (UINT i = 0; i < FRAME_COUNT; ++i)
         {
-            m_renderTargets[i].Reset();
             m_fenceValues[i] = m_fenceValues[m_currentFrame];
         }
 
-        m_swapChain->ResizeBuffers(
-            FRAME_COUNT,
-            static_cast<UINT>(width),
-            static_cast<UINT>(height),
-            BACK_BUFFER_FORMAT,
-            m_swapChainFlags);
-
-        m_currentFrame = m_swapChain->GetCurrentBackBufferIndex();
-        m_width = width;
-        m_height = height;
-
-        // RTVs need to be recreated
-        CreateRenderTargets();
-
-        m_depthStencil.Reset();
-        CreateDepthStencil();
+        m_swapChain->resize(width, height);
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
     }
 
     void DX12Renderer::beginFrame()
@@ -115,22 +97,23 @@ namespace Cubify::DX12
 
         // Update the back buffer state to be writable before rendering
         CD3DX12_RESOURCE_BARRIER toRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
-            m_renderTargets[m_currentFrame].Get(),
+            m_swapChain->backBuffer(),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET
         );
         m_commandList->ResourceBarrier(1, &toRenderTarget);
 
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_currentFrame, m_rtvDescriptorSize);
-        CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_swapChain->rtv();
+        D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_swapChain->dsv();
         m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
         const float clearColor[4] = { 0.1f, 0.2f, 0.4f, 1.0f };
         m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
         m_commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-        CD3DX12_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(m_width), static_cast<float>(m_height));
-        CD3DX12_RECT scissor(0, 0, m_width, m_height);
+        CD3DX12_VIEWPORT viewport(0.0f, 0.0f,
+            static_cast<float>(m_swapChain->width()), static_cast<float>(m_swapChain->height()));
+        CD3DX12_RECT scissor(0, 0, m_swapChain->width(), m_swapChain->height());
         m_commandList->RSSetViewports(1, &viewport);
         m_commandList->RSSetScissorRects(1, &scissor);
 
@@ -153,7 +136,7 @@ namespace Cubify::DX12
     void DX12Renderer::endFrame()
     {
         CD3DX12_RESOURCE_BARRIER toPresent = CD3DX12_RESOURCE_BARRIER::Transition(
-            m_renderTargets[m_currentFrame].Get(),
+            m_swapChain->backBuffer(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
             D3D12_RESOURCE_STATE_PRESENT
         );
@@ -164,16 +147,7 @@ namespace Cubify::DX12
         ID3D12CommandList* commandLists[] = { m_commandList.Get() };
         m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
-        UINT presentFlags = (m_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)
-            ? DXGI_PRESENT_ALLOW_TEARING
-            : 0;
-
-        HRESULT presentResult = m_swapChain->Present(0, presentFlags);
-        if (FAILED(presentResult))
-        {
-            LOGE("[DX12Renderer] Failed to present swap chain");
-            LOGE("[DX12Renderer] hr = 0x%08X", presentResult);
-        }
+        m_swapChain->present();
 
         MoveToNextFrame();
     }
@@ -220,7 +194,7 @@ namespace Cubify::DX12
             return false;
         }
 
-        ID3D12Resource* backBuffer = m_renderTargets[m_currentFrame].Get();
+        ID3D12Resource* backBuffer = m_swapChain->backBuffer();
         D3D12_RESOURCE_DESC backBufferDesc = backBuffer->GetDesc();
 
         D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
@@ -364,120 +338,6 @@ namespace Cubify::DX12
     }
 
     // DX12 Initialization starts there
-
-    void DX12Renderer::CreateSwapChain(void* windowHandle, int width, int height)
-    {
-        HWND hwnd = static_cast<HWND>(windowHandle);
-
-        BOOL allowTearing = FALSE;
-        m_factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
-        m_swapChainFlags = allowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-
-        DXGI_SWAP_CHAIN_DESC1 desc{
-            .Width = static_cast<UINT>(width),
-            .Height = static_cast<UINT>(height),
-            .Format = BACK_BUFFER_FORMAT,
-            .SampleDesc = {.Count = 1, .Quality = 0 },
-            .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            .BufferCount = FRAME_COUNT,
-            .SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
-            .Flags = m_swapChainFlags
-        };
-
-        ComPtr<IDXGISwapChain1> oldSwapChain;
-        HR_CHECK(m_factory->CreateSwapChainForHwnd(
-            m_commandQueue.Get(), hwnd, &desc, nullptr, nullptr, &oldSwapChain
-        ), "[DX12Renderer] Failed to create swap chain");
-
-        m_factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
-        HR_CHECK(oldSwapChain.As(&m_swapChain),
-            "[DX12Renderer] Failed to query IDXGISwapChain3");
-
-        m_currentFrame = m_swapChain->GetCurrentBackBufferIndex();
-        LOGI("[DX12Renderer] Swap chain created successfully");
-    }
-
-    void DX12Renderer::CreateRtvHeap()
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc{
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-            .NumDescriptors = FRAME_COUNT,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
-        };
-
-        HR_CHECK(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_rtvHeap)),
-            "[DX12Renderer] Failed to create RTV descriptor heap");
-        SetDebugName(m_rtvHeap.Get(), L"RTV Heap");
-        LOGI("[DX12Renderer] RTV descriptor heap created successfully");
-
-        m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    }
-
-    void DX12Renderer::CreateRenderTargets()
-    {
-        // create view for each buffer in swap chain
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
-        for (UINT i = 0; i < FRAME_COUNT; ++i)
-        {
-            HR_CHECK(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_renderTargets[i])),
-                "[DX12Renderer] Failed to get swap chain buffer %u", i);
-
-            std::wstring rtName = L"Back Buffer " + std::to_wstring(i);
-            SetDebugName(m_renderTargets[i].Get(), rtName.c_str());
-
-            m_device->CreateRenderTargetView(m_renderTargets[i].Get(), nullptr, rtvHandle);
-            rtvHandle.Offset(1, m_rtvDescriptorSize);
-        }
-        LOGI("[DX12Renderer] Render targets created successfully");
-    }
-
-    void DX12Renderer::CreateDsvHeap()
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc{
-            .Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
-            .NumDescriptors = 1,
-            .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
-        };
-
-        HR_CHECK(m_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_dsvHeap)),
-            "[DX12Renderer] Failed to create DSV descriptor heap");
-        SetDebugName(m_dsvHeap.Get(), L"DSV Heap");
-        LOGI("[DX12Renderer] DSV descriptor heap created successfully");
-    }
-
-    void DX12Renderer::CreateDepthStencil()
-    {
-        CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-
-        CD3DX12_RESOURCE_DESC depthDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-            DEPTH_FORMAT,
-            static_cast<UINT64>(m_width),
-            static_cast<UINT>(m_height),
-            1, 1);
-        depthDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-        CD3DX12_CLEAR_VALUE clearValue(DEPTH_FORMAT, 1.0f, 0);
-
-        HR_CHECK(m_device->CreateCommittedResource(
-            &heapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &depthDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &clearValue,
-            IID_PPV_ARGS(&m_depthStencil)),
-            "[DX12Renderer] Failed to create depth stencil buffer");
-
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{
-            .Format = DEPTH_FORMAT,
-            .ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D,
-            .Flags = D3D12_DSV_FLAG_NONE
-        };
-
-        m_device->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-        SetDebugName(m_depthStencil.Get(), L"Depth Buffer");
-        LOGI("[DX12Renderer] Depth stencil buffer created successfully");
-    }
 
     void DX12Renderer::CreateCommandObjects()
     {
@@ -768,7 +628,7 @@ namespace Cubify::DX12
         const UINT64 currentValue = m_fenceValues[m_currentFrame];
         m_commandQueue->Signal(m_fence.Get(), currentValue);
 
-        m_currentFrame = m_swapChain->GetCurrentBackBufferIndex();
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
 
         // Only wait if the GPU is still busy with the frame we are about to reuse
         if (m_fence->GetCompletedValue() < m_fenceValues[m_currentFrame])

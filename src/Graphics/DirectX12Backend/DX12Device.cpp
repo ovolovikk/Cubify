@@ -15,6 +15,11 @@ namespace Cubify::DX12
         m_rootSignature = DX12Pipeline::CreateRootSignature(m_device.Get());
     }
 
+    GraphicsApi DX12Device::api() const
+    {
+        return GraphicsApi::DirectX12;
+    }
+
     std::unique_ptr<IPipeline> DX12Device::createPipeline(const PipelineDesc& desc)
     {
         auto pipeline = std::make_unique<DX12Pipeline>(m_device.Get(), m_rootSignature.Get(), desc);
@@ -23,6 +28,26 @@ namespace Cubify::DX12
             return nullptr;
         }
         return pipeline;
+    }
+
+    IDXGIFactory7* DX12Device::factory() const
+    {
+        return m_factory.Get();
+    }
+
+    ID3D12Device2* DX12Device::device() const
+    {
+        return m_device.Get();
+    }
+
+    ID3D12CommandQueue* DX12Device::commandQueue() const
+    {
+        return m_commandQueue.Get();
+    }
+
+    ID3D12RootSignature* DX12Device::rootSignature() const
+    {
+        return m_rootSignature.Get();
     }
 
     void DX12Device::CreateDebugController()

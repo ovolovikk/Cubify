@@ -22,7 +22,7 @@ namespace Cubify::DX12
 
         DX12Pipeline(ID3D12Device2* device, ID3D12RootSignature* rootSignature, const PipelineDesc& desc);
 
-        ID3D12PipelineState* pipelineState() const { return m_pipelineState.Get(); }
+        ID3D12PipelineState* pipelineState() const;
 
     private:
         ComPtr<ID3D12PipelineState> m_pipelineState;

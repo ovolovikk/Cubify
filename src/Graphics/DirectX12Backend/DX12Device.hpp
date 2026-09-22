@@ -15,14 +15,14 @@ namespace Cubify::DX12
     public:
         DX12Device();
 
-        GraphicsApi api() const override { return GraphicsApi::DirectX12; }
+        GraphicsApi api() const override;
 
         std::unique_ptr<IPipeline> createPipeline(const PipelineDesc& desc) override;
 
-        IDXGIFactory7* factory() const { return m_factory.Get(); }
-        ID3D12Device2* device() const { return m_device.Get(); }
-        ID3D12CommandQueue* commandQueue() const { return m_commandQueue.Get(); }
-        ID3D12RootSignature* rootSignature() const { return m_rootSignature.Get(); }
+        IDXGIFactory7* factory() const;
+        ID3D12Device2* device() const;
+        ID3D12CommandQueue* commandQueue() const;
+        ID3D12RootSignature* rootSignature() const;
 
     private:
         void CreateDebugController();

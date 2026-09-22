@@ -188,4 +188,9 @@ namespace Cubify::DX12
         SetDebugName(m_pipelineState.Get(), Widen(desc.debugName).c_str());
         LOGI("[DX12Pipeline] Pipeline state created: %s", desc.debugName.c_str());
     }
+
+    ID3D12PipelineState* DX12Pipeline::pipelineState() const
+    {
+        return m_pipelineState.Get();
+    }
 }
