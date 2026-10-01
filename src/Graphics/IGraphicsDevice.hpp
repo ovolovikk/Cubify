@@ -4,6 +4,8 @@
 
 #include "Graphics/GraphicsApi.hpp"
 #include "Graphics/IPipeline.hpp"
+#include "Graphics/ISwapChain.hpp"
+#include "Graphics/ITexture.hpp"
 
 // Adapter, logical device and the main queue
 class IGraphicsDevice
@@ -13,6 +15,8 @@ public:
 
     virtual GraphicsApi api() const = 0;
 
-    // nullptr if the pipeline can't be built, e.g. a shader doesn't compile
+    // Return nullptr if creation fails, e.g. a shader that doesn't compile
     virtual std::unique_ptr<IPipeline> createPipeline(const PipelineDesc& desc) = 0;
+    virtual std::unique_ptr<ISwapChain> createSwapChain(const SwapChainDesc& desc) = 0;
+    virtual std::unique_ptr<ITexture> createTexture(const TextureDesc& desc) = 0;
 };

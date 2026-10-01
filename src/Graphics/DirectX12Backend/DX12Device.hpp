@@ -18,6 +18,8 @@ namespace Cubify::DX12
         GraphicsApi api() const override;
 
         std::unique_ptr<IPipeline> createPipeline(const PipelineDesc& desc) override;
+        std::unique_ptr<ISwapChain> createSwapChain(const SwapChainDesc& desc) override;
+        std::unique_ptr<ITexture> createTexture(const TextureDesc& desc) override;
 
         IDXGIFactory7* factory() const;
         ID3D12Device2* device() const;

@@ -6,12 +6,6 @@
 
 namespace Cubify::DX12
 {
-    // Shader and debug names are plain ASCII
-    static std::wstring Widen(const std::string& text)
-    {
-        return std::wstring(text.begin(), text.end());
-    }
-
     static ComPtr<IDxcBlob> CompileShader(const ShaderDesc& shader, const wchar_t* target)
     {
         static ComPtr<IDxcUtils> utils;

@@ -5,27 +5,28 @@
 #include <wrl/client.h>
 
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
+#include "Graphics/ISwapChain.hpp"
 
 namespace Cubify::DX12
 {
     using Microsoft::WRL::ComPtr;
 
-    class DX12SwapChain
+    class DX12SwapChain : public ISwapChain
     {
     public:
         static constexpr UINT FRAME_COUNT = 2;
 
-        DX12SwapChain(DX12Device& device, void* windowHandle, int width, int height);
+        DX12SwapChain(DX12Device& device, const SwapChainDesc& desc);
 
-        void resize(int width, int height);
-        void present();
+        void resize(int width, int height) override;
+        void present() override;
 
         UINT currentBackBufferIndex() const;
         ID3D12Resource* backBuffer() const;
         D3D12_CPU_DESCRIPTOR_HANDLE rtv() const;
         D3D12_CPU_DESCRIPTOR_HANDLE dsv() const;
-        int width() const;
-        int height() const;
+        int width() const override;
+        int height() const override;
 
     private:
         void CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* queue, void* windowHandle);

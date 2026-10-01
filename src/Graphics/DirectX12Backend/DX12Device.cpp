@@ -2,6 +2,8 @@
 
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
+#include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
+#include "Graphics/DirectX12Backend/DX12Texture.hpp"
 
 namespace Cubify::DX12
 {
@@ -28,6 +30,26 @@ namespace Cubify::DX12
             return nullptr;
         }
         return pipeline;
+    }
+
+    std::unique_ptr<ISwapChain> DX12Device::createSwapChain(const SwapChainDesc& desc)
+    {
+        auto swapChain = std::make_unique<DX12SwapChain>(*this, desc);
+        if (!swapChain->backBuffer())
+        {
+            return nullptr;
+        }
+        return swapChain;
+    }
+
+    std::unique_ptr<ITexture> DX12Device::createTexture(const TextureDesc& desc)
+    {
+        auto texture = std::make_unique<DX12Texture>(*this, desc);
+        if (!texture->isValid())
+        {
+            return nullptr;
+        }
+        return texture;
     }
 
     IDXGIFactory7* DX12Device::factory() const

@@ -5,10 +5,10 @@
 
 namespace Cubify::DX12
 {
-    DX12SwapChain::DX12SwapChain(DX12Device& device, void* windowHandle, int width, int height)
-        : m_device(device.device()), m_width(width), m_height(height)
+    DX12SwapChain::DX12SwapChain(DX12Device& device, const SwapChainDesc& desc)
+        : m_device(device.device()), m_width(desc.width), m_height(desc.height)
     {
-        CreateSwapChain(device.factory(), device.commandQueue(), windowHandle);
+        CreateSwapChain(device.factory(), device.commandQueue(), desc.windowHandle);
         CreateRtvHeap();
         CreateRenderTargets();
         CreateDsvHeap();

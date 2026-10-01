@@ -1,17 +1,18 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
-#include "Graphics/DirectX12Backend/DX12DeletionQueue.hpp"
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
+#include "Graphics/DirectX12Backend/DX12MeshStore.hpp"
 #include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
 #include "Graphics/IPipeline.hpp"
+#include "Graphics/ISwapChain.hpp"
+#include "Graphics/ITexture.hpp"
 #include "Graphics/IRendererBackend.hpp"
 
 namespace Cubify::DX12
@@ -46,25 +47,12 @@ namespace Cubify::DX12
     private:
         void CreateCommandObjects();
         void CreateFence();
-        void CreateSrvHeap();
-        void CreateTextureArray();
-
-        ComPtr<ID3D12Resource> CreateGpuBuffer(const void* data, UINT64 size,
-            D3D12_RESOURCE_STATES finalState, ComPtr<ID3D12Resource>& outUploadBuffer);
-        void ProcessMeshDeletions();
-
         // per-frame CPU<->GPU synchronization
         void WaitForGpu();
         void MoveToNextFrame();
 
         static constexpr UINT FRAME_COUNT = DX12SwapChain::FRAME_COUNT;
         static constexpr UINT VERTICES_PER_QUAD = 6;
-
-        struct GpuMesh
-        {
-            ComPtr<ID3D12Resource> buffer;
-            UINT quadCount = 0;
-        };
 
         glm::mat4 m_viewProj{ 1.0f };
 
@@ -73,16 +61,13 @@ namespace Cubify::DX12
         ComPtr<ID3D12CommandQueue> m_commandQueue;
         ComPtr<ID3D12RootSignature> m_rootSignature;
 
-        std::unique_ptr<DX12SwapChain> m_swapChain;
+        std::unique_ptr<ISwapChain> m_swapChain;
 
-        ComPtr<ID3D12DescriptorHeap> m_srvHeap;
-        ComPtr<ID3D12Resource> m_textureArray;
         ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
-        std::unordered_map<MeshId, GpuMesh> m_meshes;
-        std::shared_ptr<DX12DeletionQueue> m_deletionQueue;
-        uint32_t m_nextMeshId = 1;
+        std::unique_ptr<DX12MeshStore> m_meshStore;
+        std::unique_ptr<ITexture> m_blockTextures;
 
         // Resources the GPU may still be reading. Each slot is emptied only when
         // that frame comes around again, by which point its fence has passed.
