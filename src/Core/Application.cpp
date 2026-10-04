@@ -6,7 +6,6 @@
 #include "Core/Input/GLFWInputController.hpp"
 #include "Sound/AudioEngine.hpp"
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
-#include "Graphics/DirectX12Backend/DX12Renderer.hpp"
 #include "Logging/Log.hpp"
 #include "Utils/Config.hpp"
 #include "miniaudio.h"
@@ -103,8 +102,7 @@ void Application::run()
                 m_game->onUpdate(m_deltaTime);
                 m_game->onRender();
 
-                // Has to happen while the frame is still recording
-                screenshotCaptured = m_renderer->captureBackbuffer(outputScreenPath);
+                screenshotCaptured = m_renderer->captureBackBufferInsideFrame(outputScreenPath);
 
                 if (screenshotCaptured)
                 {
@@ -256,14 +254,7 @@ void Application::initSubsystems()
 // TODO: Remove isVoidMode or make it real option in DX12
 std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int height, bool isVoidMode)
 {
-    switch (m_graphicsDevice->api())
-    {
-    case GraphicsApi::DirectX12:
-        return std::make_unique<Cubify::DX12::DX12Renderer>(
-            static_cast<Cubify::DX12::DX12Device&>(*m_graphicsDevice),
-            m_window->nativeWindowHandle(), width, height);
-    }
-    return nullptr;
+    return m_graphicsDevice->createRenderer(m_window->nativeWindowHandle(), width, height);
 }
 
 void Application::shutdownSubsystems()

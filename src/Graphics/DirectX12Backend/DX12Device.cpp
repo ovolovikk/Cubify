@@ -2,6 +2,7 @@
 
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
+#include "Graphics/DirectX12Backend/DX12Renderer.hpp"
 #include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
 #include "Graphics/DirectX12Backend/DX12Texture.hpp"
 
@@ -17,12 +18,25 @@ namespace Cubify::DX12
         m_rootSignature = DX12Pipeline::CreateRootSignature(m_device.Get());
     }
 
-    GraphicsApi DX12Device::api() const
+    DX12Device::~DX12Device()
     {
-        return GraphicsApi::DirectX12;
+        m_flushFence.Reset();
+        m_rootSignature.Reset();
+        m_commandQueue.Reset();
+        m_device.Reset();
+        m_adapter.Reset();
+        m_factory.Reset();
+        m_debugController.Reset();
+
+        LogLiveObjects();
     }
 
-    std::unique_ptr<IPipeline> DX12Device::createPipeline(const PipelineDesc& desc)
+    std::unique_ptr<IRendererBackend> DX12Device::createRenderer(void* windowHandle, int width, int height)
+    {
+        return std::make_unique<DX12Renderer>(*this, windowHandle, width, height);
+    }
+
+    std::unique_ptr<DX12Pipeline> DX12Device::createPipeline(const PipelineDesc& desc)
     {
         auto pipeline = std::make_unique<DX12Pipeline>(m_device.Get(), m_rootSignature.Get(), desc);
         if (!pipeline->pipelineState())
@@ -32,7 +46,7 @@ namespace Cubify::DX12
         return pipeline;
     }
 
-    std::unique_ptr<ISwapChain> DX12Device::createSwapChain(const SwapChainDesc& desc)
+    std::unique_ptr<DX12SwapChain> DX12Device::createSwapChain(const SwapChainDesc& desc)
     {
         auto swapChain = std::make_unique<DX12SwapChain>(*this, desc);
         if (!swapChain->backBuffer())
@@ -42,7 +56,7 @@ namespace Cubify::DX12
         return swapChain;
     }
 
-    std::unique_ptr<ITexture> DX12Device::createTexture(const TextureDesc& desc)
+    std::unique_ptr<DX12Texture> DX12Device::createTexture(const TextureDesc& desc)
     {
         auto texture = std::make_unique<DX12Texture>(*this, desc);
         if (!texture->isValid())
@@ -50,6 +64,14 @@ namespace Cubify::DX12
             return nullptr;
         }
         return texture;
+    }
+
+    void DX12Device::flush()
+    {
+        const UINT64 value = ++m_flushValue;
+        m_commandQueue->Signal(m_flushFence.Get(), value);
+        // Docs says that with no even it will block until fence reaches the value
+        m_flushFence->SetEventOnCompletion(value, nullptr);
     }
 
     IDXGIFactory7* DX12Device::factory() const
@@ -133,6 +155,17 @@ namespace Cubify::DX12
         ), "[DX12Device] Failed to create D3D12 device");
         SetDebugName(m_device.Get(), L"Device");
         LOGI("[DX12Device] D3D12 device created successfully");
+
+#if defined(_DEBUG)
+        ComPtr<ID3D12InfoQueue> infoQueue;
+        if (IsDebuggerPresent() && SUCCEEDED(m_device.As(&infoQueue)))
+        {
+            infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+            infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+            // Warnings are intentially ignored to not bother with filtering for now
+            // TODO: Maybe add them in future
+        }
+#endif
     }
 
     void DX12Device::CreateCommandQueue()
@@ -145,6 +178,9 @@ namespace Cubify::DX12
         HR_CHECK(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_commandQueue)),
             "[DX12Device] Failed to create command queue");
         SetDebugName(m_commandQueue.Get(), L"Direct Queue");
+
+        HR_CHECK(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_flushFence)),
+            "[DX12Device] Failed to create flush fence");
         LOGI("[DX12Device] Command queue created successfully");
     }
 }

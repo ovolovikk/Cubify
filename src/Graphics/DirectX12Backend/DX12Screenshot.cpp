@@ -4,14 +4,15 @@
 
 #include "d3dx12.h"
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
+#include "Graphics/DirectX12Backend/DX12Device.hpp"
 #include "stb_image_write.h"
 
 namespace Cubify::DX12
 {
     using Microsoft::WRL::ComPtr;
 
-    bool SaveBackBufferToPng(ID3D12Device2* device, ID3D12CommandQueue* queue,
-        ID3D12GraphicsCommandList* commandList, ID3D12Resource* backBuffer, const char* filePath)
+    bool SaveBackBufferToPng(DX12Device& device, ID3D12GraphicsCommandList* commandList,
+        ID3D12Resource* backBuffer, const char* filePath)
     {
         D3D12_RESOURCE_DESC backBufferDesc = backBuffer->GetDesc();
 
@@ -19,7 +20,7 @@ namespace Cubify::DX12
         UINT rowCount = 0;
         UINT64 rowSizeInBytes = 0;
         UINT64 totalBytes = 0;
-        device->GetCopyableFootprints(&backBufferDesc, 0, 1, 0,
+        device.device()->GetCopyableFootprints(&backBufferDesc, 0, 1, 0,
             &footprint, &rowCount, &rowSizeInBytes, &totalBytes);
 
         // READBACK is the mirror image of UPLOAD: GPU writes, CPU reads
@@ -27,7 +28,7 @@ namespace Cubify::DX12
         CD3DX12_RESOURCE_DESC readbackDesc = CD3DX12_RESOURCE_DESC::Buffer(totalBytes);
 
         ComPtr<ID3D12Resource> readback;
-        HR_FALLBACK(device->CreateCommittedResource(
+        HR_FALLBACK(device.device()->CreateCommittedResource(
             &readbackHeap,
             D3D12_HEAP_FLAG_NONE,
             &readbackDesc,
@@ -50,18 +51,9 @@ namespace Cubify::DX12
 
         commandList->Close();
         ID3D12CommandList* commandLists[] = { commandList };
-        queue->ExecuteCommandLists(_countof(commandLists), commandLists);
+        device.commandQueue()->ExecuteCommandLists(_countof(commandLists), commandLists);
 
-        // Own fence, so the renderer's frame pacing stays untouched
-        ComPtr<ID3D12Fence> fence;
-        HR_FALLBACK(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)), false,
-            "[DX12Screenshot] Failed to create fence");
-
-        HANDLE copied = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        queue->Signal(fence.Get(), 1);
-        fence->SetEventOnCompletion(1, copied);
-        WaitForSingleObject(copied, INFINITE);
-        CloseHandle(copied);
+        device.flush();
 
         void* mapped = nullptr;
         CD3DX12_RANGE readRange(0, static_cast<SIZE_T>(totalBytes));
@@ -80,8 +72,6 @@ namespace Cubify::DX12
         CD3DX12_RANGE writtenRange(0, 0);
         readback->Unmap(0, &writtenRange);
 
-        // D3D and PNG both start at the top left, so unlike the OpenGL path
-        // there is no flip here.
         stbi_flip_vertically_on_write(0);
         return stbi_write_png(filePath,
             static_cast<int>(backBufferDesc.Width),

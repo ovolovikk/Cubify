@@ -137,15 +137,7 @@ namespace Cubify::DX12
         device.commandQueue()->ExecuteCommandLists(_countof(lists), lists);
 
         // Blocking wait, textures are only uploaded while starting up
-        ComPtr<ID3D12Fence> fence;
-        HR_CHECK(device.device()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)),
-            "[DX12Texture] Failed to create upload fence");
-
-        HANDLE uploaded = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        device.commandQueue()->Signal(fence.Get(), 1);
-        fence->SetEventOnCompletion(1, uploaded);
-        WaitForSingleObject(uploaded, INFINITE);
-        CloseHandle(uploaded);
+        device.flush();
     }
 
     void DX12Texture::CreateShaderResourceView(ID3D12Device2* device, const TextureDesc& desc)

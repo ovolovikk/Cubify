@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
+# Has to be set before project(). Dependencies come from vcpkg.json
+if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+endif()
+
 project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -62,6 +67,10 @@ target_link_libraries(Cubify PRIVATE
 
 if(WIN32)
     target_link_libraries(Cubify PRIVATE d3d12 dxgi dxguid d3dcompiler dxcompiler)
+
+    find_package(winpixevent CONFIG REQUIRED)
+    target_link_libraries(Cubify PRIVATE Microsoft::WinPixEventRuntime)
+    target_compile_definitions(Cubify PRIVATE $<$<CONFIG:RelWithDebInfo>:USE_PIX>)
     file(TO_CMAKE_PATH "$ENV{ProgramFiles\(x86\)}" PROGRAM_FILES_X86)
     set(WINDOWS_KIT_BIN "${PROGRAM_FILES_X86}/Windows Kits/10/bin")
 

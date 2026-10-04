@@ -11,20 +11,9 @@
 
 namespace Cubify::DX12
 {
-    static ID3D12PipelineState* ToPipelineState(const IPipeline* pipeline)
+    static ID3D12PipelineState* ToPipelineState(const DX12Pipeline* pipeline)
     {
-        return pipeline ? static_cast<const DX12Pipeline*>(pipeline)->pipelineState() : nullptr;
-    }
-
-    // Safe: DX12Device only ever creates DX12SwapChains
-    static DX12SwapChain& ToDX12SwapChain(ISwapChain& swapChain)
-    {
-        return static_cast<DX12SwapChain&>(swapChain);
-    }
-
-    static DX12Texture& ToDX12Texture(ITexture& texture)
-    {
-        return static_cast<DX12Texture&>(texture);
+        return pipeline ? pipeline->pipelineState() : nullptr;
     }
 
     // Layer order defines the indices the mesher packs into the quads
@@ -96,16 +85,14 @@ namespace Cubify::DX12
     }
 
     DX12Renderer::DX12Renderer(DX12Device& device, void* windowHandle, int width, int height)
-        : m_device(device.device())
-        , m_commandQueue(device.commandQueue())
-        , m_rootSignature(device.rootSignature())
+        : m_device(device)
     {
         m_swapChain = device.createSwapChain({
             .windowHandle = windowHandle,
             .width = width,
             .height = height,
         });
-        m_currentFrame = ToDX12SwapChain(*m_swapChain).currentBackBufferIndex();
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
         CreateCommandObjects();
         CreateFence();
         m_solidPipeline = device.createPipeline({
@@ -121,7 +108,7 @@ namespace Cubify::DX12
             .cull = CullMode::None,
             .depthWrite = false,
         });
-        m_meshStore = std::make_unique<DX12MeshStore>(m_device.Get());
+        m_meshStore = std::make_unique<DX12MeshStore>(m_device.device());
 
         BlockTextureLayers blockTextures;
         if (LoadBlockTextures(blockTextures))
@@ -138,10 +125,7 @@ namespace Cubify::DX12
 
     DX12Renderer::~DX12Renderer()
     {
-        if (m_device && m_fence && m_fenceEvent)
-        {
-            WaitForGpu();
-        }
+        m_device.flush();
         if (m_fenceEvent)
         {
             CloseHandle(m_fenceEvent);
@@ -162,7 +146,7 @@ namespace Cubify::DX12
         }
 
         // Careful about back buffers still having work
-        WaitForGpu();
+        m_device.flush();
 
         for (UINT i = 0; i < FRAME_COUNT; ++i)
         {
@@ -170,26 +154,20 @@ namespace Cubify::DX12
         }
 
         m_swapChain->resize(width, height);
-        m_currentFrame = ToDX12SwapChain(*m_swapChain).currentBackBufferIndex();
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
     }
 
     void DX12Renderer::beginFrame()
     {
-        if (m_commandListOpen)
-        {
-            return;
-        }
-
         m_commandAllocators[m_currentFrame].Get()->Reset();
         m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), ToPipelineState(m_solidPipeline.get()));
-        m_commandListOpen = true;
 
         // MoveToNextFrame already waited on this slot, so whatever the GPU was
         // reading two frames ago is definitely free now
         m_deferredReleases[m_currentFrame].clear();
         m_meshStore->processDeletions(m_deferredReleases[m_currentFrame]);
 
-        DX12SwapChain& swapChain = ToDX12SwapChain(*m_swapChain);
+        DX12SwapChain& swapChain = *m_swapChain;
 
         // Update the back buffer state to be writable before rendering
         CD3DX12_RESOURCE_BARRIER toRenderTarget = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -213,20 +191,18 @@ namespace Cubify::DX12
         m_commandList->RSSetViewports(1, &viewport);
         m_commandList->RSSetScissorRects(1, &scissor);
 
-        if (m_rootSignature)
+        if (ID3D12RootSignature* rootSignature = m_device.rootSignature())
         {
-            m_commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+            m_commandList->SetGraphicsRootSignature(rootSignature);
             m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
             if (m_blockTextures)
             {
-                DX12Texture& textures = ToDX12Texture(*m_blockTextures);
-
                 // The heap must be bound before the table that points into it
-                ID3D12DescriptorHeap* heaps[] = { textures.srvHeap() };
+                ID3D12DescriptorHeap* heaps[] = { m_blockTextures->srvHeap() };
                 m_commandList->SetDescriptorHeaps(_countof(heaps), heaps);
                 m_commandList->SetGraphicsRootDescriptorTable(
-                    DX12Pipeline::ROOT_PARAM_TEXTURES, textures.srv());
+                    DX12Pipeline::ROOT_PARAM_TEXTURES, m_blockTextures->srv());
             }
         }
     }
@@ -234,16 +210,15 @@ namespace Cubify::DX12
     void DX12Renderer::endFrame()
     {
         CD3DX12_RESOURCE_BARRIER toPresent = CD3DX12_RESOURCE_BARRIER::Transition(
-            ToDX12SwapChain(*m_swapChain).backBuffer(),
+            m_swapChain->backBuffer(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
             D3D12_RESOURCE_STATE_PRESENT
         );
 
         m_commandList->ResourceBarrier(1, &toPresent);
         m_commandList->Close();
-        m_commandListOpen = false;
         ID3D12CommandList* commandLists[] = { m_commandList.Get() };
-        m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+        m_device.commandQueue()->ExecuteCommandLists(_countof(commandLists), commandLists);
 
         m_swapChain->present();
 
@@ -274,26 +249,19 @@ namespace Cubify::DX12
         depthZeroToOne[2][2] = 0.5f;
         depthZeroToOne[3][2] = 0.5f;
 
-        m_viewProj = depthZeroToOne * projection * view;
+        const glm::mat4 viewProj = depthZeroToOne * projection * view;
 
-        if (m_commandListOpen && m_rootSignature)
+        if (m_device.rootSignature())
         {
             m_commandList->SetGraphicsRoot32BitConstants(
-                DX12Pipeline::ROOT_PARAM_VIEW_PROJ, DX12Pipeline::MATRIX_CONSTANT_COUNT, &m_viewProj, 0);
+                DX12Pipeline::ROOT_PARAM_VIEW_PROJ, DX12Pipeline::MATRIX_CONSTANT_COUNT, &viewProj, 0);
         }
     }
 
-    // Test mode only
-    bool DX12Renderer::captureBackbuffer(const char* filePath)
+    bool DX12Renderer::captureBackBufferInsideFrame(const char* filePath)
     {
-        if (!m_commandListOpen || !m_device)
-        {
-            LOGE("[DX12Renderer] captureBackbuffer called outside of a frame");
-            return false;
-        }
-
-        const bool saved = SaveBackBufferToPng(m_device.Get(), m_commandQueue.Get(), m_commandList.Get(),
-            ToDX12SwapChain(*m_swapChain).backBuffer(), filePath);
+        const bool saved = SaveBackBufferToPng(m_device, m_commandList.Get(),
+            m_swapChain->backBuffer(), filePath);
 
         m_commandList->Reset(m_commandAllocators[m_currentFrame].Get(), ToPipelineState(m_solidPipeline.get()));
         return saved;
@@ -303,12 +271,6 @@ namespace Cubify::DX12
 
     void DX12Renderer::uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads)
     {
-        if (!quads.empty() && !m_commandListOpen)
-        {
-            LOGE("[DX12Renderer] uploadMesh called outside of a frame, skipping");
-            return;
-        }
-
         m_meshStore->upload(mesh, quads, m_commandList.Get(), m_deferredReleases[m_currentFrame]);
     }
 
@@ -332,11 +294,12 @@ namespace Cubify::DX12
 
     void DX12Renderer::CreateCommandObjects()
     {
+        ID3D12Device2* device = m_device.device();
 
         // Command Allocator
         for (UINT i = 0; i < FRAME_COUNT; ++i)
         {
-            HR_CHECK(m_device->CreateCommandAllocator(
+            HR_CHECK(device->CreateCommandAllocator(
                 D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocators[i])),
                 "[DX12Renderer] Failed to create command allocator %u", i);
 
@@ -345,7 +308,7 @@ namespace Cubify::DX12
         }
 
         // Command List
-        HR_CHECK(m_device->CreateCommandList(
+        HR_CHECK(device->CreateCommandList(
             0,
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             m_commandAllocators[m_currentFrame].Get(),
@@ -360,7 +323,7 @@ namespace Cubify::DX12
 
     void DX12Renderer::CreateFence()
     {
-        HR_CHECK(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)),
+        HR_CHECK(m_device.device()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)),
             "[DX12Renderer] Failed to create fence");
         m_fenceValues[m_currentFrame] = 1;
         m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
@@ -372,21 +335,12 @@ namespace Cubify::DX12
         LOGI("[DX12Renderer] Fence created successfully");
     }
 
-    void DX12Renderer::WaitForGpu()
-    {
-        const UINT64 value = m_fenceValues[m_currentFrame];
-        m_commandQueue->Signal(m_fence.Get(), value);
-        m_fence->SetEventOnCompletion(value, m_fenceEvent);
-        WaitForSingleObject(m_fenceEvent, INFINITE);
-        m_fenceValues[m_currentFrame]++;
-    }
-
     void DX12Renderer::MoveToNextFrame()
     {
         const UINT64 currentValue = m_fenceValues[m_currentFrame];
-        m_commandQueue->Signal(m_fence.Get(), currentValue);
+        m_device.commandQueue()->Signal(m_fence.Get(), currentValue);
 
-        m_currentFrame = ToDX12SwapChain(*m_swapChain).currentBackBufferIndex();
+        m_currentFrame = m_swapChain->currentBackBufferIndex();
 
         // Only wait if the GPU is still busy with the frame we are about to reuse
         if (m_fence->GetCompletedValue() < m_fenceValues[m_currentFrame])

@@ -4,8 +4,9 @@
 
 namespace Cubify::DX12
 {
+    class DX12Device;
+
     // Test mode only. Copies the back buffer into a PNG and blocks until the GPU is done.
-    // Leaves commandList closed, the caller resets it.
-    bool SaveBackBufferToPng(ID3D12Device2* device, ID3D12CommandQueue* queue,
-        ID3D12GraphicsCommandList* commandList, ID3D12Resource* backBuffer, const char* filePath);
+    bool SaveBackBufferToPng(DX12Device& device, ID3D12GraphicsCommandList* commandList,
+        ID3D12Resource* backBuffer, const char* filePath);
 }

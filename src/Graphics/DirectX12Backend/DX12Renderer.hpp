@@ -9,10 +9,9 @@
 
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
 #include "Graphics/DirectX12Backend/DX12MeshStore.hpp"
+#include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
 #include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
-#include "Graphics/IPipeline.hpp"
-#include "Graphics/ISwapChain.hpp"
-#include "Graphics/ITexture.hpp"
+#include "Graphics/DirectX12Backend/DX12Texture.hpp"
 #include "Graphics/IRendererBackend.hpp"
 
 namespace Cubify::DX12
@@ -42,45 +41,38 @@ namespace Cubify::DX12
         void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) override;
         void draw(MeshId mesh, const glm::mat4& model) override;
 
-        bool captureBackbuffer(const char* filePath) override;
+        bool captureBackBufferInsideFrame(const char* filePath) override;
 
     private:
         void CreateCommandObjects();
         void CreateFence();
         // per-frame CPU<->GPU synchronization
-        void WaitForGpu();
         void MoveToNextFrame();
 
         static constexpr UINT FRAME_COUNT = DX12SwapChain::FRAME_COUNT;
         static constexpr UINT VERTICES_PER_QUAD = 6;
 
-        glm::mat4 m_viewProj{ 1.0f };
+        DX12Device& m_device;
 
-        // Shared with DX12Device
-        ComPtr<ID3D12Device2> m_device;
-        ComPtr<ID3D12CommandQueue> m_commandQueue;
-        ComPtr<ID3D12RootSignature> m_rootSignature;
-
-        std::unique_ptr<ISwapChain> m_swapChain;
+        std::unique_ptr<DX12SwapChain> m_swapChain;
 
         ComPtr<ID3D12CommandAllocator> m_commandAllocators[FRAME_COUNT];
         ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
         std::unique_ptr<DX12MeshStore> m_meshStore;
-        std::unique_ptr<ITexture> m_blockTextures;
+        std::unique_ptr<DX12Texture> m_blockTextures;
 
         // Resources the GPU may still be reading. Each slot is emptied only when
         // that frame comes around again, by which point its fence has passed.
         std::vector<ComPtr<ID3D12Resource>> m_deferredReleases[FRAME_COUNT];
 
-        std::unique_ptr<IPipeline> m_solidPipeline;
-        std::unique_ptr<IPipeline> m_transparentPipeline;
+        std::unique_ptr<DX12Pipeline> m_solidPipeline;
+        std::unique_ptr<DX12Pipeline> m_transparentPipeline;
 
         ComPtr<ID3D12Fence>  m_fence;
         HANDLE m_fenceEvent = nullptr;
         UINT64 m_fenceValues[FRAME_COUNT] = {};
 
         UINT m_currentFrame = 0;
-        bool m_commandListOpen = false;
     };
 }
