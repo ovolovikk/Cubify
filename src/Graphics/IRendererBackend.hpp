@@ -4,9 +4,9 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "Graphics/MeshHandle.hpp"
-#include "Graphics/MeshId.hpp"
-#include "Graphics/Quad.hpp"
+#include "Graphics/Mesh/MeshHandle.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
+#include "Graphics/Mesh/Quad.hpp"
 #include "World/WorldSettings.hpp"
 
 class IRendererBackend

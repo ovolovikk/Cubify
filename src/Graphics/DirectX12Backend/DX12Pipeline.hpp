@@ -3,7 +3,7 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 
-#include "Graphics/IPipeline.hpp"
+#include "Graphics/Resources/IPipeline.hpp"
 
 namespace Cubify::DX12
 {

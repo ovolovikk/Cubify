@@ -5,7 +5,7 @@
 #include <wrl/client.h>
 
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
-#include "Graphics/ISwapChain.hpp"
+#include "Graphics/Resources/ISwapChain.hpp"
 
 namespace Cubify::DX12
 {

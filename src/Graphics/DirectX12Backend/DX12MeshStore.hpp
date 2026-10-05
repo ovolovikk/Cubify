@@ -8,9 +8,9 @@
 #include <wrl/client.h>
 
 #include "Graphics/DirectX12Backend/DX12DeletionQueue.hpp"
-#include "Graphics/MeshHandle.hpp"
-#include "Graphics/MeshId.hpp"
-#include "Graphics/Quad.hpp"
+#include "Graphics/Mesh/MeshHandle.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
+#include "Graphics/Mesh/Quad.hpp"
 
 namespace Cubify::DX12
 {

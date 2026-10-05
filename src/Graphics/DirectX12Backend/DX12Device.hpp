@@ -5,9 +5,9 @@
 #include <wrl/client.h>
 
 #include "Graphics/IGraphicsDevice.hpp"
-#include "Graphics/IPipeline.hpp"
-#include "Graphics/ISwapChain.hpp"
-#include "Graphics/ITexture.hpp"
+#include "Graphics/Resources/IPipeline.hpp"
+#include "Graphics/Resources/ISwapChain.hpp"
+#include "Graphics/Resources/ITexture.hpp"
 
 namespace Cubify::DX12
 {

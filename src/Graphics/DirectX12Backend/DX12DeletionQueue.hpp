@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/IGpuResourceQueue.hpp"
+#include "Graphics/Mesh/IGpuResourceQueue.hpp"
 
 #include "PrecompilerHeader.hpp"
 

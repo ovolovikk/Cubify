@@ -1,87 +1,19 @@
 #include "DX12Renderer.hpp"
 
 #include "d3dx12.h"
+#include "Graphics/BlockTextures.hpp"
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
 #include "Graphics/DirectX12Backend/DX12Screenshot.hpp"
 #include "Graphics/DirectX12Backend/DX12SwapChain.hpp"
 #include "Graphics/DirectX12Backend/DX12Texture.hpp"
 #include "Logging/Log.hpp"
-#include "stb_image.h"
 
 namespace Cubify::DX12
 {
     static ID3D12PipelineState* ToPipelineState(const DX12Pipeline* pipeline)
     {
         return pipeline ? pipeline->pipelineState() : nullptr;
-    }
-
-    // Layer order defines the indices the mesher packs into the quads
-    static constexpr const char* BLOCK_TEXTURE_PATHS[] = {
-        "assets/textures/grass_top.png",
-        "assets/textures/grass_side.png",
-        "assets/textures/dirt.png",
-        "assets/textures/stone.png",
-        "assets/textures/sand.png",
-        "assets/textures/wooden_plank.png",
-        "assets/textures/water.png",
-        "assets/textures/bedrock.png",
-        "assets/textures/ice.png",
-        "assets/textures/sectorr_grass_top.png",
-        "assets/textures/sectorr_grass_side.png",
-        "assets/textures/sectorr_dirt.png",
-        "assets/textures/sectorr_stone.png",
-        "assets/textures/sectorr_sand.png",
-        "assets/textures/sectorr_water.png",
-        "assets/textures/utopia_sand.png",
-        "assets/textures/utopia_silt.png",
-        "assets/textures/utopia_water.png"
-    };
-
-    // Frees the decoded pixels once the texture has been created from them
-    struct BlockTextureLayers
-    {
-        std::vector<unsigned char*> pixels;
-        int width = 0;
-        int height = 0;
-
-        ~BlockTextureLayers()
-        {
-            for (unsigned char* layer : pixels)
-            {
-                stbi_image_free(layer);
-            }
-        }
-    };
-
-    static bool LoadBlockTextures(BlockTextureLayers& layers)
-    {
-        stbi_set_flip_vertically_on_load(true);
-
-        for (const char* path : BLOCK_TEXTURE_PATHS)
-        {
-            int w = 0, h = 0, comp = 0;
-            unsigned char* pixels = stbi_load(path, &w, &h, &comp, 4);
-            if (!pixels)
-            {
-                LOGE("[DX12Renderer] Failed to load texture layer: %s", path);
-                return false;
-            }
-
-            layers.pixels.push_back(pixels);
-            if (layers.pixels.size() == 1)
-            {
-                layers.width = w;
-                layers.height = h;
-            }
-            else if (w != layers.width || h != layers.height)
-            {
-                LOGE("[DX12Renderer] Texture layer size mismatch: %s", path);
-                return false;
-            }
-        }
-
-        return true;
     }
 
     DX12Renderer::DX12Renderer(DX12Device& device, void* windowHandle, int width, int height)

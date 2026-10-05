@@ -1,6 +1,6 @@
 #include "DX12DeletionQueue.hpp"
 
-#include "Graphics/MeshId.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
 
 namespace Cubify::DX12
 {

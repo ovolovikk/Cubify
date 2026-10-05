@@ -4,7 +4,7 @@
 #include <wrl/client.h>
 
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
-#include "Graphics/ITexture.hpp"
+#include "Graphics/Resources/ITexture.hpp"
 
 namespace Cubify::DX12
 {
