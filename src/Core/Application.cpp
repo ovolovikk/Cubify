@@ -5,7 +5,7 @@
 #include "Core/Game.hpp"
 #include "Core/Input/GLFWInputController.hpp"
 #include "Sound/AudioEngine.hpp"
-#include "Graphics/DirectX12Backend/DX12Renderer.hpp"
+#include "Graphics/DirectX12Backend/DX12Device.hpp"
 #include "Logging/Log.hpp"
 #include "Utils/Config.hpp"
 #include "miniaudio.h"
@@ -102,8 +102,7 @@ void Application::run()
                 m_game->onUpdate(m_deltaTime);
                 m_game->onRender();
 
-                // Has to happen while the frame is still recording
-                screenshotCaptured = m_renderer->captureBackbuffer(outputScreenPath);
+                screenshotCaptured = m_renderer->captureBackBufferInsideFrame(outputScreenPath);
 
                 if (screenshotCaptured)
                 {
@@ -237,6 +236,9 @@ void Application::initSubsystems()
     LOGI("[Subsystem] Initializing InputController");
     m_inputController = std::make_unique<GLFWInputController>(*m_window);
 
+    LOGI("[Subsystem] Initializing DirectX12 Device");
+    m_graphicsDevice = std::make_unique<Cubify::DX12::DX12Device>();
+
     LOGI("[Subsystem] Initializing DirectX12 Renderer");
     m_renderer = createRenderer(m_window->getWidth(), m_window->getHeight(), false);
 
@@ -252,17 +254,20 @@ void Application::initSubsystems()
 // TODO: Remove isVoidMode or make it real option in DX12
 std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int height, bool isVoidMode)
 {
-    return std::make_unique<Cubify::DX12::DX12Renderer>(m_window->nativeWindowHandle(), width, height);
+    return m_graphicsDevice->createRenderer(m_window->nativeWindowHandle(), width, height);
 }
 
 void Application::shutdownSubsystems()
 {
-    // Reverse of initSubsystems: Game -> Renderer -> InputController -> Window.
+    // Reverse of initSubsystems: Game -> Renderer -> Device -> InputController -> Window.
     LOGI("[Subsystem] Shutting down Game");
     m_game.reset();
 
     LOGI("[Subsystem] Shutting down Renderer");
     m_renderer.reset();
+
+    LOGI("[Subsystem] Shutting down Graphics Device");
+    m_graphicsDevice.reset();
 
     LOGI("[Subsystem] Shutting down InputController");
     m_inputController.reset();

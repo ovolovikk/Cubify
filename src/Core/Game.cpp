@@ -84,8 +84,6 @@ bool Game::isReadyForTest() const
 
 void Game::onRender()
 {
-    m_renderer.beginFrame();
-
     glm::mat4 view = camera->GetViewMatrix();
     glm::mat4 projection = camera->GetProjectionMatrix();
     glm::mat4 viewProj = projection * view;

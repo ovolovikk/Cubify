@@ -18,7 +18,7 @@ jobs:
         run: winget install --accept-source-agreements --accept-package-agreements -e Microsoft.OpenCLGLVulkanCompatibilityPack
 
       - name: Configure CMake
-        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
 
       - name: Build Debug
         run: cmake --build build --config Debug

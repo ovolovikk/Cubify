@@ -4,9 +4,9 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "Graphics/MeshHandle.hpp"
-#include "Graphics/MeshId.hpp"
-#include "Graphics/Quad.hpp"
+#include "Graphics/Mesh/MeshHandle.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
+#include "Graphics/Mesh/Quad.hpp"
 #include "World/WorldSettings.hpp"
 
 class IRendererBackend
@@ -27,5 +27,5 @@ public:
     virtual void uploadMesh(MeshHandle& mesh, const std::vector<Quad>& quads) = 0;
     virtual void draw(MeshId mesh, const glm::mat4& model) = 0;
 
-    virtual bool captureBackbuffer(const char* filePath) = 0;
+    virtual bool captureBackBufferInsideFrame(const char* filePath) = 0;
 };

@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
+
+# Has to be set before project(). Dependencies come from vcpkg.json
+if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+endif()
 
 project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
@@ -23,10 +28,14 @@ set_target_properties(glfw PROPERTIES
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE "${GLM_ROOT}")
 
+add_subdirectory(src/Graphics)
+
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
     "src/*.cpp" 
     "src/*.c"
 )
+# Built as the CubifyGraphics library
+list(FILTER SOURCES EXCLUDE REGEX "/src/Graphics/")
 
 #TODO: Return imgui
 
@@ -44,51 +53,33 @@ target_include_directories(Cubify PRIVATE
 )
 
 if(CUBIFY_STRICT_WARNINGS AND MSVC)
-    target_compile_options(Cubify PRIVATE
-        /W4
-        /permissive-
-        /Zc:__cplusplus
+    foreach(target Cubify CubifyGraphics)
+        target_compile_options(${target} PRIVATE
+            /W4
+            /permissive-
+            /Zc:__cplusplus
 
-        # these ignored because not i've written them
-        /external:W0
-        "/external:I${CMAKE_SOURCE_DIR}/external"
-    )
+            # these ignored because not i've written them
+            /external:W0
+            "/external:I${CMAKE_SOURCE_DIR}/external"
+        )
+    endforeach()
 endif()
 
 target_link_libraries(Cubify PRIVATE
     glfw
     glm
+    CubifyGraphics
 )
-
-if(WIN32)
-    target_link_libraries(Cubify PRIVATE d3d12 dxgi dxguid d3dcompiler dxcompiler)
-    file(TO_CMAKE_PATH "$ENV{ProgramFiles\(x86\)}" PROGRAM_FILES_X86)
-    set(WINDOWS_KIT_BIN "${PROGRAM_FILES_X86}/Windows Kits/10/bin")
-
-    if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
-        set(DXC_SEARCH_PATHS "${WINDOWS_KIT_BIN}/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/x64")
-    else()
-        file(GLOB DXC_SEARCH_PATHS "${WINDOWS_KIT_BIN}/*/x64") # Used in non MSVC builds
-    endif()
-
-    find_file(DXC_COMPILER_DLL NAMES dxcompiler.dll PATHS ${DXC_SEARCH_PATHS} NO_DEFAULT_PATH)
-    find_file(DXC_DXIL_DLL NAMES dxil.dll PATHS ${DXC_SEARCH_PATHS} NO_DEFAULT_PATH)
-
-    if(NOT DXC_COMPILER_DLL OR NOT DXC_DXIL_DLL)
-        message(WARNING
-            "dxcompiler.dll / dxil.dll not found under ${WINDOWS_KIT_BIN}. "
-            "Shaders will fail to compile at runtime.")
-    endif()
-endif()
 
 set_target_properties(Cubify PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Cubify>"
 )
 
-if(WIN32 AND DXC_COMPILER_DLL AND DXC_DXIL_DLL)
+if(CUBIFY_GRAPHICS_RUNTIME_DLLS)
     add_custom_command(TARGET Cubify POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${DXC_COMPILER_DLL}" "${DXC_DXIL_DLL}"
+        ${CUBIFY_GRAPHICS_RUNTIME_DLLS}
         "$<TARGET_FILE_DIR:Cubify>"
     )
 endif()
