@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Graphics/MeshId.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
 
 class IGpuResourceQueue
 {

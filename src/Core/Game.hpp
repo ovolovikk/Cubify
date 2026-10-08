@@ -58,8 +58,7 @@ private:
     bool free_cam_mode = false;
     bool cursor_visible = false;
     bool world_rendered = false;
-    bool player_spawned = false;
-    bool music_started = false;
+    bool world_prepared = false;
     bool m_testMode = false;
     BlockType selectedBlock = BlockType::GRASS;
 

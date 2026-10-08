@@ -3,8 +3,8 @@
 #include <memory>
 #include <utility>
 
-#include "Graphics/IGpuResourceQueue.hpp"
-#include "Graphics/MeshId.hpp"
+#include "Graphics/Mesh/IGpuResourceQueue.hpp"
+#include "Graphics/Mesh/MeshId.hpp"
 
 class MeshHandle
 {

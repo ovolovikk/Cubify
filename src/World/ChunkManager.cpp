@@ -124,18 +124,6 @@ bool ChunkManager::ensureChunkLoaded(int x, int z)
     return addChunk(x, z) || getChunk(x, z) != nullptr;
 }
 
-void ChunkManager::removeChunk(int x, int z)
-{
-    long long id = getChunkId(x, z);
-    auto it = chunks.find(id);
-    if (it != chunks.end()) {
-        if (it->second->hasUnsavedChanges()) {
-            saveChunk(it->second.get());
-        }
-        chunks.erase(it);
-    }
-}
-
 std::string ChunkManager::getChunkFileName(int x, int z) const {
     return m_saveFolder + "chunk_" + std::to_string(x) + "_" + std::to_string(z) + ".dat";
 }
@@ -235,18 +223,16 @@ void ChunkManager::update(glm::vec3 player_pos)
 
     if (chunkChanged || wasForceUpdate)
     {
-        for(auto it = chunks.begin();it != chunks.end();)
-        {
-            long long id = it->first;
+        std::erase_if(chunks, [&](auto& entry) {
+            Chunk* chunk = entry.second.get();
+            if (abs(chunk->getChunkX() - playerChunkX) <= renderDist &&
+                abs(chunk->getChunkZ() - playerChunkZ) <= renderDist)
+                return false;
 
-            int x = static_cast<int>(id >> 32);
-            int z = static_cast<int>(id & 0xFFFFFFFF);
-
-            if(abs(x - playerChunkX) > renderDist || abs(z - playerChunkZ) > renderDist)
-            {
-                // Chunk destruction hands its GPU meshes to the renderer's queue.
-                it = chunks.erase(it);
-            } else ++it;
-        }
+            // Chunk destruction hands its GPU meshes to the renderer's queue.
+            if (chunk->hasUnsavedChanges())
+                saveChunk(chunk);
+            return true;
+        });
     }
 }

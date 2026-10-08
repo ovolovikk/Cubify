@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/BlockType.hpp"
-#include "Graphics/Quad.hpp"
-#include "Graphics/MeshHandle.hpp"
+#include "Graphics/Mesh/Quad.hpp"
+#include "Graphics/Mesh/MeshHandle.hpp"
 #include "Math/AABB.hpp"
 
 constexpr auto CHUNK_SIZE = 16;

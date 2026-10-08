@@ -6,6 +6,7 @@
       "name": "x64-debug",
       "displayName": "Debug",
       "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
       "binaryDir": "${sourceDir}/out/build/debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
@@ -15,6 +16,7 @@
       "name": "x64-release",
       "displayName": "Release",
       "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
       "binaryDir": "${sourceDir}/out/build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"

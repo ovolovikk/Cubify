@@ -93,37 +93,33 @@ void World::rayCastPlaceBlock(glm::vec3 origin, glm::vec3 direction, float max_d
     }
 }
 
+std::optional<int> World::findTopSolidY(int x, int z) const
+{
+    // TODO: think of way to impl this with ranges
+    for (int y = CHUNK_HEIGHT - 1; y >= 0; --y)
+        if (isSolid(getBlock(x, y, z)))
+            return y;
+    return std::nullopt;
+}
+
 glm::vec3 World::getSpawnPoint()
 {
-    int targetX = 8;
-    int targetZ = 8;
+    static constexpr int SPAWN_X = 8;
+    static constexpr int SPAWN_Z = 8;
 
-    int chunkX = targetX / CHUNK_SIZE;
-    int chunkZ = targetZ / CHUNK_SIZE;
-    
-    // Force load the spawn chunk immediately
-    chunk_manager->ensureChunkLoaded(chunkX, chunkZ);
-    
-    Chunk* chunk = chunk_manager->getChunk(chunkX, chunkZ);
-    float spawnY = (float)CHUNK_HEIGHT + 2.0f;
+    chunk_manager->ensureChunkLoaded(
+        static_cast<int>(std::floor(SPAWN_X / (float)CHUNK_SIZE)),
+        static_cast<int>(std::floor(SPAWN_Z / (float)CHUNK_SIZE)));
 
-    if (chunk) {
-        int localX = targetX % CHUNK_SIZE;
-        int localZ = targetZ % CHUNK_SIZE;
-        
-        for (int y = CHUNK_HEIGHT - 1; y >= 0; --y) {
-            BlockType block = chunk->getBlock(localX, y, localZ);
-            if (block != BlockType::AIR && 
-                block != BlockType::WATER && 
-                block != BlockType::SECTORR_WATER &&
-                block != BlockType::UTOPIA_WATER) {
-                spawnY = (float)y + 2.0f;
-                break;
-            }
-        }
-    }
-    
-    return glm::vec3((float)targetX, spawnY, (float)targetZ);
+    // Water has no collision, so an ocean column spawns on the sea floor
+    std::optional<int> top = findTopSolidY(SPAWN_X, SPAWN_Z);
+
+    // Feet stand on top of that block, in the middle of the column: the
+    // player box is 0.6 wide and would otherwise straddle four columns whose
+    // heights were never checked
+    float feetY = top ? *top + 1.0f : (float)CHUNK_HEIGHT;
+
+    return glm::vec3(SPAWN_X + 0.5f, feetY, SPAWN_Z + 0.5f);
 }
 
 void World::update(glm::vec3 player_pos)

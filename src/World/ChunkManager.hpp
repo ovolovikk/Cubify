@@ -41,7 +41,6 @@ private:
     static constexpr int MAX_CHUNKS_PER_FRAME = 32;
 
     bool addChunk(int x, int z);
-    void removeChunk(int x, int z);
     long long getChunkId(int x, int z) const;
 
     void saveChunk(Chunk* chunk);
