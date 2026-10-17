@@ -16,8 +16,7 @@ enum class CullMode
 
 struct ShaderDesc
 {
-    std::string name; // file name without folder or extension, e.g. "vertex_shader"
-    std::string entry;
+    std::string name; // Shader file name without folder or extension, e.g. "vertex_shader"
 };
 
 struct PipelineDesc

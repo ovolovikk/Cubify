@@ -17,5 +17,5 @@ if ($Clean -and (Test-Path $buildDir)) {
     Remove-Item $buildDir -Recurse -Force
 }
 
-cmake -S $root -B $buildDir -G 'Visual Studio 17 2022' -DCUBIFY_STRICT_WARNINGS=ON
+cmake -S $root -B $buildDir -G 'Visual Studio 18 2026' -DCUBIFY_STRICT_WARNINGS=ON
 cmake --build $buildDir --config $Config

@@ -10,3 +10,4 @@ out/
 .clangd
 .cache
 ARCHITECTURE.md
+tests/output/

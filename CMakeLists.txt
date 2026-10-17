@@ -1,9 +1,18 @@
 cmake_minimum_required(VERSION 3.25)
 
-# Has to be set before project(). Dependencies come from vcpkg.json
-if(NOT CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+# Has to be set before project()
+if(NOT CMAKE_TOOLCHAIN_FILE)
+    include(FetchContent)
+    FetchContent_Declare(vcpkg
+        GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
+        GIT_TAG 2026.07.29
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(vcpkg)
+    set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake" CACHE FILEPATH "")
 endif()
+
+set(VCPKG_TARGET_TRIPLET "x64-windows-static-md" CACHE STRING "")
 
 project(Cubify VERSION 1.0 LANGUAGES CXX C)
 
@@ -14,19 +23,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(CUBIFY_STRICT_WARNINGS "Enable a strict warning set" OFF)
 
-set(GLFW_ROOT "${CMAKE_SOURCE_DIR}/external/glfw")
-set(GLM_ROOT  "${CMAKE_SOURCE_DIR}/external/glm")
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(Stb REQUIRED)
+find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h REQUIRED)
 
-list(APPEND CMAKE_PREFIX_PATH "${GLFW_ROOT}" "${GLM_ROOT}")
-
-add_library(glfw STATIC IMPORTED)
-set_target_properties(glfw PROPERTIES
-    IMPORTED_LOCATION "${GLFW_ROOT}/lib-vc2022/glfw3.lib"
-    INTERFACE_INCLUDE_DIRECTORIES "${GLFW_ROOT}/include"
+include(FetchContent)
+FetchContent_Declare(fastnoiselite
+    URL https://raw.githubusercontent.com/Auburn/FastNoiseLite/bae5a7c25fbf9482a010a77576598deee51411af/C/FastNoiseLite.h
+    URL_HASH SHA256=8ed686eff7476303f6c06cc1ec7bdb4a86fe4d35240c1bd20f8c6a5ff69e74b5
+    DOWNLOAD_NO_EXTRACT TRUE
 )
-
-add_library(glm INTERFACE)
-target_include_directories(glm INTERFACE "${GLM_ROOT}")
+FetchContent_MakeAvailable(fastnoiselite)
 
 add_subdirectory(src/Graphics)
 
@@ -47,9 +56,11 @@ add_executable(Cubify WIN32 ${SOURCES} ${WIN_RESOURCES})
 
 target_precompile_headers(Cubify PRIVATE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
 
-target_include_directories(Cubify PRIVATE 
-    "${CMAKE_SOURCE_DIR}/src"
-    "${CMAKE_SOURCE_DIR}/external"
+target_include_directories(Cubify PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_include_directories(Cubify SYSTEM PRIVATE
+    "${Stb_INCLUDE_DIR}"
+    "${MINIAUDIO_INCLUDE_DIR}"
+    "${fastnoiselite_SOURCE_DIR}"
 )
 
 if(CUBIFY_STRICT_WARNINGS AND MSVC)
@@ -59,30 +70,22 @@ if(CUBIFY_STRICT_WARNINGS AND MSVC)
             /permissive-
             /Zc:__cplusplus
 
-            # these ignored because not i've written them
+            # SYSTEM includes (vcpkg, FetchContent) are not mine, so no warnings there
             /external:W0
-            "/external:I${CMAKE_SOURCE_DIR}/external"
         )
     endforeach()
 endif()
 
 target_link_libraries(Cubify PRIVATE
     glfw
-    glm
+    glm::glm
+    nlohmann_json::nlohmann_json
     CubifyGraphics
 )
 
 set_target_properties(Cubify PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Cubify>"
 )
-
-if(CUBIFY_GRAPHICS_RUNTIME_DLLS)
-    add_custom_command(TARGET Cubify POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CUBIFY_GRAPHICS_RUNTIME_DLLS}
-        "$<TARGET_FILE_DIR:Cubify>"
-    )
-endif()
 
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -92,18 +95,6 @@ add_custom_command(TARGET Cubify POST_BUILD
 
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/shaders"
-    "$<TARGET_FILE_DIR:Cubify>/shaders"
-)
-
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/assets"
     "$<TARGET_FILE_DIR:Cubify>/assets"
-)
-
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/tests"
-    "$<TARGET_FILE_DIR:Cubify>/tests"
 )

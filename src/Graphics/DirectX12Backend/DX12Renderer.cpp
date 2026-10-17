@@ -1,6 +1,6 @@
 #include "DX12Renderer.hpp"
 
-#include "d3dx12.h"
+#include <directx/d3dx12.h>
 #include "Graphics/BlockTextures.hpp"
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"
@@ -29,13 +29,13 @@ namespace Cubify::DX12
         CreateFence();
         m_solidPipeline = device.createPipeline({
             .debugName = "Solid",
-            .vertexShader = { "vertex_shader", "VSMain" },
-            .fragmentShader = { "pixel_shader", "PSMain" },
+            .vertexShader = { "vertex_shader" },
+            .fragmentShader = { "pixel_shader" },
         });
         m_transparentPipeline = device.createPipeline({
             .debugName = "Transparent",
-            .vertexShader = { "vertex_shader", "VSMain" },
-            .fragmentShader = { "pixel_shader", "PSMain" },
+            .vertexShader = { "vertex_shader" },
+            .fragmentShader = { "pixel_shader" },
             .blend = BlendMode::AlphaBlend,
             .cull = CullMode::None,
             .depthWrite = false,
