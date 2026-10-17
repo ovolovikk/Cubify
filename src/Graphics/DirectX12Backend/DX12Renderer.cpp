@@ -1,6 +1,6 @@
 #include "DX12Renderer.hpp"
 
-#include "d3dx12.h"
+#include <directx/d3dx12.h>
 #include "Graphics/BlockTextures.hpp"
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Pipeline.hpp"

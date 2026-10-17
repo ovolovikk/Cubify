@@ -2,7 +2,7 @@
 
 #include <wrl/client.h>
 
-#include "d3dx12.h"
+#include <directx/d3dx12.h>
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 #include "Graphics/DirectX12Backend/DX12Device.hpp"
 #include "stb_image_write.h"

@@ -1,6 +1,6 @@
 #include "DX12Texture.hpp"
 
-#include "d3dx12.h"
+#include <directx/d3dx12.h>
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
 
 namespace Cubify::DX12

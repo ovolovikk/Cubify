@@ -17,17 +17,18 @@ def print_result(status: str, difference: float, threshold: float) -> None:
 
 def main() -> int:
     tests_dir = Path(__file__).resolve().parent
-    root = tests_dir.parent
 
     if len(sys.argv) < 2:
         print_result("FAILURE", -1.0, THRESHOLD_PERCENT)
         return 1
 
     exe_path = Path(sys.argv[1]).resolve()
+    root = exe_path.parent
     config_path = root / "config.json"
     expected_path = tests_dir / "test_expected.png"
-    output_path = tests_dir / "test_output.png"
-    diff_path = tests_dir / "test_diff.png"
+    output_dir = tests_dir / "output" / root.name
+    output_path = output_dir / "test_output.png"
+    diff_path = output_dir / "test_diff.png"
 
     if not exe_path.exists():
         print_result("FAILURE", -1.0, THRESHOLD_PERCENT)
@@ -59,6 +60,7 @@ def main() -> int:
             print_result("FAILURE", -1.0, THRESHOLD_PERCENT)
             return 1
 
+        output_dir.mkdir(parents=True, exist_ok=True)
         shutil.move(str(generated_output), str(output_path))
 
         expected = cv2.imread(str(expected_path), cv2.IMREAD_UNCHANGED)

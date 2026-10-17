@@ -4,15 +4,15 @@ add_library(CubifyGraphics STATIC ${GRAPHICS_SOURCES})
 
 target_precompile_headers(CubifyGraphics PRIVATE "${CMAKE_SOURCE_DIR}/src/PrecompilerHeader.hpp")
 
-target_include_directories(CubifyGraphics
-    PUBLIC "${CMAKE_SOURCE_DIR}/src"
-    PRIVATE "${CMAKE_SOURCE_DIR}/external"
-)
+target_include_directories(CubifyGraphics PUBLIC "${CMAKE_SOURCE_DIR}/src")
+target_include_directories(CubifyGraphics SYSTEM PRIVATE "${Stb_INCLUDE_DIR}")
 
 # The renderer interface exposes glm matrices
-target_link_libraries(CubifyGraphics PUBLIC glm)
+target_link_libraries(CubifyGraphics PUBLIC glm::glm)
 
 if(WIN32)
+    find_package(directx-headers CONFIG REQUIRED)
+    target_link_libraries(CubifyGraphics PRIVATE Microsoft::DirectX-Headers)
     target_link_libraries(CubifyGraphics PRIVATE d3d12 dxgi dxguid d3dcompiler dxcompiler)
 
     # GLOBAL, so the executable in the parent directory can link through to it

@@ -18,7 +18,7 @@ jobs:
         run: winget install --accept-source-agreements --accept-package-agreements -e Microsoft.OpenCLGLVulkanCompatibilityPack
 
       - name: Configure CMake
-        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 
       - name: Build Debug
         run: cmake --build build --config Debug
@@ -29,14 +29,12 @@ jobs:
       - name: Run graphics auto-test (Debug)
         id: test_debug
         continue-on-error: true
-        working-directory: build/Debug
-        run: python tests/test.py Cubify.exe
+        run: python tests/test.py build/Debug/Cubify.exe
 
       - name: Run graphics auto-test (Release)
         id: test_release
         continue-on-error: true
-        working-directory: build/Release
-        run: python tests/test.py Cubify.exe
+        run: python tests/test.py build/Release/Cubify.exe
 
       - name: Prepare release package
         run: Compress-Archive -Path build/Release/* -DestinationPath Cubify-release.zip -Force
@@ -53,10 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: graphics-autotest-images
-          path: |
-            build/*/tests/test_output.png
-            build/*/tests/test_diff.png
-            build/*/tests/test_result.txt
+          path: tests/output/
           retention-days: 1
           if-no-files-found: warn
 
