@@ -87,24 +87,10 @@ set_target_properties(Cubify PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:Cubify>"
 )
 
-if(CUBIFY_GRAPHICS_RUNTIME_DLLS)
-    add_custom_command(TARGET Cubify POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CUBIFY_GRAPHICS_RUNTIME_DLLS}
-        "$<TARGET_FILE_DIR:Cubify>"
-    )
-endif()
-
 add_custom_command(TARGET Cubify POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_SOURCE_DIR}/config.json"
     "$<TARGET_FILE_DIR:Cubify>"
-)
-
-add_custom_command(TARGET Cubify POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/shaders"
-    "$<TARGET_FILE_DIR:Cubify>/shaders"
 )
 
 add_custom_command(TARGET Cubify POST_BUILD

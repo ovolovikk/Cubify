@@ -2,6 +2,7 @@
   "name": "cubify",
   "version-string": "1.0",
   "dependencies": [
+    "directx-dxc",
     "directx-headers",
     "glfw3",
     "glm",

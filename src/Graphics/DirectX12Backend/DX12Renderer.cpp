@@ -29,13 +29,13 @@ namespace Cubify::DX12
         CreateFence();
         m_solidPipeline = device.createPipeline({
             .debugName = "Solid",
-            .vertexShader = { "vertex_shader", "VSMain" },
-            .fragmentShader = { "pixel_shader", "PSMain" },
+            .vertexShader = { "vertex_shader" },
+            .fragmentShader = { "pixel_shader" },
         });
         m_transparentPipeline = device.createPipeline({
             .debugName = "Transparent",
-            .vertexShader = { "vertex_shader", "VSMain" },
-            .fragmentShader = { "pixel_shader", "PSMain" },
+            .vertexShader = { "vertex_shader" },
+            .fragmentShader = { "pixel_shader" },
             .blend = BlendMode::AlphaBlend,
             .cull = CullMode::None,
             .depthWrite = false,

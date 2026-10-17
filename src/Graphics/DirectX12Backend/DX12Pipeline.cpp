@@ -1,81 +1,25 @@
 #include "DX12Pipeline.hpp"
 
 #include <directx/d3dx12.h>
-#include <dxcapi.h>
 #include "Graphics/DirectX12Backend/DX12Common.hpp"
+
+#include "vertex_shader.h"
+#include "pixel_shader.h"
 
 namespace Cubify::DX12
 {
-    static ComPtr<IDxcBlob> CompileShader(const ShaderDesc& shader, const wchar_t* target)
+    static D3D12_SHADER_BYTECODE FindShader(const ShaderDesc& shader)
     {
-        static ComPtr<IDxcUtils> utils;
-        static ComPtr<IDxcCompiler3> compiler;
-        static ComPtr<IDxcIncludeHandler> includeHandler;
-
-        if(!utils)
+        if (shader.name == "vertex_shader")
         {
-            DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&utils));
-            DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler));
-            utils->CreateDefaultIncludeHandler(&includeHandler);
+            return CD3DX12_SHADER_BYTECODE(g_vertex_shader, sizeof(g_vertex_shader));
         }
-
-        const std::wstring path = L"shaders/dx12/" + Widen(shader.name) + L".hlsl";
-        const std::wstring entry = Widen(shader.entry);
-
-        ComPtr<IDxcBlobEncoding> sourceBlob;
-        HR_FALLBACK(utils->LoadFile(path.c_str(), nullptr, &sourceBlob), nullptr,
-            "[DX12Pipeline] Failed to load shader file: %ls", path.c_str());
-
-        std::vector<LPCWSTR> arguments = {
-            path.c_str(),
-            L"-E", entry.c_str(),
-            L"-T", target,
-            // Lets the stage files pull in common.hlsli by bare name
-            L"-I", L"shaders/dx12",
-        };
-
-#if defined (_DEBUG)
-        arguments.push_back(L"-Zi");
-        arguments.push_back(L"-Qembed_debug");
-        arguments.push_back(L"-Od");
-#else
-        arguments.push_back(L"-Qstrip_reflect");
-        arguments.push_back(L"-O3");
-#endif
-        DxcBuffer sourceBuffer{
-            .Ptr = sourceBlob->GetBufferPointer(),
-            .Size = sourceBlob->GetBufferSize(),
-            .Encoding = DXC_CP_ACP
-        };
-
-        ComPtr<IDxcResult> result;
-        HR_FALLBACK(compiler->Compile(
-            &sourceBuffer,
-            arguments.data(),
-            static_cast<UINT32>(arguments.size()),
-            includeHandler.Get(),
-            IID_PPV_ARGS(&result)
-        ), nullptr, "[DX12Pipeline] Internal DXC compiler error.");
-
-        ComPtr<IDxcBlobUtf8> errors;
-        result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
-
-        if (errors != nullptr && errors->GetStringLength() > 0)
+        if (shader.name == "pixel_shader")
         {
-            LOGE("Shader compile log (%ls):\n%s\n", entry.c_str(), errors->GetStringPointer());
+            return CD3DX12_SHADER_BYTECODE(g_pixel_shader, sizeof(g_pixel_shader));
         }
-
-        HRESULT status;
-        result->GetStatus(&status);
-        if (FAILED(status))
-        {
-            return nullptr;
-        }
-
-        ComPtr<IDxcBlob> compiled;
-        result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&compiled), nullptr);
-
-        return compiled;
+        LOGE("[DX12Pipeline] Unknown shader: %s", shader.name.c_str());
+        return {};
     }
 
     ComPtr<ID3D12RootSignature> DX12Pipeline::CreateRootSignature(ID3D12Device2* device)
@@ -126,11 +70,11 @@ namespace Cubify::DX12
 
     DX12Pipeline::DX12Pipeline(ID3D12Device2* device, ID3D12RootSignature* rootSignature, const PipelineDesc& desc)
     {
-        ComPtr<IDxcBlob> vs = CompileShader(desc.vertexShader, L"vs_6_0");
-        ComPtr<IDxcBlob> ps = CompileShader(desc.fragmentShader, L"ps_6_0");
-        if (!vs || !ps)
+        const D3D12_SHADER_BYTECODE vs = FindShader(desc.vertexShader);
+        const D3D12_SHADER_BYTECODE ps = FindShader(desc.fragmentShader);
+        if (!vs.pShaderBytecode || !ps.pShaderBytecode)
         {
-            LOGE("[DX12Pipeline] Skipping PSO creation for %s: shader compilation failed", desc.debugName.c_str());
+            LOGE("[DX12Pipeline] Skipping PSO creation for %s: shader not found", desc.debugName.c_str());
             return;
         }
 
@@ -162,8 +106,8 @@ namespace Cubify::DX12
 
         CD3DX12_PIPELINE_STATE_STREAM1 stream;
         stream.pRootSignature = rootSignature;
-        stream.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
-        stream.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
+        stream.VS = vs;
+        stream.PS = ps;
         stream.BlendState = blend;
         stream.RasterizerState = rasterizer;
         stream.DepthStencilState = depthStencil;
