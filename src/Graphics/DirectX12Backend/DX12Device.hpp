@@ -23,7 +23,7 @@ namespace Cubify::DX12
         DX12Device();
         ~DX12Device() override;
 
-        std::unique_ptr<IRendererBackend> createRenderer(void* windowHandle, int width, int height) override;
+        std::unique_ptr<IRendererBackend> createRenderer(const SwapChainDesc& desc) override;
 
         // Return nullptr if creation fails, e.g. a shader that doesn't compile
         std::unique_ptr<DX12Pipeline> createPipeline(const PipelineDesc& desc);

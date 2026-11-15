@@ -254,7 +254,12 @@ void Application::initSubsystems()
 // TODO: Remove isVoidMode or make it real option in DX12
 std::unique_ptr<IRendererBackend> Application::createRenderer(int width, int height, bool isVoidMode)
 {
-    return m_graphicsDevice->createRenderer(m_window->nativeWindowHandle(), width, height);
+    return m_graphicsDevice->createRenderer({
+        .windowHandle = m_window->nativeWindowHandle(),
+        .width = width,
+        .height = height,
+        .vsync = m_config.vsync,
+    });
 }
 
 void Application::shutdownSubsystems()

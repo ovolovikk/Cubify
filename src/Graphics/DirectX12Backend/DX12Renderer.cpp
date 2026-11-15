@@ -16,14 +16,10 @@ namespace Cubify::DX12
         return pipeline ? pipeline->pipelineState() : nullptr;
     }
 
-    DX12Renderer::DX12Renderer(DX12Device& device, void* windowHandle, int width, int height)
+    DX12Renderer::DX12Renderer(DX12Device& device, const SwapChainDesc& desc)
         : m_device(device)
     {
-        m_swapChain = device.createSwapChain({
-            .windowHandle = windowHandle,
-            .width = width,
-            .height = height,
-        });
+        m_swapChain = device.createSwapChain(desc);
         m_currentFrame = m_swapChain->currentBackBufferIndex();
         CreateCommandObjects();
         CreateFence();

@@ -6,7 +6,7 @@
 namespace Cubify::DX12
 {
     DX12SwapChain::DX12SwapChain(DX12Device& device, const SwapChainDesc& desc)
-        : m_device(device.device()), m_width(desc.width), m_height(desc.height)
+        : m_device(device.device()), m_width(desc.width), m_height(desc.height), m_vsync(desc.vsync)
     {
         CreateSwapChain(device.factory(), device.commandQueue(), desc.windowHandle);
         CreateRtvHeap();
@@ -43,11 +43,18 @@ namespace Cubify::DX12
 
     void DX12SwapChain::present()
     {
-        UINT presentFlags = (m_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)
-            ? DXGI_PRESENT_ALLOW_TEARING
-            : 0;
+        UINT syncInterval = 0;
+        UINT presentFlags = 0;
+        if (m_vsync)
+        {
+            syncInterval = 1;
+        }
+        else if (m_swapChainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING)
+        {
+            presentFlags = DXGI_PRESENT_ALLOW_TEARING;
+        }
 
-        HRESULT presentResult = m_swapChain->Present(0, presentFlags);
+        HRESULT presentResult = m_swapChain->Present(syncInterval, presentFlags);
         if (FAILED(presentResult))
         {
             LOGE("[DX12SwapChain] Failed to present swap chain");

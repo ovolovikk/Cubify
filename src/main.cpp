@@ -27,6 +27,7 @@ int main()
     {
         config.width = 800;
         config.height = 600;
+        config.vsync = true;
     }
 
     Application::Create(config);

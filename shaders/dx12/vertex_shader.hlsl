@@ -10,16 +10,9 @@ cbuffer Model : register(b1)
     float4x4 model;
 };
 
-// One quad per instance.
-struct Quad
-{
-    uint packedPosition;   // x(10) | y(10) | z(10)
-    uint packedData;       // layer(10) | normalIndex(3)
-    uint padding1;
-    uint padding2;
-};
-
-StructuredBuffer<Quad> quads : register(t0);
+// One quad per instance. Numbers are in bits for each value
+// x(5) | y(9) | z(5) | normalIndex(3) | layer(10)
+StructuredBuffer<uint> quads : register(t0);
 
 static const float2 FRONT_CORNERS[6] =
 {
@@ -35,13 +28,13 @@ static const float2 BACK_CORNERS[6] =
 
 VSOutput VSMain(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
 {
-    Quad quad = quads[instanceId];
+    uint quad = quads[instanceId];
 
-    float x = float(quad.packedPosition & 1023u);
-    float y = float((quad.packedPosition >> 10) & 1023u);
-    float z = float((quad.packedPosition >> 20) & 1023u);
-    uint layer = quad.packedData & 1023u;
-    uint normalIndex = (quad.packedData >> 10) & 7u;
+    float x = float(quad & 31u);
+    float y = float((quad >> 5) & 511u);
+    float z = float((quad >> 14) & 31u);
+    uint normalIndex = (quad >> 19) & 7u;
+    uint layer = quad >> 22;
 
     int perpendicularAxis = int(normalIndex) / 2;
     bool isPositiveFace = (normalIndex % 2) == 0;

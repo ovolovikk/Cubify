@@ -2,7 +2,6 @@
 
 #include "PrecompilerHeader.hpp"
 
-#include "World/ChunkMesher.hpp"
 #include "World/Generators/TerrainGeneratorFactory.hpp"
 #include "Utils/Config.hpp"
 
@@ -103,19 +102,18 @@ bool ChunkManager::addChunk(int x, int z)
     
     chunks[id] = std::move(chunk);
 
-    ChunkNeighbors neighbors;
-    neighbors.left = getChunk(x - 1, z);
-    neighbors.right = getChunk(x + 1, z);
-    neighbors.back = getChunk(x, z - 1);
-    neighbors.front = getChunk(x, z + 1);
+    Chunk* left = getChunk(x - 1, z);
+    Chunk* right = getChunk(x + 1, z);
+    Chunk* back = getChunk(x, z - 1);
+    Chunk* front = getChunk(x, z + 1);
 
-    ChunkMesher::generateMesh(*chunkPtr, neighbors);
-    
-    if (neighbors.left) neighbors.left->setDirty(true);
-    if (neighbors.right) neighbors.right->setDirty(true);
-    if (neighbors.back) neighbors.back->setDirty(true);
-    if (neighbors.front) neighbors.front->setDirty(true);
-    
+    chunkPtr->setDirty(true);
+
+    if (left) left->setDirty(true);
+    if (right) right->setDirty(true);
+    if (back) back->setDirty(true);
+    if (front) front->setDirty(true);
+
     return true;
 }
 
