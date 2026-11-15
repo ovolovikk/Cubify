@@ -47,5 +47,6 @@ namespace Cubify::DX12
         UINT m_currentBuffer = 0;
         int m_width = 0;
         int m_height = 0;
+        bool m_vsync = false;
     };
 }

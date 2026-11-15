@@ -21,7 +21,7 @@ namespace Cubify::DX12
     class DX12Renderer : public IRendererBackend
     {
     public:
-        DX12Renderer(DX12Device& device, void* windowHandle, int width, int height);
+        DX12Renderer(DX12Device& device, const SwapChainDesc& desc);
         ~DX12Renderer() override;
 
         DX12Renderer(const DX12Renderer&) = delete;

@@ -31,9 +31,9 @@ namespace Cubify::DX12
         LogLiveObjects();
     }
 
-    std::unique_ptr<IRendererBackend> DX12Device::createRenderer(void* windowHandle, int width, int height)
+    std::unique_ptr<IRendererBackend> DX12Device::createRenderer(const SwapChainDesc& desc)
     {
-        return std::make_unique<DX12Renderer>(*this, windowHandle, width, height);
+        return std::make_unique<DX12Renderer>(*this, desc);
     }
 
     std::unique_ptr<DX12Pipeline> DX12Device::createPipeline(const PipelineDesc& desc)

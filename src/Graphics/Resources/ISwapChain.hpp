@@ -5,6 +5,7 @@ struct SwapChainDesc
     void* windowHandle = nullptr;
     int width = 0;
     int height = 0;
+    bool vsync = false;
 };
 
 // The window's back buffers, what a finished frame is presented to
