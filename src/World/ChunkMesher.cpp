@@ -123,15 +123,14 @@ void ChunkMesher::addQuad(Chunk& chunk, uint32_t x, uint32_t y, uint32_t z,
     bool back_face,
     bool transparent)
 {
-    uint32_t packed_pos = (x & 0x3FF) | ((y & 0x3FF) << 10) | ((z & 0x3FF) << 20);
-
     uint32_t normal_index = perpendicular_axis * 2 + (back_face ? 0 : 1);
 
-    uint32_t packed_data = (layer & 0x3FF) | ((normal_index & 0x7) << 10);
+    uint32_t packed = (x & 0x1F) | ((y & 0x1FF) << 5) | ((z & 0x1F) << 14)
+        | ((normal_index & 0x7) << 19) | ((layer & 0x3FF) << 22);
 
     if (transparent) {
-        chunk.addTransparentQuad({ packed_pos, packed_data });
+        chunk.addTransparentQuad({ packed });
     } else {
-        chunk.addQuad({ packed_pos, packed_data });
+        chunk.addQuad({ packed });
     }
 }

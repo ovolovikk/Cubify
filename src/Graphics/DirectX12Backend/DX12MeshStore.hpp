@@ -49,8 +49,8 @@ namespace Cubify::DX12
         };
 
         ComPtr<ID3D12Device2> m_device; // shared with DX12Device
-        std::unordered_map<MeshId, GpuMesh> m_meshes;
+        std::vector<GpuMesh> m_meshes;
+        std::vector<MeshId> m_freeMeshIds;
         std::shared_ptr<DX12DeletionQueue> m_deletionQueue;
-        uint32_t m_nextMeshId = 1;
     };
 }

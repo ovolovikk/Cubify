@@ -8,6 +8,7 @@ namespace Cubify::DX12
     DX12MeshStore::DX12MeshStore(ID3D12Device2* device)
         : m_device(device), m_deletionQueue(std::make_shared<DX12DeletionQueue>())
     {
+        m_meshes.emplace_back();
     }
 
     void DX12MeshStore::upload(MeshHandle& mesh, const std::vector<Quad>& quads,
@@ -16,20 +17,20 @@ namespace Cubify::DX12
         if (quads.empty())
         {
             // Chunk became empty. Keep the id, just stop drawing it.
-            if (mesh.isValid())
-            {
-                auto it = m_meshes.find(mesh.id());
-                if (it != m_meshes.end())
-                {
-                    it->second.quadCount = 0;
-                }
-            }
+            m_meshes[static_cast<size_t>(mesh.id())].quadCount = 0;
             return;
         }
 
         if (!mesh.isValid())
         {
-            mesh = MeshHandle(MeshId{ m_nextMeshId++ }, m_deletionQueue);
+            if (m_freeMeshIds.empty())
+            {
+                const MeshId newId{ static_cast<uint32_t>(m_meshes.size()) };
+                m_freeMeshIds.push_back(newId);
+                m_meshes.emplace_back();
+            }
+            mesh = MeshHandle(m_freeMeshIds.back(), m_deletionQueue);
+            m_freeMeshIds.pop_back();
         }
 
         ComPtr<ID3D12Resource> uploadBuffer;
@@ -44,7 +45,7 @@ namespace Cubify::DX12
             return;
         }
 
-        GpuMesh& gpuMesh = m_meshes[mesh.id()];
+        GpuMesh& gpuMesh = m_meshes[static_cast<size_t>(mesh.id())];
 
         // Remeshing a chunk replaces its buffer, but frames in flight may still
         // be reading the old one
@@ -65,28 +66,25 @@ namespace Cubify::DX12
     {
         for (MeshId id : m_deletionQueue->takeMeshes())
         {
-            auto it = m_meshes.find(id);
-            if (it == m_meshes.end())
+            GpuMesh& gpuMesh = m_meshes[static_cast<size_t>(id)];
+            if (gpuMesh.buffer)
             {
-                continue;
+                deferredReleases.push_back(std::move(gpuMesh.buffer));
             }
-            if (it->second.buffer)
-            {
-                deferredReleases.push_back(std::move(it->second.buffer));
-            }
-            m_meshes.erase(it);
+            gpuMesh.quadCount = 0;
+            m_freeMeshIds.push_back(id);
         }
     }
 
     DX12MeshStore::DrawInfo DX12MeshStore::drawInfo(MeshId mesh) const
     {
-        auto it = m_meshes.find(mesh);
-        if (it == m_meshes.end() || it->second.quadCount == 0 || !it->second.buffer)
+        const GpuMesh& gpuMesh = m_meshes[static_cast<size_t>(mesh)];
+        if (gpuMesh.quadCount == 0 || !gpuMesh.buffer)
         {
             return {};
         }
 
-        return DrawInfo{ it->second.buffer->GetGPUVirtualAddress(), it->second.quadCount };
+        return DrawInfo{ gpuMesh.buffer->GetGPUVirtualAddress(), gpuMesh.quadCount };
     }
 
     ComPtr<ID3D12Resource> DX12MeshStore::CreateGpuBuffer(const void* data, UINT64 size,
